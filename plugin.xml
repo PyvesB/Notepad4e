@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="Notepad4e"
+            class="io.github.pyvesb.notepad4e.preferences.PreferencePage"
+            id="notepad4e.preferences.PreferencePage">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="io.github.pyvesb.notepad4e.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="General"
+            id="Notepad4e">
+      </category>
+      <view
+            name="Notepad4e"
+            icon="platform:/plugin/org.eclipse.egit.ui/icons/obj16/note.png"
+            category="Notepad4e"
+            class="io.github.pyvesb.notepad4e.views.NotepadView"
+            id="notepad4e.views.NotepadView">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               ratio="0.5"
+               relative="org.eclipse.ui.views.ProblemView"
+               relationship="right"
+               id="notepad4e.views.NotepadView">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   
+</plugin>

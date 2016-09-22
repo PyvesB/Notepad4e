@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %Bundle-Name
+Bundle-SymbolicName: Notepad4e;singleton:=true
+Bundle-Version: 1.0
+Bundle-Activator: io.github.pyvesb.notepad4e.Notepad4e
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: io.github.pyvesb.notepad4e,
+ io.github.pyvesb.notepad4e.preferences,
+ io.github.pyvesb.notepad4e.views
