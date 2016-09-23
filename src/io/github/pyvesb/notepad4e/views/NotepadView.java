@@ -5,9 +5,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.ILog;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
@@ -239,11 +236,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		addNewNoteAction = new Action() {
 			@Override
 			public void run() {
-				String namePrefix = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
-						PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
-				// Add a new tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
-				addNewTab(namePrefix + " " + (noteTabsFolder.getItemCount() + 1), "", "");
-				noteTabsFolder.setSelection(noteTabsFolder.getItemCount() - 1);
+				doNewNote();
 			}
 		};
 		setTextAndImageToAction(addNewNoteAction, "New Note", ViewImages.NEW_NOTE);
@@ -251,9 +244,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		clearNoteAction = new Action() {
 			@Override
 			public void run() {
-				if (noteTabsFolder.getItemCount() == 0)
-					return;
-				noteTabs.get(noteTabsFolder.getSelectionIndex()).clearText();
+				doClearNote();
 			}
 		};
 		setTextAndImageToAction(clearNoteAction, "Clear Note", ViewImages.CLEAR_NOTE);
@@ -261,9 +252,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		boldTextAction = new Action() {
 			@Override
 			public void run() {
-				if (noteTabsFolder.getItemCount() == 0)
-					return;
-				noteTabs.get(noteTabsFolder.getSelectionIndex()).boldSelection();
+				doBoldText();
 			}
 		};
 		setTextAndImageToAction(boldTextAction, "Bold", ViewImages.BOLD_TEXT);
@@ -271,9 +260,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		italicTextAction = new Action() {
 			@Override
 			public void run() {
-				if (noteTabsFolder.getItemCount() == 0)
-					return;
-				noteTabs.get(noteTabsFolder.getSelectionIndex()).italicSelection();
+				doItalicText();
 			}
 		};
 		setTextAndImageToAction(italicTextAction, "Italic", ViewImages.ITALIC_TEXT);
@@ -281,9 +268,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		underlineTextAction = new Action() {
 			@Override
 			public void run() {
-				if (noteTabsFolder.getItemCount() == 0)
-					return;
-				noteTabs.get(noteTabsFolder.getSelectionIndex()).underlineSelection();
+				doUnderlineText();
 			}
 		};
 		setTextAndImageToAction(underlineTextAction, "Underline", ViewImages.UNDERLINE_TEXT);
@@ -291,9 +276,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		clearTextAction = new Action() {
 			@Override
 			public void run() {
-				if (noteTabsFolder.getItemCount() == 0)
-					return;
-				noteTabs.get(noteTabsFolder.getSelectionIndex()).clearSelectionStyles();
+				doClearText();
 			}
 		};
 		setTextAndImageToAction(clearTextAction, "Clear Style", ViewImages.CLEAR_TEXT);
@@ -301,9 +284,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		saveNoteAction = new Action() {
 			@Override
 			public void run() {
-				if (noteTabsFolder.getItemCount() == 0)
-					return;
-				noteTabs.get(noteTabsFolder.getSelectionIndex()).saveToFile(getSite());
+				doSaveNote();
 			}
 		};
 		setTextAndImageToAction(saveNoteAction, "Export File", ViewImages.SAVE_NOTE);
@@ -311,17 +292,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		renameNoteAction = new Action() {
 			@Override
 			public void run() {
-				if (noteTabsFolder.getItemCount() == 0)
-					return;
-
-				// Open a dialog window so user can enter the new name of his note.
-				InputDialog inputDialog = new InputDialog(getSite().getShell(), "Rename Note",
-						"Please select the new name of the note:", null, null);
-				int returnValue = inputDialog.open();
-				if (returnValue == SWT.CANCEL)
-					return;
-
-				noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).setText(inputDialog.getValue());
+				doRenameNote();
 			}
 		};
 		setTextAndImageToAction(renameNoteAction, "Rename Note", ViewImages.RENAME_NOTE);
@@ -329,10 +300,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		moveNoteLeftAction = new Action() {
 			@Override
 			public void run() {
-				// Do not move left if there are no notes (== -1), or if first note.
-				if (noteTabsFolder.getSelectionIndex() < 1)
-					return;
-				swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() - 1);
+				doMoveNoteLeft();
 			}
 		};
 		setTextAndImageToAction(moveNoteLeftAction, "Move Left", ViewImages.MOVE_NOTE_LEFT);
@@ -340,11 +308,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		moveNoteRightAction = new Action() {
 			@Override
 			public void run() {
-				// Do note move right if only one or no notes, or if last note.
-				if (noteTabsFolder.getItemCount() < 2
-						|| noteTabsFolder.getSelectionIndex() == noteTabsFolder.getItemCount() - 1)
-					return;
-				swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() + 1);
+				doMoveNoteRight();
 			}
 		};
 		setTextAndImageToAction(moveNoteRightAction, "Move Right", ViewImages.MOVE_NOTE_RIGHT);
@@ -352,11 +316,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		preferencesAction = new Action() {
 			@Override
 			public void run() {
-				// Create preference dialog page that will appear in current workbench window.
-				PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
-						"notepad4e.preferences.PreferencePage", new String[] { "notepad4e.preferences.PreferencePage" },
-						null);
-				dialog.open();
+				doPreferences();
 			}
 		};
 		setTextAndImageToAction(preferencesAction, "Preferences", ViewImages.PREFERENCES);
@@ -364,8 +324,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		websiteAction = new Action() {
 			@Override
 			public void run() {
-				// Open website in the user's external browser.
-				Program.launch("https://github.com/PyvesB/Notepad4e");
+				doWebsite();
 			}
 		};
 		setTextAndImageToAction(websiteAction, "Website", ViewImages.WEBSITE);
@@ -463,5 +422,126 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		for (int note = 0; note < noteTabs.size(); ++note) {
 			noteTabs.get(note).dispose();
 		}
+	}
+
+	/**
+	 * Performs the new note action.
+	 */
+	public void doNewNote() {
+		String namePrefix = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
+				PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
+		// Add a new tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
+		addNewTab(namePrefix + " " + (noteTabsFolder.getItemCount() + 1), "", "");
+		noteTabsFolder.setSelection(noteTabsFolder.getItemCount() - 1);
+	}
+
+	/**
+	 * Performs the clear note action.
+	 */
+	public void doClearNote() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		noteTabs.get(noteTabsFolder.getSelectionIndex()).clearText();
+	}
+
+	/**
+	 * Performs the bold text action.
+	 */
+	public void doBoldText() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		noteTabs.get(noteTabsFolder.getSelectionIndex()).boldSelection();
+	}
+
+	/**
+	 * Performs the italic text action.
+	 */
+	public void doItalicText() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		noteTabs.get(noteTabsFolder.getSelectionIndex()).italicSelection();
+	}
+
+	/**
+	 * Performs the underline text action.
+	 */
+	public void doUnderlineText() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		noteTabs.get(noteTabsFolder.getSelectionIndex()).underlineSelection();
+	}
+
+	/**
+	 * Performs the clear text action.
+	 */
+	public void doClearText() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		noteTabs.get(noteTabsFolder.getSelectionIndex()).clearSelectionStyles();
+	}
+
+	/**
+	 * Performs the save note action.
+	 */
+	public void doSaveNote() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		noteTabs.get(noteTabsFolder.getSelectionIndex()).saveToFile(getSite());
+	}
+
+	/**
+	 * Performs the rename note action.
+	 */
+	public void doRenameNote() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+
+		// Open a dialog window so user can enter the new name of his note.
+		InputDialog inputDialog = new InputDialog(getSite().getShell(), "Rename Note",
+				"Please select the new name of the note:", null, null);
+		int returnValue = inputDialog.open();
+		if (returnValue == SWT.CANCEL)
+			return;
+
+		noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).setText(inputDialog.getValue());
+	}
+
+	/**
+	 * Performs the move note left action.
+	 */
+	public void doMoveNoteLeft() {
+		// Do not move left if there are no notes (== -1), or if first note.
+		if (noteTabsFolder.getSelectionIndex() < 1)
+			return;
+		swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() - 1);
+	}
+
+	/**
+	 * Performs the move note right action.
+	 */
+	public void doMoveNoteRight() {
+		// Do note move right if only one or no notes, or if last note.
+		if (noteTabsFolder.getItemCount() < 2
+				|| noteTabsFolder.getSelectionIndex() == noteTabsFolder.getItemCount() - 1)
+			return;
+		swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() + 1);
+	}
+
+	/**
+	 * Performs the preferences action.
+	 */
+	public void doPreferences() {
+		// Create preference dialog page that will appear in current workbench window.
+		PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null, "notepad4e.preferences.PreferencePage",
+				new String[] { "notepad4e.preferences.PreferencePage" }, null);
+		dialog.open();
+	}
+
+	/**
+	 * Performs the website action.
+	 */
+	public void doWebsite() {
+		// Open website in the user's external browser.
+		Program.launch("https://github.com/PyvesB/Notepad4e");
 	}
 }
