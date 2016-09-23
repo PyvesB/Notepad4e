@@ -5,6 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -33,7 +36,10 @@ public class NoteTab extends StyledText {
 
 	// Used to parse strings.
 	private static final String STRING_SEPARATOR = ",";
-
+	
+	// Error message
+	private static final String SAVE_ERROR = "Error while attempting to save the file.";
+	
 	// User defined preferences.
 	private IEclipsePreferences preferences;
 
@@ -290,8 +296,9 @@ public class NoteTab extends StyledText {
 			printStream.flush();
 		} catch (IOException e) {
 			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Error",
-					"Error while attempting to save the file.");
-			e.printStackTrace();
+					SAVE_ERROR);
+			ILog log = Notepad4e.getDefault().getLog();
+			log.log(new Status(IStatus.ERROR, SAVE_ERROR, e.toString()));
 		} finally {
 			if (printStream != null)
 				printStream.close();
@@ -303,8 +310,9 @@ public class NoteTab extends StyledText {
 				}
 			} catch (IOException e) {
 				MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Error",
-						"Error while attempting to save the file.");
-				e.printStackTrace();
+						SAVE_ERROR);
+				ILog log = Notepad4e.getDefault().getLog();
+				log.log(new Status(IStatus.ERROR, SAVE_ERROR, e.toString()));
 			}
 		}
 	}
