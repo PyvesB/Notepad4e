@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: %Bundle-Name
+Bundle-Name: Notepad4e
 Bundle-SymbolicName: Notepad4e;singleton:=true
 Bundle-Version: 1.0
 Bundle-Activator: io.github.pyvesb.notepad4e.Notepad4e
