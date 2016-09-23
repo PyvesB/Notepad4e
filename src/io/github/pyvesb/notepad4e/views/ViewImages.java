@@ -20,5 +20,6 @@ public class ViewImages {
 	public static final String MOVE_NOTE_LEFT = "platform:/plugin/org.eclipse.mylyn.tasks.ui/icons/etool16/navigate-previous.gif";
 	public static final String MOVE_NOTE_RIGHT = "platform:/plugin/org.eclipse.mylyn.tasks.ui/icons/etool16/navigate-next.gif";
 	public static final String PREFERENCES = "platform:/plugin/org.eclipse.jdt.ui/icons/full/obj16/settings_obj.png";
+	public static final String WEBSITE = "platform:/plugin/org.eclipse.mylyn.builds.ui/icons/eview16/web.png";
 
 }

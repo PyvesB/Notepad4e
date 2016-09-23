@@ -5,6 +5,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
@@ -21,6 +24,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Listener;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
@@ -65,6 +69,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action moveNoteLeftAction;
 	private Action moveNoteRightAction;
 	private Action preferencesAction;
+	private Action websiteAction;
 
 	// Objects related to the different tabs.
 	private CTabFolder noteTabsFolder;
@@ -208,6 +213,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		manager.add(moveNoteLeftAction);
 		manager.add(moveNoteRightAction);
 		manager.add(preferencesAction);
+		manager.add(websiteAction);
 	}
 
 	/**
@@ -354,6 +360,15 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			}
 		};
 		setTextAndImageToAction(preferencesAction, "Preferences", ViewImages.PREFERENCES);
+
+		websiteAction = new Action() {
+			@Override
+			public void run() {
+				// Open website in the user's external browser.
+				Program.launch("https://github.com/PyvesB/Notepad4e");
+			}
+		};
+		setTextAndImageToAction(websiteAction, "Website", ViewImages.WEBSITE);
 	}
 
 	/**
