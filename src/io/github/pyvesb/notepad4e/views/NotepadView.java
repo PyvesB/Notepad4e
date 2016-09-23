@@ -101,8 +101,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 		makeActions();
 		contributeToActionBars();
-
-		setFocus();
 	}
 
 	/**
@@ -129,6 +127,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				addNewTab(tabTitle, tabText, tabStyle);
 			}
 		}
+		// Set selection on the last tab.
+		noteTabsFolder.setSelection(numOfTabs - 1);
 	}
 
 	/**
@@ -175,7 +175,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			tab.deserialiseStyle(style);
 		noteTabItem.setControl(tab);
 		noteTabs.add(tab);
-		setFocus();
 	}
 
 	/**
@@ -206,9 +205,11 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * @param manager
 	 */
 	private void fillLocalPullDown(IMenuManager manager) {
+		manager.add(saveNoteAction);
 		manager.add(renameNoteAction);
 		manager.add(moveNoteLeftAction);
 		manager.add(moveNoteRightAction);
+		manager.add(new Separator());
 		manager.add(preferencesAction);
 		manager.add(websiteAction);
 	}
@@ -226,7 +227,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		manager.add(new Separator());
 		manager.add(addNewNoteAction);
 		manager.add(clearNoteAction);
-		manager.add(saveNoteAction);
 	}
 
 	/**
@@ -382,7 +382,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	@Override
 	public void setFocus() {
-		noteTabsFolder.setSelection(0);
+		// Set focus on the last item in the tabs folder component.
+		noteTabsFolder.getItem(noteTabsFolder.getItemCount() - 1).getControl().setFocus();
 	}
 
 	/**
