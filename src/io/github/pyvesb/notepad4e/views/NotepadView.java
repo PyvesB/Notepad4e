@@ -115,11 +115,13 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			numOfTabs = memento.getInteger(MEMENTO_COUNT_KEY);
 		}
 
-		if (numOfTabs == null) {
+		if (numOfTabs == null || numOfTabs == 0) {
 			String prefixName = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
 					PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
 			// No tabs were previously opened: create new tab.
 			addNewTab(prefixName + " 1", "", "");
+			// Set selection on this tab.
+			noteTabsFolder.setSelection(0);
 		} else {
 			// Populate with tabs opened in previous session.
 			for (int tab = 0; tab < numOfTabs; ++tab) {
@@ -127,10 +129,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				String tabText = memento.getString(MEMENTO_TEXT_PREFIX_KEY + tab);
 				String tabStyle = memento.getString(MEMENTO_STYLE_PREFIX_KEY + tab);
 				addNewTab(tabTitle, tabText, tabStyle);
+				// Set selection on the last tab.
+				noteTabsFolder.setSelection(numOfTabs - 1);
 			}
 		}
-		// Set selection on the last tab.
-		noteTabsFolder.setSelection(numOfTabs - 1);
 	}
 
 	/**
@@ -359,10 +361,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	@Override
 	public void setFocus() {
-		if (noteTabsFolder.getItemCount() == 0)
-			return;
-		// Set focus on the last item in the tabs folder component.
-		noteTabsFolder.getItem(noteTabsFolder.getItemCount() - 1).getControl().setFocus();
+		if (noteTabsFolder.getItemCount() == 0) {
+			// Give focus to the plugin; hack-ish trick to "steal" focus from other elements in some scenarios (example:
+			// no tabs and try to open view again via quick access).
+			noteTabsFolder.getAccessible().getControl().setFocus();
+		} else {
+			// Set focus on the last item in the tabs folder component.
+			noteTabsFolder.getItem(noteTabsFolder.getItemCount() - 1).getControl().setFocus();
+		}
 	}
 
 	/**
