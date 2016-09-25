@@ -16,9 +16,9 @@ import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabFolder2Listener;
-import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -99,8 +99,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 		restoreViewFromPreviousSession();
 
-		listenToTabClosing();
-
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(noteTabsFolder, "Notepad4e.viewer");
 
 		makeActions();
@@ -136,34 +134,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Performs clean up tasks when closing a tab. The non relevant methods are note implemented.
-	 */
-	private void listenToTabClosing() {
-		noteTabsFolder.addCTabFolder2Listener(new CTabFolder2Listener() {
-
-			@Override
-			public void close(CTabFolderEvent event) {
-				// The control of the removed CTabItem is a NoteTab object; cast accordingly.
-				NoteTab noteTabToRemove = (NoteTab) ((CTabItem) event.item).getControl();
-				// Clean up.
-				noteTabToRemove.dispose();
-			}
-
-			@Override
-			public void minimize(CTabFolderEvent event) {}
-
-			@Override
-			public void maximize(CTabFolderEvent event) {}
-
-			@Override
-			public void restore(CTabFolderEvent event) {}
-
-			@Override
-			public void showList(CTabFolderEvent event) {}
-		});
-	}
-
-	/**
 	 * Adds a new tab to the view.
 	 * 
 	 * @param title
@@ -173,6 +143,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private void addNewTab(String title, String text, String style) {
 		CTabItem noteTabItem = new CTabItem(noteTabsFolder, SWT.NONE);
 		noteTabItem.setText(title);
+		// Add listener to clean up corresponding NoteTab when disposing the CTabItem.
+		noteTabItem.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				CTabItem itemToDispose = (CTabItem) e.getSource();
+				((NoteTab) itemToDispose.getControl()).dispose();
+			}
+		});
 		NoteTab tab = new NoteTab(noteTabsFolder, text, noteTabKeyListener);
 		if (style.length() > 0)
 			tab.deserialiseStyle(style);
@@ -416,17 +394,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Cleans up the view.
-	 */
-	@Override
-	public void dispose() {
-		super.dispose();
-		for (int tab = 0; tab < noteTabsFolder.getItemCount(); ++tab) {
-			getNoteTab(tab).dispose();
-		}
-	}
-
-	/**
 	 * Returns a NoteTab object given an index in the tab folder.
 	 * 
 	 * @param index
@@ -577,8 +544,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		if (selectionIndex < 0)
 			return;
 		// Clean-up.
-		NoteTab noteTabToDispose = getNoteTab(selectionIndex);
 		noteTabsFolder.getItem(selectionIndex).dispose();
-		noteTabToDispose.dispose();
 	}
 }
