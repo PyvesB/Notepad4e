@@ -23,6 +23,7 @@ import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
@@ -60,7 +61,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action boldTextAction;
 	private Action italicTextAction;
 	private Action underlineTextAction;
-	private Action clearTextAction;
+	private Action clearTextStyleAction;
 	private Action saveNoteAction;
 	private Action renameNoteAction;
 	private Action moveNoteLeftAction;
@@ -75,11 +76,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	// User defined preferences.
 	private IEclipsePreferences preferences;
 
+	NoteTabKeyListener noteTabKeyListener;
+
 	/**
 	 * Constructor.
 	 */
 	public NotepadView() {
 		noteTabs = new ArrayList<NoteTab>();
+		noteTabKeyListener = new NoteTabKeyListener(this);
 	}
 
 	/**
@@ -90,6 +94,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		preferences = InstanceScope.INSTANCE.getNode(Notepad4e.PLUGIN_ID);
 		// Listen to any change to the preferences of the plugin.
 		preferences.addPreferenceChangeListener(this);
+
+		// Listen to keyboard events.
+		Display.getCurrent().addFilter(SWT.KeyDown, noteTabKeyListener);
 
 		noteTabsFolder = new CTabFolder(parent, SWT.MULTI | SWT.WRAP);
 
@@ -170,7 +177,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private void addNewTab(String title, String text, String style) {
 		CTabItem noteTabItem = new CTabItem(noteTabsFolder, SWT.NONE);
 		noteTabItem.setText(title);
-		NoteTab tab = new NoteTab(noteTabsFolder, text);
+		NoteTab tab = new NoteTab(noteTabsFolder, text, noteTabKeyListener);
 		if (style.length() > 0)
 			tab.deserialiseStyle(style);
 		noteTabItem.setControl(tab);
@@ -223,7 +230,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		manager.add(boldTextAction);
 		manager.add(italicTextAction);
 		manager.add(underlineTextAction);
-		manager.add(clearTextAction);
+		manager.add(clearTextStyleAction);
 		manager.add(new Separator());
 		manager.add(addNewNoteAction);
 		manager.add(clearNoteAction);
@@ -239,7 +246,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doNewNote();
 			}
 		};
-		setTextAndImageToAction(addNewNoteAction, "New Note", ViewImages.NEW_NOTE);
+		setTextAndImageToAction(addNewNoteAction, "New Note (Ctrl+T)", ViewImages.NEW_NOTE);
 
 		clearNoteAction = new Action() {
 			@Override
@@ -247,7 +254,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doClearNote();
 			}
 		};
-		setTextAndImageToAction(clearNoteAction, "Clear Note", ViewImages.CLEAR_NOTE);
+		setTextAndImageToAction(clearNoteAction, "Clear Note (Ctrl+K)", ViewImages.CLEAR_NOTE);
 
 		boldTextAction = new Action() {
 			@Override
@@ -255,7 +262,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doBoldText();
 			}
 		};
-		setTextAndImageToAction(boldTextAction, "Bold", ViewImages.BOLD_TEXT);
+		setTextAndImageToAction(boldTextAction, "Bold (Ctrl+B)", ViewImages.BOLD_TEXT);
 
 		italicTextAction = new Action() {
 			@Override
@@ -263,7 +270,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doItalicText();
 			}
 		};
-		setTextAndImageToAction(italicTextAction, "Italic", ViewImages.ITALIC_TEXT);
+		setTextAndImageToAction(italicTextAction, "Italic (Ctrl+I)", ViewImages.ITALIC_TEXT);
 
 		underlineTextAction = new Action() {
 			@Override
@@ -271,15 +278,15 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doUnderlineText();
 			}
 		};
-		setTextAndImageToAction(underlineTextAction, "Underline", ViewImages.UNDERLINE_TEXT);
+		setTextAndImageToAction(underlineTextAction, "Underline (Ctrl+U)", ViewImages.UNDERLINE_TEXT);
 
-		clearTextAction = new Action() {
+		clearTextStyleAction = new Action() {
 			@Override
 			public void run() {
-				doClearText();
+				doClearTextStyle();
 			}
 		};
-		setTextAndImageToAction(clearTextAction, "Clear Style", ViewImages.CLEAR_TEXT);
+		setTextAndImageToAction(clearTextStyleAction, "Clear Style (Ctrl+D)", ViewImages.CLEAR_TEXT);
 
 		saveNoteAction = new Action() {
 			@Override
@@ -382,6 +389,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	@Override
 	public void setFocus() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
 		// Set focus on the last item in the tabs folder component.
 		noteTabsFolder.getItem(noteTabsFolder.getItemCount() - 1).getControl().setFocus();
 	}
@@ -475,7 +484,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	/**
 	 * Performs the clear text action.
 	 */
-	public void doClearText() {
+	public void doClearTextStyle() {
 		if (noteTabsFolder.getItemCount() == 0)
 			return;
 		noteTabs.get(noteTabsFolder.getSelectionIndex()).clearSelectionStyles();
@@ -544,5 +553,30 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doWebsite() {
 		// Open website in the user's external browser.
 		Program.launch("https://github.com/PyvesB/Notepad4e");
+	}
+
+	/**
+	 * Checks whether the selected NoteTab in the view has focus.
+	 * 
+	 * @return true if the selected NoteTab in the view has focus
+	 */
+	public boolean isFocused() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return false;
+		return (noteTabs.get(noteTabsFolder.getSelectionIndex()).isFocusControl() || noteTabsFolder.isFocusControl());
+	}
+
+	/**
+	 * Closes the current NoteTab.
+	 */
+	public void closeCurrentNoteTab() {
+		int selectionIndex = noteTabsFolder.getSelectionIndex();
+		// Return if not note tabs are open.
+		if (selectionIndex < 0)
+			return;
+		// Clean-up.
+		noteTabsFolder.getItem(selectionIndex).dispose();
+		noteTabs.get(selectionIndex).dispose();
+		noteTabs.remove(selectionIndex);
 	}
 }

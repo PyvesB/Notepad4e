@@ -36,10 +36,10 @@ public class NoteTab extends StyledText {
 
 	// Used to parse strings.
 	private static final String STRING_SEPARATOR = ",";
-	
+
 	// Error message
 	private static final String SAVE_ERROR = "Error while attempting to save the file.";
-	
+
 	// User defined preferences.
 	private IEclipsePreferences preferences;
 
@@ -53,8 +53,9 @@ public class NoteTab extends StyledText {
 	 * 
 	 * @param parent
 	 * @param text
+	 * @param noteTabKeyListener
 	 */
-	public NoteTab(Composite parent, String text) {
+	public NoteTab(Composite parent, String text, NoteTabKeyListener noteTabKeyListener) {
 		// Enable multiple lines and scroll bars.
 		super(parent, SWT.V_SCROLL | SWT.H_SCROLL);
 
@@ -66,6 +67,9 @@ public class NoteTab extends StyledText {
 		setPreferences();
 
 		setText(text);
+
+		// Listen to keyboard events.
+		addVerifyKeyListener(noteTabKeyListener);
 	}
 
 	/**
@@ -295,8 +299,7 @@ public class NoteTab extends StyledText {
 			printStream.print(getText());
 			printStream.flush();
 		} catch (IOException e) {
-			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Error",
-					SAVE_ERROR);
+			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Error", SAVE_ERROR);
 			ILog log = Notepad4e.getDefault().getLog();
 			log.log(new Status(IStatus.ERROR, SAVE_ERROR, e.toString()));
 		} finally {
@@ -309,8 +312,7 @@ public class NoteTab extends StyledText {
 							"The file has been succesfully saved.");
 				}
 			} catch (IOException e) {
-				MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Error",
-						SAVE_ERROR);
+				MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Error", SAVE_ERROR);
 				ILog log = Notepad4e.getDefault().getLog();
 				log.log(new Status(IStatus.ERROR, SAVE_ERROR, e.toString()));
 			}
