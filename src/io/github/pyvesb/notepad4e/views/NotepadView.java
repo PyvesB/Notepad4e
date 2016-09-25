@@ -2,8 +2,6 @@ package io.github.pyvesb.notepad4e.views;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
@@ -69,20 +67,19 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action preferencesAction;
 	private Action websiteAction;
 
-	// Objects related to the different tabs.
+	// Object handling the different tabs.
 	private CTabFolder noteTabsFolder;
-	private List<NoteTab> noteTabs;
 
 	// User defined preferences.
 	private IEclipsePreferences preferences;
 
+	// Keyboard events listener.
 	NoteTabKeyListener noteTabKeyListener;
 
 	/**
 	 * Constructor.
 	 */
 	public NotepadView() {
-		noteTabs = new ArrayList<NoteTab>();
 		noteTabKeyListener = new NoteTabKeyListener(this);
 	}
 
@@ -150,7 +147,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				NoteTab noteTabToRemove = (NoteTab) ((CTabItem) event.item).getControl();
 				// Clean up.
 				noteTabToRemove.dispose();
-				noteTabs.remove(noteTabToRemove);
 			}
 
 			@Override
@@ -181,7 +177,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		if (style.length() > 0)
 			tab.deserialiseStyle(style);
 		noteTabItem.setControl(tab);
-		noteTabs.add(tab);
 	}
 
 	/**
@@ -366,14 +361,11 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * @param swappedIndex
 	 */
 	private void swapTabs(int selectedIndex, int swappedIndex) {
-		NoteTab selectedTab = noteTabs.get(selectedIndex);
-		NoteTab swappedTab = noteTabs.get(swappedIndex);
+		NoteTab selectedTab = getNoteTab(selectedIndex);
+		NoteTab swappedTab = getNoteTab(swappedIndex);
 
 		noteTabsFolder.getItem(swappedIndex).setControl(selectedTab);
 		noteTabsFolder.getItem(selectedIndex).setControl(swappedTab);
-
-		noteTabs.set(swappedIndex, selectedTab);
-		noteTabs.set(selectedIndex, swappedTab);
 
 		String selectedTitle = noteTabsFolder.getItem(selectedIndex).getText();
 		String swappedTitle = noteTabsFolder.getItem(swappedIndex).getText();
@@ -404,9 +396,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void saveState(IMemento memento) {
 		memento.putInteger(MEMENTO_COUNT_KEY, noteTabsFolder.getItemCount());
 
-		for (int tab = 0; tab < noteTabs.size(); ++tab) {
-			memento.putString(MEMENTO_TEXT_PREFIX_KEY + tab, noteTabs.get(tab).getText());
-			memento.putString(MEMENTO_STYLE_PREFIX_KEY + tab, noteTabs.get(tab).serialiseStyle());
+		for (int tab = 0; tab < noteTabsFolder.getItemCount(); ++tab) {
+			memento.putString(MEMENTO_TEXT_PREFIX_KEY + tab, getNoteTab(tab).getText());
+			memento.putString(MEMENTO_STYLE_PREFIX_KEY + tab, getNoteTab(tab).serialiseStyle());
 			memento.putString(MEMENTO_TITLE_PREFIX_KEY + tab, noteTabsFolder.getItem(tab).getText());
 		}
 	}
@@ -418,8 +410,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	@Override
 	public void preferenceChange(PreferenceChangeEvent event) {
-		for (int note = 0; note < noteTabs.size(); ++note) {
-			noteTabs.get(note).setPreferences();
+		for (int tab = 0; tab < noteTabsFolder.getItemCount(); ++tab) {
+			getNoteTab(tab).setPreferences();
 		}
 	}
 
@@ -429,9 +421,19 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	@Override
 	public void dispose() {
 		super.dispose();
-		for (int note = 0; note < noteTabs.size(); ++note) {
-			noteTabs.get(note).dispose();
+		for (int tab = 0; tab < noteTabsFolder.getItemCount(); ++tab) {
+			getNoteTab(tab).dispose();
 		}
+	}
+
+	/**
+	 * Returns a NoteTab object given an index in the tab folder.
+	 * 
+	 * @param index
+	 * @return
+	 */
+	private NoteTab getNoteTab(int index) {
+		return (NoteTab) (noteTabsFolder.getItem(index).getControl());
 	}
 
 	/**
@@ -451,7 +453,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doClearNote() {
 		if (noteTabsFolder.getItemCount() == 0)
 			return;
-		noteTabs.get(noteTabsFolder.getSelectionIndex()).clearText();
+		getNoteTab(noteTabsFolder.getSelectionIndex()).clearText();
 	}
 
 	/**
@@ -460,7 +462,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doBoldText() {
 		if (noteTabsFolder.getItemCount() == 0)
 			return;
-		noteTabs.get(noteTabsFolder.getSelectionIndex()).boldSelection();
+		getNoteTab(noteTabsFolder.getSelectionIndex()).boldSelection();
 	}
 
 	/**
@@ -469,7 +471,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doItalicText() {
 		if (noteTabsFolder.getItemCount() == 0)
 			return;
-		noteTabs.get(noteTabsFolder.getSelectionIndex()).italicSelection();
+		getNoteTab(noteTabsFolder.getSelectionIndex()).italicSelection();
 	}
 
 	/**
@@ -478,7 +480,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doUnderlineText() {
 		if (noteTabsFolder.getItemCount() == 0)
 			return;
-		noteTabs.get(noteTabsFolder.getSelectionIndex()).underlineSelection();
+		getNoteTab(noteTabsFolder.getSelectionIndex()).underlineSelection();
 	}
 
 	/**
@@ -487,7 +489,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doClearTextStyle() {
 		if (noteTabsFolder.getItemCount() == 0)
 			return;
-		noteTabs.get(noteTabsFolder.getSelectionIndex()).clearSelectionStyles();
+		getNoteTab(noteTabsFolder.getSelectionIndex()).clearSelectionStyles();
 	}
 
 	/**
@@ -496,7 +498,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doSaveNote() {
 		if (noteTabsFolder.getItemCount() == 0)
 			return;
-		noteTabs.get(noteTabsFolder.getSelectionIndex()).saveToFile(getSite());
+		getNoteTab(noteTabsFolder.getSelectionIndex()).saveToFile(getSite());
 	}
 
 	/**
@@ -563,7 +565,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public boolean isFocused() {
 		if (noteTabsFolder.getItemCount() == 0)
 			return false;
-		return (noteTabs.get(noteTabsFolder.getSelectionIndex()).isFocusControl() || noteTabsFolder.isFocusControl());
+		return (getNoteTab(noteTabsFolder.getSelectionIndex()).isFocusControl() || noteTabsFolder.isFocusControl());
 	}
 
 	/**
@@ -575,8 +577,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		if (selectionIndex < 0)
 			return;
 		// Clean-up.
+		NoteTab noteTabToDispose = getNoteTab(selectionIndex);
 		noteTabsFolder.getItem(selectionIndex).dispose();
-		noteTabs.get(selectionIndex).dispose();
-		noteTabs.remove(selectionIndex);
+		noteTabToDispose.dispose();
 	}
 }
