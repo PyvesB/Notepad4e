@@ -1,8 +1,6 @@
 package io.github.pyvesb.notepad4e.views;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.VerifyKeyListener;
-import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
@@ -12,7 +10,7 @@ import org.eclipse.swt.widgets.Listener;
  * @author Pyves
  *
  */
-public class NoteTabKeyListener implements VerifyKeyListener, Listener {
+public class NoteTabKeyListener implements Listener {
 
 	private NotepadView notepadView;
 
@@ -26,18 +24,27 @@ public class NoteTabKeyListener implements VerifyKeyListener, Listener {
 	}
 
 	/**
-	 * Enables to deal with keyboard events, in other words Notepad4e shortcuts. These shortcuts are relative to a given
-	 * note tab.
+	 * Enables to deal with keyboard events, in other words Notepad4e shortcuts. All keyboard events are listened to,
+	 * filtering must therefore be done accordingly.
 	 * 
 	 * @param event
 	 */
 	@Override
-	public void verifyKey(VerifyEvent event) {
+	public void handleEvent(Event event) {
+		// Check whether focus is on the plugin's view, ignore if not.
+		if (!notepadView.isFocused())
+			return;
+
 		// Shortcuts start with CTRL or CMD keys.
 		if ((event.stateMask & SWT.CTRL) == 0 && (event.stateMask & SWT.COMMAND) == 0)
 			return;
 
-		if (event.keyCode == 'b')
+		// Check for a given key and perform shortcut action accordingly.
+		if (event.keyCode == 'w')
+			notepadView.closeCurrentNoteTab();
+		else if (event.keyCode == 't')
+			notepadView.doNewNote();
+		else if (event.keyCode == 'b')
 			notepadView.doBoldText();
 		else if (event.keyCode == 'i')
 			notepadView.doItalicText();
@@ -50,32 +57,8 @@ public class NoteTabKeyListener implements VerifyKeyListener, Listener {
 		else
 			return;
 
-		// Disallow the shortcut previously defined shortcuts to trigger any other actions within the note tab.
-		event.doit = false;
-	}
-
-	/**
-	 * Enables to deal with keyboard events, in other words Notepad4e shortcuts. These shortcuts are relative to a
-	 * higher level of abstraction and behaviour of the different note tabs.
-	 * 
-	 * @param event
-	 */
-	@Override
-	public void handleEvent(Event event) {
-		// Shortcuts start with CTRL or CMD keys.
-		if ((event.stateMask & SWT.CTRL) == 0 && (event.stateMask & SWT.COMMAND) == 0)
-			return;
-
-		// Check for a given key and whether focus is on the plugin's view.
-		if (event.keyCode == 'w' && notepadView.isFocused()) {
-			notepadView.closeCurrentNoteTab();
-		} else if (event.keyCode == 't' && notepadView.isFocused()) {
-			notepadView.doNewNote();
-		} else {
-			return;
-		}
-
-		// Disallow the shortcut previously defined shortcuts to trigger any other actions within Eclipse.
+		// Disallow the shortcut previously defined shortcuts to trigger any other actions within Eclipse or within the
+		// plugin.
 		event.doit = false;
 	}
 }

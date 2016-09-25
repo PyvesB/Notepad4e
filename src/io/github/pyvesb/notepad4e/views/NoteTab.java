@@ -67,9 +67,6 @@ public class NoteTab extends StyledText {
 		setPreferences();
 
 		setText(text);
-
-		// Listen to keyboard events.
-		addVerifyKeyListener(noteTabKeyListener);
 	}
 
 	/**
