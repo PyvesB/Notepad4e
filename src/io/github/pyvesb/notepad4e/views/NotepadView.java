@@ -536,6 +536,16 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
+	 * Unregister listeners and clean up.
+	 */
+	@Override
+	public void dispose() {
+		Display.getCurrent().removeFilter(SWT.KeyDown, noteTabKeyListener);
+		preferences.removePreferenceChangeListener(this);
+		super.dispose();
+	}
+
+	/**
 	 * Closes the current NoteTab.
 	 */
 	public void closeCurrentNoteTab() {
