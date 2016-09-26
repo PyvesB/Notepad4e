@@ -292,7 +292,7 @@ public class NoteTab extends StyledText {
 		// Write the current note tab's text to the file, with handling of IO exceptions.
 		try {
 			outStream = new FileOutputStream(file);
-			printStream = new PrintWriter(new FileOutputStream(file));
+			printStream = new PrintWriter(outStream);
 			printStream.print(getText());
 			printStream.flush();
 		} catch (IOException e) {
