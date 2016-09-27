@@ -11,6 +11,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -23,9 +24,6 @@ import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.part.ViewPart;
@@ -45,13 +43,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public static final String ID = "notepad4e.views.NotepadView";
 
 	// Keys used to store and retrieve the plugin's view between Eclipse sessions.
-	private static final String MEMENTO_COUNT_KEY = "NumOfTabs";
-	private static final String MEMENTO_TEXT_PREFIX_KEY = "TabText";
-	private static final String MEMENTO_STYLE_PREFIX_KEY = "TabStyle";
-	private static final String MEMENTO_TITLE_PREFIX_KEY = "TabTitle";
-
-	// Object storing the plugin's view between Eclipse sessions.
-	private IMemento memento;
+	private static final String STORE_COUNT_KEY = "NumOfTabs";
+	private static final String STORE_TEXT_PREFIX_KEY = "TabText";
+	private static final String STORE_STYLE_PREFIX_KEY = "TabStyle";
+	private static final String STORE_TITLE_PREFIX_KEY = "TabTitle";
 
 	// Actions corresponding to the different buttons in the view.
 	private Action addNewNoteAction;
@@ -96,6 +91,23 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		Display.getCurrent().addFilter(SWT.KeyDown, noteTabKeyListener);
 
 		noteTabsFolder = new CTabFolder(parent, SWT.MULTI | SWT.WRAP);
+		// Listen to disposal of the tab folder and save state for next Eclipse session or when reopening the view.
+		noteTabsFolder.addDisposeListener(new DisposeListener() {
+
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				IDialogSettings settings = Notepad4e.getDefault().getDialogSettings();
+				IDialogSettings section = settings.getSection(ID);
+				section.put(STORE_COUNT_KEY, noteTabsFolder.getItemCount());
+
+				for (int tab = 0; tab < noteTabsFolder.getItemCount(); ++tab) {
+					section.put(STORE_TEXT_PREFIX_KEY + tab, getNoteTab(tab).getText());
+					section.put(STORE_STYLE_PREFIX_KEY + tab, getNoteTab(tab).serialiseStyle());
+					section.put(STORE_TITLE_PREFIX_KEY + tab, noteTabsFolder.getItem(tab).getText());
+				}
+
+			}
+		});
 
 		restoreViewFromPreviousSession();
 
@@ -109,25 +121,31 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Allows to restore the plugin's view as it was in a previous session of Eclipse.
 	 */
 	private void restoreViewFromPreviousSession() {
-		Integer numOfTabs = null;
-		// Memento can be null if plugin was not previously launched in this working environment.
-		if (memento != null) {
-			numOfTabs = memento.getInteger(MEMENTO_COUNT_KEY);
+		IDialogSettings settings = Notepad4e.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(ID);
+		if (section == null) {
+			section = settings.addNewSection(ID);
 		}
 
+		Integer numOfTabs = null;
+		String numOfTabsString = section.get(STORE_COUNT_KEY);
+		// numOfTabsString can be null if plugin was not previously launched in this working environment.
+		if (numOfTabsString != null)
+			numOfTabs = Integer.valueOf(numOfTabsString);
+
 		if (numOfTabs == null || numOfTabs == 0) {
+			// No tabs were previously opened: create new tab.
 			String prefixName = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
 					PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
-			// No tabs were previously opened: create new tab.
 			addNewTab(prefixName + " 1", "", "");
 			// Set selection on this tab.
 			noteTabsFolder.setSelection(0);
 		} else {
 			// Populate with tabs opened in previous session.
 			for (int tab = 0; tab < numOfTabs; ++tab) {
-				String tabTitle = memento.getString(MEMENTO_TITLE_PREFIX_KEY + tab);
-				String tabText = memento.getString(MEMENTO_TEXT_PREFIX_KEY + tab);
-				String tabStyle = memento.getString(MEMENTO_STYLE_PREFIX_KEY + tab);
+				String tabTitle = section.get(STORE_TITLE_PREFIX_KEY + tab);
+				String tabText = section.get(STORE_TEXT_PREFIX_KEY + tab);
+				String tabStyle = section.get(STORE_STYLE_PREFIX_KEY + tab);
 				addNewTab(tabTitle, tabText, tabStyle);
 				// Set selection on the last tab.
 				noteTabsFolder.setSelection(numOfTabs - 1);
@@ -157,19 +175,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		if (style.length() > 0)
 			tab.deserialiseStyle(style);
 		noteTabItem.setControl(tab);
-	}
-
-	/**
-	 * Initialises the view.
-	 * 
-	 * @param site
-	 * @param memento
-	 * @throws PartInitException
-	 */
-	@Override
-	public void init(IViewSite site, IMemento memento) throws PartInitException {
-		super.init(site, memento);
-		this.memento = memento;
 	}
 
 	/**
@@ -368,22 +373,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		} else {
 			// Set focus on the last item in the tabs folder component.
 			noteTabsFolder.getItem(noteTabsFolder.getItemCount() - 1).getControl().setFocus();
-		}
-	}
-
-	/**
-	 * Saves the current view's state so it can be restored during the next Eclipse session.
-	 * 
-	 * @param memento
-	 */
-	@Override
-	public void saveState(IMemento memento) {
-		memento.putInteger(MEMENTO_COUNT_KEY, noteTabsFolder.getItemCount());
-
-		for (int tab = 0; tab < noteTabsFolder.getItemCount(); ++tab) {
-			memento.putString(MEMENTO_TEXT_PREFIX_KEY + tab, getNoteTab(tab).getText());
-			memento.putString(MEMENTO_STYLE_PREFIX_KEY + tab, getNoteTab(tab).serialiseStyle());
-			memento.putString(MEMENTO_TITLE_PREFIX_KEY + tab, noteTabsFolder.getItem(tab).getText());
 		}
 	}
 
