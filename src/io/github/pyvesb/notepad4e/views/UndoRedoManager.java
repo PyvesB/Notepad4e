@@ -2,9 +2,9 @@ package io.github.pyvesb.notepad4e.views;
 
 import java.util.Stack;
 
-import org.eclipse.swt.custom.ExtendedModifyEvent;
-import org.eclipse.swt.custom.ExtendedModifyListener;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 
 /**
  * Class in charge of handling the undo and redo shortcuts of a NoteTab.
@@ -42,9 +42,9 @@ public class UndoRedoManager {
 		this.noteTab = noteTab;
 
 		// Listen to text modifications.
-		noteTab.addExtendedModifyListener(new ExtendedModifyListener() {
+		noteTab.addVerifyListener(new VerifyListener() {
 			@Override
-			public void modifyText(ExtendedModifyEvent event) {
+			public void verifyText(VerifyEvent event) {
 				// Last modification was due to an undo/redo action: do not record it.
 				if (lastActionUndoOrRedo) {
 					lastActionUndoOrRedo = false;
@@ -61,7 +61,7 @@ public class UndoRedoManager {
 	 * @param event
 	 * @param styles
 	 */
-	public void recordTabModification(ExtendedModifyEvent event, StyleRange[] styles) {
+	public void recordTabModification(VerifyEvent event, StyleRange[] styles) {
 		// Previous action cannot be an undo: empty redo stack and remove stylesBeforeUndo.
 		redoStack.clear();
 		stylesBeforeUndo = null;
@@ -69,8 +69,8 @@ public class UndoRedoManager {
 		// Construct modification record depending on whether the function was called by a style or a text
 		// modification and push it on the stack.
 		if (event != null)
-			undoStack.push(new ModificationRecord(styles, event.start, event.length, event.replacedText,
-					noteTab.getText().substring(event.start, event.start + event.length)));
+			undoStack.push(new ModificationRecord(styles, event.start, event.text.length(),
+					noteTab.getText().substring(event.start, event.end), event.text));
 		else
 			undoStack.push(new ModificationRecord(styles, 0, 0, null, null));
 
