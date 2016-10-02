@@ -54,6 +54,10 @@ public class NoteTabKeyListener implements Listener {
 			notepadView.doClearTextStyle();
 		else if (event.keyCode == 'k')
 			notepadView.doClearNote();
+		else if (event.keyCode == 'z')
+			notepadView.doUndo();
+		else if (event.keyCode == 'y')
+			notepadView.doRedo();
 		else
 			return;
 

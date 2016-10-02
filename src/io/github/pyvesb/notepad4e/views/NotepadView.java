@@ -520,6 +520,20 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
+	 * Performs the undo text action.
+	 */
+	public void doUndo() {
+		getNoteTab(noteTabsFolder.getSelectionIndex()).undo();
+	}
+
+	/**
+	 * Performs the redo text action.
+	 */
+	public void doRedo() {
+		getNoteTab(noteTabsFolder.getSelectionIndex()).redo();
+	}
+
+	/**
 	 * Checks whether the selected NoteTab in the view has focus.
 	 * 
 	 * @return true if the selected NoteTab in the view has focus

@@ -48,6 +48,9 @@ public class NoteTab extends StyledText {
 	private Color backgroundColor;
 	private Font font;
 
+	// Used to enable undo and redo actions.
+	private UndoRedoManager undoredoManager;
+
 	/**
 	 * Constructor. Sets properties of the editor window.
 	 * 
@@ -60,6 +63,8 @@ public class NoteTab extends StyledText {
 		super(parent, SWT.V_SCROLL | SWT.H_SCROLL);
 
 		preferences = InstanceScope.INSTANCE.getNode(Notepad4e.PLUGIN_ID);
+
+		undoredoManager = new UndoRedoManager(this);
 
 		// Scroll bars only appear when the text extends beyond the note window.
 		setAlwaysShowScrollBars(false);
@@ -142,6 +147,20 @@ public class NoteTab extends StyledText {
 	}
 
 	/**
+	 * Undos latest NoteTab modification.
+	 */
+	public void undo() {
+		undoredoManager.undo();
+	}
+
+	/**
+	 * Redos latest NoteTab modification.
+	 */
+	public void redo() {
+		undoredoManager.redo();
+	}
+
+	/**
 	 * Removes all the text from the note tab.
 	 */
 	public void clearText() {
@@ -166,6 +185,9 @@ public class NoteTab extends StyledText {
 	 * Applies an underlined style to the currently selected text.
 	 */
 	public void underlineSelection() {
+		// Record style modification for undo actions.
+		undoredoManager.recordTabModification(null, getStyleRanges());
+
 		Point selectionRange = getSelectionRange();
 		// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
 		// there are no corresponding entries in the following array.
@@ -191,6 +213,9 @@ public class NoteTab extends StyledText {
 	 * @param newStyle
 	 */
 	private void addStyleToSelection(int newStyle) {
+		// Record style modification for undo actions.
+		undoredoManager.recordTabModification(null, getStyleRanges());
+
 		Point selectionRange = getSelectionRange();
 		// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
 		// there are no corresponding entries in the following array.
