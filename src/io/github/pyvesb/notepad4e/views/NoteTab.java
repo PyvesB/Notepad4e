@@ -238,6 +238,9 @@ public class NoteTab extends StyledText {
 	 * Removes all styles from the current selection.
 	 */
 	public void clearSelectionStyles() {
+		// Record style modification for undo actions.
+		undoredoManager.recordTabModification(null, getStyleRanges());
+
 		Point selectionRange = getSelectionRange();
 		// No colors are specified as they are defined by the plugin's preferences.
 		StyleRange styleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null, SWT.NORMAL);
