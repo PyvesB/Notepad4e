@@ -1,8 +1,8 @@
 package io.github.pyvesb.notepad4e.views;
 
 /**
- * Class used to store the addresses of the different images used by the plugin.
- * Each image corresponds to one of the available actions.
+ * Class used to store the addresses of the different images used by the plugin. Each image corresponds to one of the
+ * available actions.
  * 
  * @author Pyves
  *

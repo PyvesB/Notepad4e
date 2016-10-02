@@ -201,9 +201,9 @@ public class NoteTab extends StyledText {
 
 		// The above call overwrote the previous styles; the previous styles are re-applied with the additional
 		// underlined style.
-		for (int style = 0; style < currentStyles.length; ++style) {
-			currentStyles[style].underline = true;
-			setStyleRange(currentStyles[style]);
+		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
+			currentStyles[styleIndex].underline = true;
+			setStyleRange(currentStyles[styleIndex]);
 		}
 	}
 
@@ -228,9 +228,9 @@ public class NoteTab extends StyledText {
 
 		// The above call overwrote the previous styles; the previous styles are re-applied with the additional
 		// new one.
-		for (int style = 0; style < currentStyles.length; ++style) {
-			currentStyles[style].fontStyle |= newStyle;
-			setStyleRange(currentStyles[style]);
+		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
+			currentStyles[styleIndex].fontStyle |= newStyle;
+			setStyleRange(currentStyles[styleIndex]);
 		}
 	}
 
@@ -257,15 +257,15 @@ public class NoteTab extends StyledText {
 		StyleRange[] currentStyles = getStyleRanges();
 		// Append integers corresponding to various information of each style range object, separated by
 		// STRING_SEPARATOR.
-		for (int style = 0; style < currentStyles.length; ++style) {
-			styleSerialisation.append(currentStyles[style].start);
+		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
+			styleSerialisation.append(currentStyles[styleIndex].start);
 			styleSerialisation.append(STRING_SEPARATOR);
-			styleSerialisation.append(currentStyles[style].length);
+			styleSerialisation.append(currentStyles[styleIndex].length);
 			styleSerialisation.append(STRING_SEPARATOR);
-			styleSerialisation.append(currentStyles[style].fontStyle);
+			styleSerialisation.append(currentStyles[styleIndex].fontStyle);
 			styleSerialisation.append(STRING_SEPARATOR);
 			// If underlined, 1, else 0.
-			styleSerialisation.append((currentStyles[style].underline) ? 1 : 0);
+			styleSerialisation.append((currentStyles[styleIndex].underline) ? 1 : 0);
 			styleSerialisation.append(STRING_SEPARATOR);
 		}
 		return styleSerialisation.toString();
@@ -280,14 +280,14 @@ public class NoteTab extends StyledText {
 		String[] integers = serialisation.split(STRING_SEPARATOR);
 		StyleRange[] styles = new StyleRange[integers.length / 4];
 		// Do the parsing.
-		for (int style = 0; style < styles.length; ++style) {
+		for (int styleIndex = 0; styleIndex < styles.length; ++styleIndex) {
 			// Each StyleRange object has 4 corresponding integers in the CSV string.
-			int integerIndex = 4 * style;
-			styles[style] = new StyleRange();
-			styles[style].start = Integer.parseInt(integers[integerIndex]);
-			styles[style].length = Integer.parseInt(integers[integerIndex + 1]);
-			styles[style].fontStyle = Integer.parseInt(integers[integerIndex + 2]);
-			styles[style].underline = (Integer.parseInt(integers[integerIndex + 3]) == 1) ? true : false;
+			int integerIndex = 4 * styleIndex;
+			styles[styleIndex] = new StyleRange();
+			styles[styleIndex].start = Integer.parseInt(integers[integerIndex]);
+			styles[styleIndex].length = Integer.parseInt(integers[integerIndex + 1]);
+			styles[styleIndex].fontStyle = Integer.parseInt(integers[integerIndex + 2]);
+			styles[styleIndex].underline = (Integer.parseInt(integers[integerIndex + 3]) == 1) ? true : false;
 		}
 		// Apply the parsed styles.
 		setStyleRanges(styles);

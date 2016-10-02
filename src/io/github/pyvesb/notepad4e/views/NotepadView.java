@@ -100,10 +100,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				IDialogSettings section = settings.getSection(ID);
 				section.put(STORE_COUNT_KEY, noteTabsFolder.getItemCount());
 
-				for (int tab = 0; tab < noteTabsFolder.getItemCount(); ++tab) {
-					section.put(STORE_TEXT_PREFIX_KEY + tab, getNoteTab(tab).getText());
-					section.put(STORE_STYLE_PREFIX_KEY + tab, getNoteTab(tab).serialiseStyle());
-					section.put(STORE_TITLE_PREFIX_KEY + tab, noteTabsFolder.getItem(tab).getText());
+				for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
+					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).getText());
+					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).serialiseStyle());
+					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, noteTabsFolder.getItem(tabIndex).getText());
 				}
 
 			}
@@ -142,10 +142,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			noteTabsFolder.setSelection(0);
 		} else {
 			// Populate with tabs opened in previous session.
-			for (int tab = 0; tab < numOfTabs; ++tab) {
-				String tabTitle = section.get(STORE_TITLE_PREFIX_KEY + tab);
-				String tabText = section.get(STORE_TEXT_PREFIX_KEY + tab);
-				String tabStyle = section.get(STORE_STYLE_PREFIX_KEY + tab);
+			for (int tabIndex = 0; tabIndex < numOfTabs; ++tabIndex) {
+				String tabTitle = section.get(STORE_TITLE_PREFIX_KEY + tabIndex);
+				String tabText = section.get(STORE_TEXT_PREFIX_KEY + tabIndex);
+				String tabStyle = section.get(STORE_STYLE_PREFIX_KEY + tabIndex);
 				addNewTab(tabTitle, tabText, tabStyle);
 				// Set selection on the last tab.
 				noteTabsFolder.setSelection(numOfTabs - 1);
@@ -383,8 +383,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	@Override
 	public void preferenceChange(PreferenceChangeEvent event) {
-		for (int tab = 0; tab < noteTabsFolder.getItemCount(); ++tab) {
-			getNoteTab(tab).setPreferences();
+		for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
+			getNoteTab(tabIndex).setPreferences();
 		}
 	}
 
