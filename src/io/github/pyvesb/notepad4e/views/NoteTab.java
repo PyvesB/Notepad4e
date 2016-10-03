@@ -14,6 +14,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -21,6 +23,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 import io.github.pyvesb.notepad4e.Notepad4e;
@@ -48,6 +52,16 @@ public class NoteTab extends StyledText {
 	private Color backgroundColor;
 	private Font font;
 
+	// Menu items (mouse right-click).
+	private MenuItem menuItemUndo;
+	private MenuItem menuItemRedo;
+	private MenuItem menuItemCut;
+	private MenuItem menuItemCopy;
+	private MenuItem menuItemPaste;
+	private MenuItem menuItemSelectAll;
+	private MenuItem menuItemSeparator1;
+	private MenuItem menuItemSeparator2;
+
 	// Used to enable undo and redo actions.
 	private UndoRedoManager undoredoManager;
 
@@ -72,6 +86,90 @@ public class NoteTab extends StyledText {
 		setPreferences();
 
 		setText(text);
+
+		initialiseMenu();
+	}
+
+	/**
+	 * Initialises the menu triggered by a right-click inside the tab.
+	 */
+	private void initialiseMenu() {
+		Menu menu = new Menu(getShell(), SWT.POP_UP);
+		menuItemUndo = new MenuItem(menu, SWT.NONE);
+		menuItemUndo.setText("Undo");
+		menuItemUndo.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				undo();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		menuItemRedo = new MenuItem(menu, SWT.NONE);
+		menuItemRedo.setText("Redo");
+		menuItemRedo.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				redo();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		menuItemSeparator1 = new MenuItem(menu, SWT.SEPARATOR);
+		menuItemCut = new MenuItem(menu, SWT.NONE);
+		menuItemCut.setText("Cut");
+		menuItemCut.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				cut();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		menuItemCopy = new MenuItem(menu, SWT.NONE);
+		menuItemCopy.setText("Copy");
+		menuItemCopy.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				copy();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		menuItemPaste = new MenuItem(menu, SWT.NONE);
+		menuItemPaste.setText("Paste");
+		menuItemPaste.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				paste();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		menuItemSeparator2 = new MenuItem(menu, SWT.SEPARATOR);
+		menuItemPaste = new MenuItem(menu, SWT.NONE);
+		menuItemPaste.setText("Select All");
+		menuItemPaste.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectAll();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		setMenu(menu);
 	}
 
 	/**
@@ -84,6 +182,14 @@ public class NoteTab extends StyledText {
 		backgroundColor.dispose();
 		if (font != null)
 			font.dispose();
+		menuItemUndo.dispose();
+		menuItemRedo.dispose();
+		menuItemCut.dispose();
+		menuItemCopy.dispose();
+		menuItemPaste.dispose();
+		menuItemSelectAll.dispose();
+		menuItemSeparator1.dispose();
+		menuItemSeparator2.dispose();
 	}
 
 	/**
