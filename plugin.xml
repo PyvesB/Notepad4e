@@ -24,7 +24,7 @@
       </category>
       <view
             name="Notepad4e"
-            icon="platform:/plugin/org.eclipse.egit.ui/icons/obj16/note.png"
+            icon="/icons/note.png"
             category="Notepad4e"
             class="io.github.pyvesb.notepad4e.views.NotepadView"
             id="notepad4e.views.NotepadView">
