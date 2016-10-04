@@ -157,9 +157,9 @@ public class NoteTab extends StyledText {
 			}
 		});
 		menuItemSeparator2 = new MenuItem(menu, SWT.SEPARATOR);
-		menuItemPaste = new MenuItem(menu, SWT.NONE);
-		menuItemPaste.setText("Select All");
-		menuItemPaste.addSelectionListener(new SelectionListener() {
+		menuItemSelectAll = new MenuItem(menu, SWT.NONE);
+		menuItemSelectAll.setText("Select All");
+		menuItemSelectAll.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectAll();
