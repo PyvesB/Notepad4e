@@ -317,7 +317,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doWebsite();
 			}
 		};
-		setTextAndImageToAction(websiteAction, "Website", ViewImages.WEBSITE);
+		setTextAndImageToAction(websiteAction, "Webpage", ViewImages.WEBSITE);
 	}
 
 	/**
@@ -550,17 +550,5 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		Display.getCurrent().removeFilter(SWT.KeyDown, shortcutManager);
 		preferences.removePreferenceChangeListener(this);
 		super.dispose();
-	}
-
-	/**
-	 * Closes the current NoteTab.
-	 */
-	public void closeCurrentNoteTab() {
-		int selectionIndex = noteTabsFolder.getSelectionIndex();
-		// Return if not note tabs are open.
-		if (selectionIndex < 0)
-			return;
-		// Clean-up.
-		noteTabsFolder.getItem(selectionIndex).dispose();
 	}
 }

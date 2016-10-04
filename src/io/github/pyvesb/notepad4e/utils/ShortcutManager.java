@@ -47,9 +47,6 @@ public class ShortcutManager implements Listener {
 		} else if ((event.stateMask & SWT.CTRL) == SWT.CTRL || (event.stateMask & SWT.COMMAND) == SWT.COMMAND) {
 			// ctrl+key shortcut.
 			switch (event.keyCode) {
-			case 'w':
-				notepadView.closeCurrentNoteTab();
-				break;
 			case 't':
 				notepadView.doNewNote();
 				break;
