@@ -1,8 +1,10 @@
 package io.github.pyvesb.notepad4e.views;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
@@ -329,13 +331,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		action.setToolTipText(text);
 
 		// The URL matches an image in Eclipse's platform image bank.
-		URL url = null;
-		try {
-			url = new URL(image);
-		} catch (MalformedURLException e) {
-		}
+		URL url = FileLocator.find(Platform.getBundle(Notepad4e.PLUGIN_ID), new Path(image), null);
 		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(url);
-
 		action.setImageDescriptor(imageDescriptor);
 	}
 
