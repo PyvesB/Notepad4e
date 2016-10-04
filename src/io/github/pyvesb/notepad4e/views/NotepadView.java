@@ -32,6 +32,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import io.github.pyvesb.notepad4e.Notepad4e;
 import io.github.pyvesb.notepad4e.preferences.PreferenceConstants;
+import io.github.pyvesb.notepad4e.utils.ShortcutManager;
 
 /**
  * Class handling the plugin's view with the different note tabs.
@@ -71,13 +72,13 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private IEclipsePreferences preferences;
 
 	// Keyboard events listener.
-	NoteTabKeyListener noteTabKeyListener;
+	ShortcutManager shortcutManager;
 
 	/**
 	 * Constructor.
 	 */
 	public NotepadView() {
-		noteTabKeyListener = new NoteTabKeyListener(this);
+		shortcutManager = new ShortcutManager(this);
 	}
 
 	/**
@@ -90,7 +91,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		preferences.addPreferenceChangeListener(this);
 
 		// Listen to keyboard events.
-		Display.getCurrent().addFilter(SWT.KeyDown, noteTabKeyListener);
+		Display.getCurrent().addFilter(SWT.KeyDown, shortcutManager);
 
 		noteTabsFolder = new CTabFolder(parent, SWT.MULTI | SWT.WRAP);
 		// Listen to disposal of the tab folder and save state for next Eclipse session or when reopening the view.
@@ -173,7 +174,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				((NoteTab) itemToDispose.getControl()).dispose();
 			}
 		});
-		NoteTab tab = new NoteTab(noteTabsFolder, text, noteTabKeyListener);
+		NoteTab tab = new NoteTab(noteTabsFolder, text, shortcutManager);
 		if (style.length() > 0)
 			tab.deserialiseStyle(style);
 		noteTabItem.setControl(tab);
@@ -546,7 +547,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	@Override
 	public void dispose() {
-		Display.getCurrent().removeFilter(SWT.KeyDown, noteTabKeyListener);
+		Display.getCurrent().removeFilter(SWT.KeyDown, shortcutManager);
 		preferences.removePreferenceChangeListener(this);
 		super.dispose();
 	}

@@ -1,16 +1,18 @@
-package io.github.pyvesb.notepad4e.views;
+package io.github.pyvesb.notepad4e.utils;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import io.github.pyvesb.notepad4e.views.NotepadView;
+
 /**
- * Class used to listen to keyboard events.
+ * Class used to listen to keyboard events and launch actions accordingly.
  * 
  * @author Pyves
  *
  */
-public class NoteTabKeyListener implements Listener {
+public class ShortcutManager implements Listener {
 
 	private NotepadView notepadView;
 
@@ -19,7 +21,7 @@ public class NoteTabKeyListener implements Listener {
 	 * 
 	 * @param notepadView
 	 */
-	public NoteTabKeyListener(NotepadView notepadView) {
+	public ShortcutManager(NotepadView notepadView) {
 		this.notepadView = notepadView;
 	}
 

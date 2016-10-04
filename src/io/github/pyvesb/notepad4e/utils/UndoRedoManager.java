@@ -1,4 +1,4 @@
-package io.github.pyvesb.notepad4e.views;
+package io.github.pyvesb.notepad4e.utils;
 
 import java.util.Stack;
 
@@ -6,8 +6,10 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 
+import io.github.pyvesb.notepad4e.views.NoteTab;
+
 /**
- * Class in charge of handling the undo and redo shortcuts of a NoteTab.
+ * Class in charge of handling the undo and redo actions of a NoteTab.
  * 
  * @author Pyves
  *
