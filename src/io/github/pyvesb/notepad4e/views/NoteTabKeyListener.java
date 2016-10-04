@@ -35,31 +35,50 @@ public class NoteTabKeyListener implements Listener {
 		if (!notepadView.isFocused())
 			return;
 
-		// Shortcuts start with CTRL or CMD keys.
-		if ((event.stateMask & SWT.CTRL) == 0 && (event.stateMask & SWT.COMMAND) == 0)
+		if ((event.stateMask & (SWT.CTRL | SWT.SHIFT)) == (SWT.CTRL | SWT.SHIFT)
+				|| (event.stateMask & (SWT.COMMAND | SWT.SHIFT)) == (SWT.COMMAND | SWT.SHIFT)) {
+			// ctrl+shift+z redo shortcut; also available via ctrl+y.
+			if (event.keyCode == 'z') {
+				notepadView.doRedo();
+			} else
+				return;
+		} else if ((event.stateMask & SWT.CTRL) == SWT.CTRL || (event.stateMask & SWT.COMMAND) == SWT.COMMAND) {
+			// ctrl+key shortcut.
+			switch (event.keyCode) {
+			case 'w':
+				notepadView.closeCurrentNoteTab();
+				break;
+			case 't':
+				notepadView.doNewNote();
+				break;
+			case 'b':
+				notepadView.doBoldText();
+				break;
+			case 'i':
+				notepadView.doItalicText();
+				break;
+			case 'u':
+				notepadView.doUnderlineText();
+				break;
+			case 'd':
+				notepadView.doClearTextStyle();
+				break;
+			case 'k':
+				notepadView.doClearNote();
+				break;
+			case 'z':
+				notepadView.doUndo();
+				break;
+			case 'y':
+				notepadView.doRedo();
+				break;
+			default:
+				return;
+			}
+		} else {
+			// No shortcut relevant to the plugin: return without cancelling event.
 			return;
-
-		// Check for a given key and perform shortcut action accordingly.
-		if (event.keyCode == 'w')
-			notepadView.closeCurrentNoteTab();
-		else if (event.keyCode == 't')
-			notepadView.doNewNote();
-		else if (event.keyCode == 'b')
-			notepadView.doBoldText();
-		else if (event.keyCode == 'i')
-			notepadView.doItalicText();
-		else if (event.keyCode == 'u')
-			notepadView.doUnderlineText();
-		else if (event.keyCode == 'd')
-			notepadView.doClearTextStyle();
-		else if (event.keyCode == 'k')
-			notepadView.doClearNote();
-		else if (event.keyCode == 'z')
-			notepadView.doUndo();
-		else if (event.keyCode == 'y')
-			notepadView.doRedo();
-		else
-			return;
+		}
 
 		// Disallow the shortcut previously defined shortcuts to trigger any other actions within Eclipse or within the
 		// plugin.
