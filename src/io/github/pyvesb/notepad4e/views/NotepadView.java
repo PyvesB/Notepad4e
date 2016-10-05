@@ -313,13 +313,13 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			section = settings.addNewSection(ID);
 		}
 
-		Integer numOfTabs = null;
+		int numOfTabs = 0;
 		String numOfTabsString = section.get(STORE_COUNT_KEY);
 		// numOfTabsString can be null if plugin was not previously launched in this working environment.
 		if (numOfTabsString != null)
-			numOfTabs = Integer.valueOf(numOfTabsString);
+			numOfTabs = Integer.parseInt(numOfTabsString);
 
-		if (numOfTabs == null || numOfTabs == 0) {
+		if (numOfTabs == 0) {
 			// No tabs were previously opened: create new tab.
 			String prefixName = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
 					PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
