@@ -45,6 +45,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	// The ID of the view as specified by the extension.
 	public static final String ID = "notepad4e.views.NotepadView";
 
+	// Object handling the different tabs.
+	protected CTabFolder noteTabsFolder;
+
 	// Keys used to store and retrieve the plugin's view between Eclipse sessions.
 	private static final String STORE_COUNT_KEY = "NumOfTabs";
 	private static final String STORE_TEXT_PREFIX_KEY = "TabText";
@@ -64,9 +67,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action moveNoteRightAction;
 	private Action preferencesAction;
 	private Action websiteAction;
-
-	// Object handling the different tabs.
-	private CTabFolder noteTabsFolder;
 
 	// User defined preferences.
 	private IEclipsePreferences preferences;
@@ -301,6 +301,16 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		if (noteTabsFolder.getItemCount() == 0)
 			return false;
 		return (getNoteTab(noteTabsFolder.getSelectionIndex()).isFocusControl() || noteTabsFolder.isFocusControl());
+	}
+
+	/**
+	 * Returns a NoteTab object given an index in the tab folder.
+	 * 
+	 * @param index
+	 * @return
+	 */
+	protected NoteTab getNoteTab(int index) {
+		return (NoteTab) (noteTabsFolder.getItem(index).getControl());
 	}
 
 	/**
@@ -540,15 +550,5 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		noteTabsFolder.getItem(selectedIndex).setText(swappedTitle);
 
 		noteTabsFolder.setSelection(swappedIndex);
-	}
-
-	/**
-	 * Returns a NoteTab object given an index in the tab folder.
-	 * 
-	 * @param index
-	 * @return
-	 */
-	private NoteTab getNoteTab(int index) {
-		return (NoteTab) (noteTabsFolder.getItem(index).getControl());
 	}
 }

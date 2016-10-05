@@ -16,6 +16,10 @@ import io.github.pyvesb.notepad4e.views.NoteTab;
  */
 public class UndoRedoManager {
 
+	// When performing an undo or redo action action, the ExtendedModifyListener is fired; boolean used to prevent from
+	// populating stacks in this case.
+	protected boolean lastActionUndoOrRedo = true;
+
 	// Used to limit the size of undo and redo actions from growing indefinitely.
 	private static final int MAX_STACK_SIZES = 100;
 
@@ -28,10 +32,6 @@ public class UndoRedoManager {
 
 	// Styles before starting any undo actions.
 	private StyleRange[] stylesBeforeUndo;
-
-	// When performing an undo or redo action action, the ExtendedModifyListener is fired; boolean used to prevent from
-	// populating stacks in this case.
-	private boolean lastActionUndoOrRedo = true;
 
 	/**
 	 * Constructor.
