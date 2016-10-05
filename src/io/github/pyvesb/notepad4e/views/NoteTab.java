@@ -93,88 +93,6 @@ public class NoteTab extends StyledText {
 	}
 
 	/**
-	 * Initialises the menu triggered by a right-click inside the tab.
-	 */
-	private void initialiseMenu() {
-		Menu menu = new Menu(getShell(), SWT.POP_UP);
-		menuItemUndo = new MenuItem(menu, SWT.NONE);
-		menuItemUndo.setText("Undo");
-		menuItemUndo.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				undo();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-		menuItemRedo = new MenuItem(menu, SWT.NONE);
-		menuItemRedo.setText("Redo");
-		menuItemRedo.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				redo();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-		menuItemSeparator1 = new MenuItem(menu, SWT.SEPARATOR);
-		menuItemCut = new MenuItem(menu, SWT.NONE);
-		menuItemCut.setText("Cut");
-		menuItemCut.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				cut();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-		menuItemCopy = new MenuItem(menu, SWT.NONE);
-		menuItemCopy.setText("Copy");
-		menuItemCopy.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				copy();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-		menuItemPaste = new MenuItem(menu, SWT.NONE);
-		menuItemPaste.setText("Paste");
-		menuItemPaste.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				paste();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-		menuItemSeparator2 = new MenuItem(menu, SWT.SEPARATOR);
-		menuItemSelectAll = new MenuItem(menu, SWT.NONE);
-		menuItemSelectAll.setText("Select All");
-		menuItemSelectAll.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				selectAll();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-		setMenu(menu);
-	}
-
-	/**
 	 * Disposes the resources owned by the note tab.
 	 */
 	@Override
@@ -316,33 +234,6 @@ public class NoteTab extends StyledText {
 	}
 
 	/**
-	 * Applies a new style to the currently selected text.
-	 * 
-	 * @param newStyle
-	 */
-	private void addStyleToSelection(int newStyle) {
-		// Record style modification for undo actions.
-		undoredoManager.recordTabModification(null, getStyleRanges());
-
-		Point selectionRange = getSelectionRange();
-		// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
-		// there are no corresponding entries in the following array.
-		StyleRange[] currentStyles = getStyleRanges(selectionRange.x, selectionRange.y);
-
-		StyleRange selectionStyleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null, newStyle);
-		// Apply the style to the whole selection range; ranges that previously had no style and that are are not
-		// accounted for in currentStyles now have the wanted style.
-		setStyleRange(selectionStyleRange);
-
-		// The above call overwrote the previous styles; the previous styles are re-applied with the additional
-		// new one.
-		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
-			currentStyles[styleIndex].fontStyle |= newStyle;
-			setStyleRange(currentStyles[styleIndex]);
-		}
-	}
-
-	/**
 	 * Removes all styles from the current selection.
 	 */
 	public void clearSelectionStyles() {
@@ -449,6 +340,115 @@ public class NoteTab extends StyledText {
 				ILog log = Notepad4e.getDefault().getLog();
 				log.log(new Status(IStatus.ERROR, SAVE_ERROR, e.toString()));
 			}
+		}
+	}
+
+	/**
+	 * Initialises the menu triggered by a right-click inside the tab.
+	 */
+	private void initialiseMenu() {
+		Menu menu = new Menu(getShell(), SWT.POP_UP);
+		menuItemUndo = new MenuItem(menu, SWT.NONE);
+		menuItemUndo.setText("Undo");
+		menuItemUndo.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				undo();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		menuItemRedo = new MenuItem(menu, SWT.NONE);
+		menuItemRedo.setText("Redo");
+		menuItemRedo.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				redo();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		menuItemSeparator1 = new MenuItem(menu, SWT.SEPARATOR);
+		menuItemCut = new MenuItem(menu, SWT.NONE);
+		menuItemCut.setText("Cut");
+		menuItemCut.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				cut();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		menuItemCopy = new MenuItem(menu, SWT.NONE);
+		menuItemCopy.setText("Copy");
+		menuItemCopy.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				copy();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		menuItemPaste = new MenuItem(menu, SWT.NONE);
+		menuItemPaste.setText("Paste");
+		menuItemPaste.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				paste();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		menuItemSeparator2 = new MenuItem(menu, SWT.SEPARATOR);
+		menuItemSelectAll = new MenuItem(menu, SWT.NONE);
+		menuItemSelectAll.setText("Select All");
+		menuItemSelectAll.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectAll();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		setMenu(menu);
+	}
+
+	/**
+	 * Applies a new style to the currently selected text.
+	 * 
+	 * @param newStyle
+	 */
+	private void addStyleToSelection(int newStyle) {
+		// Record style modification for undo actions.
+		undoredoManager.recordTabModification(null, getStyleRanges());
+
+		Point selectionRange = getSelectionRange();
+		// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
+		// there are no corresponding entries in the following array.
+		StyleRange[] currentStyles = getStyleRanges(selectionRange.x, selectionRange.y);
+
+		StyleRange selectionStyleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null, newStyle);
+		// Apply the style to the whole selection range; ranges that previously had no style and that are are not
+		// accounted for in currentStyles now have the wanted style.
+		setStyleRange(selectionStyleRange);
+
+		// The above call overwrote the previous styles; the previous styles are re-applied with the additional
+		// new one.
+		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
+			currentStyles[styleIndex].fontStyle |= newStyle;
+			setStyleRange(currentStyles[styleIndex]);
 		}
 	}
 }

@@ -31,7 +31,7 @@ public class UndoRedoManager {
 
 	// When performing an undo or redo action action, the ExtendedModifyListener is fired; boolean used to prevent from
 	// populating stacks in this case.
-	boolean lastActionUndoOrRedo = true;
+	private boolean lastActionUndoOrRedo = true;
 
 	/**
 	 * Constructor.

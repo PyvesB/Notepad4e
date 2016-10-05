@@ -72,7 +72,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private IEclipsePreferences preferences;
 
 	// Keyboard events listener.
-	ShortcutManager shortcutManager;
+	private ShortcutManager shortcutManager;
 
 	/**
 	 * Constructor.
@@ -118,6 +118,189 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 		makeActions();
 		contributeToActionBars();
+	}
+
+	/**
+	 * Unregister listeners and clean up.
+	 */
+	@Override
+	public void dispose() {
+		Display.getCurrent().removeFilter(SWT.KeyDown, shortcutManager);
+		preferences.removePreferenceChangeListener(this);
+		super.dispose();
+	}
+
+	/**
+	 * Refreshes all note tabs when a change in the plugin's preferences is detected.
+	 * 
+	 * @param event
+	 */
+	@Override
+	public void preferenceChange(PreferenceChangeEvent event) {
+		for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
+			getNoteTab(tabIndex).setPreferences();
+		}
+	}
+
+	/**
+	 * Passes the focus request to the viewer's control.
+	 */
+	@Override
+	public void setFocus() {
+		if (noteTabsFolder.getItemCount() == 0) {
+			// Give focus to the plugin; hack-ish trick to "steal" focus from other elements in some scenarios (example:
+			// no tabs and try to open view again via quick access).
+			noteTabsFolder.getAccessible().getControl().setFocus();
+		} else {
+			// Set focus on the last item in the tabs folder component.
+			noteTabsFolder.getItem(noteTabsFolder.getItemCount() - 1).getControl().setFocus();
+		}
+	}
+
+	/**
+	 * Performs the new note action.
+	 */
+	public void doNewNote() {
+		String namePrefix = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
+				PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
+		// Add a new tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
+		addNewTab(namePrefix + " " + (noteTabsFolder.getItemCount() + 1), "", "");
+		noteTabsFolder.setSelection(noteTabsFolder.getItemCount() - 1);
+	}
+
+	/**
+	 * Performs the clear note action.
+	 */
+	public void doClearNote() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		getNoteTab(noteTabsFolder.getSelectionIndex()).clearText();
+	}
+
+	/**
+	 * Performs the bold text action.
+	 */
+	public void doBoldText() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		getNoteTab(noteTabsFolder.getSelectionIndex()).boldSelection();
+	}
+
+	/**
+	 * Performs the italic text action.
+	 */
+	public void doItalicText() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		getNoteTab(noteTabsFolder.getSelectionIndex()).italicSelection();
+	}
+
+	/**
+	 * Performs the underline text action.
+	 */
+	public void doUnderlineText() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		getNoteTab(noteTabsFolder.getSelectionIndex()).underlineSelection();
+	}
+
+	/**
+	 * Performs the clear text action.
+	 */
+	public void doClearTextStyle() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		getNoteTab(noteTabsFolder.getSelectionIndex()).clearSelectionStyles();
+	}
+
+	/**
+	 * Performs the save note action.
+	 */
+	public void doSaveNote() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+		getNoteTab(noteTabsFolder.getSelectionIndex()).saveToFile(getSite());
+	}
+
+	/**
+	 * Performs the rename note action.
+	 */
+	public void doRenameNote() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return;
+
+		// Open a dialog window so user can enter the new name of his note.
+		InputDialog inputDialog = new InputDialog(getSite().getShell(), "Rename Note",
+				"Please select the new name of the note:", null, null);
+		int returnValue = inputDialog.open();
+		if (returnValue == SWT.CANCEL)
+			return;
+
+		noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).setText(inputDialog.getValue());
+	}
+
+	/**
+	 * Performs the move note left action.
+	 */
+	public void doMoveNoteLeft() {
+		// Do not move left if there are no notes (== -1), or if first note.
+		if (noteTabsFolder.getSelectionIndex() < 1)
+			return;
+		swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() - 1);
+	}
+
+	/**
+	 * Performs the move note right action.
+	 */
+	public void doMoveNoteRight() {
+		// Do note move right if only one or no notes, or if last note.
+		if (noteTabsFolder.getItemCount() < 2
+				|| noteTabsFolder.getSelectionIndex() == noteTabsFolder.getItemCount() - 1)
+			return;
+		swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() + 1);
+	}
+
+	/**
+	 * Performs the preferences action.
+	 */
+	public void doPreferences() {
+		// Create preference dialog page that will appear in current workbench window.
+		PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null, "notepad4e.preferences.PreferencePage",
+				new String[] { "notepad4e.preferences.PreferencePage" }, null);
+		dialog.open();
+	}
+
+	/**
+	 * Performs the website action.
+	 */
+	public void doWebsite() {
+		// Open website in the user's external browser.
+		Program.launch("https://github.com/PyvesB/Notepad4e");
+	}
+
+	/**
+	 * Performs the undo text action.
+	 */
+	public void doUndo() {
+		getNoteTab(noteTabsFolder.getSelectionIndex()).undo();
+	}
+
+	/**
+	 * Performs the redo text action.
+	 */
+	public void doRedo() {
+		getNoteTab(noteTabsFolder.getSelectionIndex()).redo();
+	}
+
+	/**
+	 * Checks whether the selected NoteTab in the view has focus.
+	 * 
+	 * @return true if the selected NoteTab in the view has focus
+	 */
+	public boolean isFocused() {
+		if (noteTabsFolder.getItemCount() == 0)
+			return false;
+		return (getNoteTab(noteTabsFolder.getSelectionIndex()).isFocusControl() || noteTabsFolder.isFocusControl());
 	}
 
 	/**
@@ -360,33 +543,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Passes the focus request to the viewer's control.
-	 */
-	@Override
-	public void setFocus() {
-		if (noteTabsFolder.getItemCount() == 0) {
-			// Give focus to the plugin; hack-ish trick to "steal" focus from other elements in some scenarios (example:
-			// no tabs and try to open view again via quick access).
-			noteTabsFolder.getAccessible().getControl().setFocus();
-		} else {
-			// Set focus on the last item in the tabs folder component.
-			noteTabsFolder.getItem(noteTabsFolder.getItemCount() - 1).getControl().setFocus();
-		}
-	}
-
-	/**
-	 * Refreshes all note tabs when a change in the plugin's preferences is detected.
-	 * 
-	 * @param event
-	 */
-	@Override
-	public void preferenceChange(PreferenceChangeEvent event) {
-		for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
-			getNoteTab(tabIndex).setPreferences();
-		}
-	}
-
-	/**
 	 * Returns a NoteTab object given an index in the tab folder.
 	 * 
 	 * @param index
@@ -394,161 +550,5 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	private NoteTab getNoteTab(int index) {
 		return (NoteTab) (noteTabsFolder.getItem(index).getControl());
-	}
-
-	/**
-	 * Performs the new note action.
-	 */
-	public void doNewNote() {
-		String namePrefix = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
-				PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
-		// Add a new tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
-		addNewTab(namePrefix + " " + (noteTabsFolder.getItemCount() + 1), "", "");
-		noteTabsFolder.setSelection(noteTabsFolder.getItemCount() - 1);
-	}
-
-	/**
-	 * Performs the clear note action.
-	 */
-	public void doClearNote() {
-		if (noteTabsFolder.getItemCount() == 0)
-			return;
-		getNoteTab(noteTabsFolder.getSelectionIndex()).clearText();
-	}
-
-	/**
-	 * Performs the bold text action.
-	 */
-	public void doBoldText() {
-		if (noteTabsFolder.getItemCount() == 0)
-			return;
-		getNoteTab(noteTabsFolder.getSelectionIndex()).boldSelection();
-	}
-
-	/**
-	 * Performs the italic text action.
-	 */
-	public void doItalicText() {
-		if (noteTabsFolder.getItemCount() == 0)
-			return;
-		getNoteTab(noteTabsFolder.getSelectionIndex()).italicSelection();
-	}
-
-	/**
-	 * Performs the underline text action.
-	 */
-	public void doUnderlineText() {
-		if (noteTabsFolder.getItemCount() == 0)
-			return;
-		getNoteTab(noteTabsFolder.getSelectionIndex()).underlineSelection();
-	}
-
-	/**
-	 * Performs the clear text action.
-	 */
-	public void doClearTextStyle() {
-		if (noteTabsFolder.getItemCount() == 0)
-			return;
-		getNoteTab(noteTabsFolder.getSelectionIndex()).clearSelectionStyles();
-	}
-
-	/**
-	 * Performs the save note action.
-	 */
-	public void doSaveNote() {
-		if (noteTabsFolder.getItemCount() == 0)
-			return;
-		getNoteTab(noteTabsFolder.getSelectionIndex()).saveToFile(getSite());
-	}
-
-	/**
-	 * Performs the rename note action.
-	 */
-	public void doRenameNote() {
-		if (noteTabsFolder.getItemCount() == 0)
-			return;
-
-		// Open a dialog window so user can enter the new name of his note.
-		InputDialog inputDialog = new InputDialog(getSite().getShell(), "Rename Note",
-				"Please select the new name of the note:", null, null);
-		int returnValue = inputDialog.open();
-		if (returnValue == SWT.CANCEL)
-			return;
-
-		noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).setText(inputDialog.getValue());
-	}
-
-	/**
-	 * Performs the move note left action.
-	 */
-	public void doMoveNoteLeft() {
-		// Do not move left if there are no notes (== -1), or if first note.
-		if (noteTabsFolder.getSelectionIndex() < 1)
-			return;
-		swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() - 1);
-	}
-
-	/**
-	 * Performs the move note right action.
-	 */
-	public void doMoveNoteRight() {
-		// Do note move right if only one or no notes, or if last note.
-		if (noteTabsFolder.getItemCount() < 2
-				|| noteTabsFolder.getSelectionIndex() == noteTabsFolder.getItemCount() - 1)
-			return;
-		swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() + 1);
-	}
-
-	/**
-	 * Performs the preferences action.
-	 */
-	public void doPreferences() {
-		// Create preference dialog page that will appear in current workbench window.
-		PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null, "notepad4e.preferences.PreferencePage",
-				new String[] { "notepad4e.preferences.PreferencePage" }, null);
-		dialog.open();
-	}
-
-	/**
-	 * Performs the website action.
-	 */
-	public void doWebsite() {
-		// Open website in the user's external browser.
-		Program.launch("https://github.com/PyvesB/Notepad4e");
-	}
-
-	/**
-	 * Performs the undo text action.
-	 */
-	public void doUndo() {
-		getNoteTab(noteTabsFolder.getSelectionIndex()).undo();
-	}
-
-	/**
-	 * Performs the redo text action.
-	 */
-	public void doRedo() {
-		getNoteTab(noteTabsFolder.getSelectionIndex()).redo();
-	}
-
-	/**
-	 * Checks whether the selected NoteTab in the view has focus.
-	 * 
-	 * @return true if the selected NoteTab in the view has focus
-	 */
-	public boolean isFocused() {
-		if (noteTabsFolder.getItemCount() == 0)
-			return false;
-		return (getNoteTab(noteTabsFolder.getSelectionIndex()).isFocusControl() || noteTabsFolder.isFocusControl());
-	}
-
-	/**
-	 * Unregister listeners and clean up.
-	 */
-	@Override
-	public void dispose() {
-		Display.getCurrent().removeFilter(SWT.KeyDown, shortcutManager);
-		preferences.removePreferenceChangeListener(this);
-		super.dispose();
 	}
 }
