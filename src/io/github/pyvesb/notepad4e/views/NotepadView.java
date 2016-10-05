@@ -520,7 +520,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * @param text
 	 * @param image
 	 */
-	private void setTextAndImageToAction(Action action, String text, String image) {
+	private static void setTextAndImageToAction(Action action, String text, String image) {
 		action.setText(text);
 		action.setToolTipText(text);
 
