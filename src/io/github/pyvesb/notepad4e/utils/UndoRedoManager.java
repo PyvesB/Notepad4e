@@ -20,15 +20,15 @@ public class UndoRedoManager {
 	// populating stacks in this case.
 	protected boolean lastActionUndoOrRedo = true;
 
+	// Reference to the NoteTab this manager is handling.
+	protected NoteTab noteTab;
+
 	// Used to limit the size of undo and redo actions from growing indefinitely.
 	private static final int MAX_STACK_SIZES = 100;
 
 	// Stacks used to store previous text actions and styles.
 	private Stack<ModificationRecord> undoStack;
 	private Stack<ModificationRecord> redoStack;
-
-	// Reference to the NoteTab this manager is handling.
-	private NoteTab noteTab;
 
 	// Styles before starting any undo actions.
 	private StyleRange[] stylesBeforeUndo;
@@ -38,10 +38,10 @@ public class UndoRedoManager {
 	 * 
 	 * @param noteTab
 	 */
-	public UndoRedoManager(NoteTab noteTab) {
+	public UndoRedoManager(NoteTab note) {
 		undoStack = new Stack<>();
 		redoStack = new Stack<>();
-		this.noteTab = noteTab;
+		this.noteTab = note;
 
 		// Listen to text modifications.
 		noteTab.addVerifyListener(new VerifyListener() {
