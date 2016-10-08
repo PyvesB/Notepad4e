@@ -8,6 +8,26 @@
 <img src ="http://images.jupload.fr/1475927146.png" />
 </p>
 
+### Features
+
+* Create as many notes as you like in one separate Eclipse view.
+* Modify the style of the text (bold, italic, underlined, font, colour, etc.).
+* Customise the appearance of the plugin.
+* Automatically save the contents of your notes between Eclipse sessions.
+* Use traditional text editor shortcuts to boost your productivity.
+* Export notes as text files.
+* Lightweight and user-friendly.
+* No cloud-based data, no user tracking, no ads.
+* Source code available.
+
+### Installation
+
+It is recommended that you download and install the plugin via the Eclipse Marketplace [Eclipse Marketplace](https://marketplace.eclipse.org/content/notepad4e). 
+
+<a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3108021" class="drag" title="Drag to your running Eclipse workspace to install Notepad4e"><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace to install Notepad4e" /></a>
+
+Alternatively, head to the [update site](https://pyvesb.github.io/Notepad4e/).
+
 ### Contributing
 
 Contributions are happily accepted through **pull requests** on GitHub. Feel free to fork the project and share your code!
