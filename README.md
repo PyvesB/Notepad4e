@@ -2,13 +2,17 @@
 
 **Create highly customisable notes in Eclipse, and never lose track of your thoughts, ideas or code snippets!**
 
-# Contributing
+<p align="center">
+<img src ="http://images.jupload.fr/1475921583.png" />
+</p>
+
+### Contributing
 
 Contributions are happily accepted through **pull requests** on GitHub. Feel free to fork the project and share your code!
 
 You can also **star this repository** to support the open-source project!
 
-# Setting your own working copy of the project
+### Setting your own working copy of the project
 
 * Ensure you have a working version of the [JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) (Java Development Kit).
 * Download the [RCP and RAP Developers](https://eclipse.org/downloads/eclipse-packages/) version of Eclipse.
