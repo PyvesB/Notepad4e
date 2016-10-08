@@ -4,6 +4,7 @@
 
 <p align="center">
 <img src ="http://images.jupload.fr/1475921583.png" />
+<img src ="http://images.jupload.fr/1475927146.png" />
 </p>
 
 ### Contributing
