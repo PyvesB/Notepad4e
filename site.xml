@@ -3,7 +3,7 @@
    <description name="Notepad4e update site" url="https://pyvesb.github.io/Notepad4e/">
       The Notepad4e plugin update site.
    </description>
-   <feature url="features/io.github.pyvesb.notepad4e_1.0.0.201610081005.jar" id="io.github.pyvesb.notepad4e" version="1.0.0.201610081005">
+   <feature url="features/io.github.pyvesb.notepad4e_1.0.0.201610081011.jar" id="io.github.pyvesb.notepad4e" version="1.0.0.201610081011">
       <category name="io.github.pyvesb.notepad4e"/>
    </feature>
    <category-def name="io.github.pyvesb.notepad4e" label="Notepad4e">
