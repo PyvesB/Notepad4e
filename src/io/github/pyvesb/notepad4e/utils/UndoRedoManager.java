@@ -25,7 +25,7 @@ public class UndoRedoManager {
 	protected NoteTab noteTab;
 
 	// Used to limit the size of undo and redo actions from growing indefinitely.
-	private static final int MAX_DEQUE_SIZES = 100;
+	private static final int MAX_DEQUE_SIZES = 250;
 
 	// Deques used to store previous text actions and styles.
 	private Deque<ModificationRecord> undoDeque;
