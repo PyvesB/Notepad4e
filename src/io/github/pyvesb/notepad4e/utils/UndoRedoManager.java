@@ -1,6 +1,7 @@
 package io.github.pyvesb.notepad4e.utils;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.VerifyEvent;
@@ -27,8 +28,8 @@ public class UndoRedoManager {
 	private static final int MAX_STACK_SIZES = 100;
 
 	// Stacks used to store previous text actions and styles.
-	private Stack<ModificationRecord> undoStack;
-	private Stack<ModificationRecord> redoStack;
+	private Deque<ModificationRecord> undoStack;
+	private Deque<ModificationRecord> redoStack;
 
 	// Styles before starting any undo actions.
 	private StyleRange[] stylesBeforeUndo;
@@ -39,8 +40,8 @@ public class UndoRedoManager {
 	 * @param noteTab
 	 */
 	public UndoRedoManager(NoteTab note) {
-		undoStack = new Stack<>();
-		redoStack = new Stack<>();
+		undoStack = new ArrayDeque<>();
+		redoStack = new ArrayDeque<>();
 		this.noteTab = note;
 
 		// Listen to text modifications.
@@ -79,7 +80,7 @@ public class UndoRedoManager {
 
 		// Limit maximum size of stack by clearing oldest records.
 		if (undoStack.size() > MAX_STACK_SIZES) {
-			undoStack.remove(0);
+			undoStack.poll();
 		}
 	}
 
