@@ -18,18 +18,18 @@ import io.github.pyvesb.notepad4e.views.NoteTab;
 public class UndoRedoManager {
 
 	// When performing an undo or redo action action, the ExtendedModifyListener is fired; boolean used to prevent from
-	// populating stacks in this case.
+	// populating deques in this case.
 	protected boolean lastActionUndoOrRedo = true;
 
 	// Reference to the NoteTab this manager is handling.
 	protected NoteTab noteTab;
 
 	// Used to limit the size of undo and redo actions from growing indefinitely.
-	private static final int MAX_STACK_SIZES = 100;
+	private static final int MAX_DEQUE_SIZES = 100;
 
-	// Stacks used to store previous text actions and styles.
-	private Deque<ModificationRecord> undoStack;
-	private Deque<ModificationRecord> redoStack;
+	// Deques used to store previous text actions and styles.
+	private Deque<ModificationRecord> undoDeque;
+	private Deque<ModificationRecord> redoDeque;
 
 	// Styles before starting any undo actions.
 	private StyleRange[] stylesBeforeUndo;
@@ -40,8 +40,8 @@ public class UndoRedoManager {
 	 * @param noteTab
 	 */
 	public UndoRedoManager(NoteTab note) {
-		undoStack = new ArrayDeque<>();
-		redoStack = new ArrayDeque<>();
+		undoDeque = new ArrayDeque<>();
+		redoDeque = new ArrayDeque<>();
 		this.noteTab = note;
 
 		// Listen to text modifications.
@@ -65,22 +65,22 @@ public class UndoRedoManager {
 	 * @param styles
 	 */
 	public void recordTabModification(VerifyEvent event, StyleRange[] styles) {
-		// Previous action cannot be an undo: empty redo stack and remove stylesBeforeUndo.
-		redoStack.clear();
+		// Previous action cannot be an undo: empty redo deque and remove stylesBeforeUndo.
+		redoDeque.clear();
 		stylesBeforeUndo = null;
 
 		// Construct modification record depending on whether the function was called by a style or a text
-		// modification and push it on the stack.
+		// modification and push it on the deque.
 		if (event != null) {
-			undoStack.push(new ModificationRecord(styles, event.start, event.text.length(),
+			undoDeque.push(new ModificationRecord(styles, event.start, event.text.length(),
 					noteTab.getText().substring(event.start, event.end), event.text));
 		} else {
-			undoStack.push(new ModificationRecord(styles, 0, 0, null, null));
+			undoDeque.push(new ModificationRecord(styles, 0, 0, null, null));
 		}
 
-		// Limit maximum size of stack by clearing oldest records.
-		if (undoStack.size() > MAX_STACK_SIZES) {
-			undoStack.poll();
+		// Limit maximum size of deque by clearing oldest records.
+		if (undoDeque.size() > MAX_DEQUE_SIZES) {
+			undoDeque.pollLast();
 		}
 	}
 
@@ -89,7 +89,7 @@ public class UndoRedoManager {
 	 */
 	public void undo() {
 		// Nothing to undo.
-		if (undoStack.isEmpty()) {
+		if (undoDeque.isEmpty()) {
 			return;
 		}
 
@@ -99,7 +99,7 @@ public class UndoRedoManager {
 			stylesBeforeUndo = noteTab.getStyleRanges();
 		}
 
-		ModificationRecord undoFragment = undoStack.pop();
+		ModificationRecord undoFragment = undoDeque.pop();
 
 		if (undoFragment.getReplacedText() != null) {
 			// Ignore next ExtendedModifyEvent.
@@ -116,7 +116,7 @@ public class UndoRedoManager {
 
 		noteTab.setStyleRanges(undoFragment.getStyles());
 
-		redoStack.push(undoFragment);
+		redoDeque.push(undoFragment);
 	}
 
 	/**
@@ -124,11 +124,11 @@ public class UndoRedoManager {
 	 */
 	public void redo() {
 		// Nothing to redo.
-		if (redoStack.isEmpty()) {
+		if (redoDeque.isEmpty()) {
 			return;
 		}
 
-		ModificationRecord redoFragment = redoStack.pop();
+		ModificationRecord redoFragment = redoDeque.pop();
 
 		if (redoFragment.getNewText() != null) {
 			// Ignore next ExtendedModifyEvent.
@@ -144,17 +144,17 @@ public class UndoRedoManager {
 			noteTab.setText(previousString.toString());
 		}
 
-		if (!redoStack.isEmpty()) {
+		if (!redoDeque.isEmpty()) {
 			// Styles in ModificationRecord correspond to how they were before the change; redo actions go through the
-			// timeline in the other way, the styles must be taken from the next element in the stack without removing
+			// timeline in the other way, the styles must be taken from the next element in the deque without removing
 			// it.
-			noteTab.setStyleRanges(redoStack.peek().getStyles());
+			noteTab.setStyleRanges(redoDeque.peek().getStyles());
 		} else {
-			// stack empty: set styles to how they were before any undo actions.
+			// deque empty: set styles to how they were before any undo actions.
 			noteTab.setStyleRanges(stylesBeforeUndo);
 		}
 
-		undoStack.push(redoFragment);
+		undoDeque.push(redoFragment);
 	}
 
 	/**
