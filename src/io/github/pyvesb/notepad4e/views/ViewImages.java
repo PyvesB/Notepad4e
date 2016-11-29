@@ -22,4 +22,7 @@ public class ViewImages {
 	public static final String PREFERENCES = "/icons/settings_obj.png";
 	public static final String WEBSITE = "/icons/web.png";
 
+	private ViewImages() {
+		// Not called.
+	}
 }

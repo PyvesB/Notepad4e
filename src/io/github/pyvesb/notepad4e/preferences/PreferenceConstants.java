@@ -28,4 +28,7 @@ public class PreferenceConstants {
 	public static final int PREF_LINE_SPACING_DEFAULT = 0;
 	public static final String PREF_NAME_PREFIX_DEFAULT = "Note";
 
+	private PreferenceConstants() {
+		// Not called.
+	}
 }

@@ -70,15 +70,17 @@ public class UndoRedoManager {
 
 		// Construct modification record depending on whether the function was called by a style or a text
 		// modification and push it on the stack.
-		if (event != null)
+		if (event != null) {
 			undoStack.push(new ModificationRecord(styles, event.start, event.text.length(),
 					noteTab.getText().substring(event.start, event.end), event.text));
-		else
+		} else {
 			undoStack.push(new ModificationRecord(styles, 0, 0, null, null));
+		}
 
 		// Limit maximum size of stack by clearing oldest records.
-		if (undoStack.size() > MAX_STACK_SIZES)
+		if (undoStack.size() > MAX_STACK_SIZES) {
 			undoStack.remove(0);
+		}
 	}
 
 	/**
@@ -86,8 +88,9 @@ public class UndoRedoManager {
 	 */
 	public void undo() {
 		// Nothing to undo.
-		if (undoStack.isEmpty())
+		if (undoStack.isEmpty()) {
 			return;
+		}
 
 		// Set styles at the point where undo action start being performed; this information is not stored by any
 		// ModificationRecord as they contain styles as they were before the event.
@@ -120,8 +123,9 @@ public class UndoRedoManager {
 	 */
 	public void redo() {
 		// Nothing to redo.
-		if (redoStack.isEmpty())
+		if (redoStack.isEmpty()) {
 			return;
+		}
 
 		ModificationRecord redoFragment = redoStack.pop();
 

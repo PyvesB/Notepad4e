@@ -172,8 +172,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the clear note action.
 	 */
 	public void doClearNote() {
-		if (noteTabsFolder.getItemCount() == 0)
+		if (noteTabsFolder.getItemCount() == 0) {
 			return;
+		}
 		getNoteTab(noteTabsFolder.getSelectionIndex()).clearText();
 	}
 
@@ -181,8 +182,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the bold text action.
 	 */
 	public void doBoldText() {
-		if (noteTabsFolder.getItemCount() == 0)
+		if (noteTabsFolder.getItemCount() == 0) {
 			return;
+		}
 		getNoteTab(noteTabsFolder.getSelectionIndex()).boldSelection();
 	}
 
@@ -190,8 +192,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the italic text action.
 	 */
 	public void doItalicText() {
-		if (noteTabsFolder.getItemCount() == 0)
+		if (noteTabsFolder.getItemCount() == 0) {
 			return;
+		}
 		getNoteTab(noteTabsFolder.getSelectionIndex()).italicSelection();
 	}
 
@@ -199,8 +202,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the underline text action.
 	 */
 	public void doUnderlineText() {
-		if (noteTabsFolder.getItemCount() == 0)
+		if (noteTabsFolder.getItemCount() == 0) {
 			return;
+		}
 		getNoteTab(noteTabsFolder.getSelectionIndex()).underlineSelection();
 	}
 
@@ -208,8 +212,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the clear text action.
 	 */
 	public void doClearTextStyle() {
-		if (noteTabsFolder.getItemCount() == 0)
+		if (noteTabsFolder.getItemCount() == 0) {
 			return;
+		}
 		getNoteTab(noteTabsFolder.getSelectionIndex()).clearSelectionStyles();
 	}
 
@@ -217,8 +222,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the save note action.
 	 */
 	public void doSaveNote() {
-		if (noteTabsFolder.getItemCount() == 0)
+		if (noteTabsFolder.getItemCount() == 0) {
 			return;
+		}
 		getNoteTab(noteTabsFolder.getSelectionIndex()).saveToFile(getSite());
 	}
 
@@ -226,15 +232,17 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the rename note action.
 	 */
 	public void doRenameNote() {
-		if (noteTabsFolder.getItemCount() == 0)
+		if (noteTabsFolder.getItemCount() == 0) {
 			return;
+		}
 
 		// Open a dialog window so user can enter the new name of his note.
 		InputDialog inputDialog = new InputDialog(getSite().getShell(), "Rename Note",
 				"Please select the new name of the note:", null, null);
 		int returnValue = inputDialog.open();
-		if (returnValue == SWT.CANCEL)
+		if (returnValue == SWT.CANCEL) {
 			return;
+		}
 
 		noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).setText(inputDialog.getValue());
 	}
@@ -244,8 +252,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	public void doMoveNoteLeft() {
 		// Do not move left if there are no notes (== -1), or if first note.
-		if (noteTabsFolder.getSelectionIndex() < 1)
+		if (noteTabsFolder.getSelectionIndex() < 1) {
 			return;
+		}
 		swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() - 1);
 	}
 
@@ -255,8 +264,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doMoveNoteRight() {
 		// Do note move right if only one or no notes, or if last note.
 		if (noteTabsFolder.getItemCount() < 2
-				|| noteTabsFolder.getSelectionIndex() == noteTabsFolder.getItemCount() - 1)
+				|| noteTabsFolder.getSelectionIndex() == noteTabsFolder.getItemCount() - 1) {
 			return;
+		}
 		swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() + 1);
 	}
 
@@ -298,9 +308,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * @return true if the selected NoteTab in the view has focus
 	 */
 	public boolean isFocused() {
-		if (noteTabsFolder.getItemCount() == 0)
+		if (noteTabsFolder.getItemCount() == 0) {
 			return false;
-		return (getNoteTab(noteTabsFolder.getSelectionIndex()).isFocusControl() || noteTabsFolder.isFocusControl());
+		}
+		return getNoteTab(noteTabsFolder.getSelectionIndex()).isFocusControl() || noteTabsFolder.isFocusControl();
 	}
 
 	/**
@@ -326,8 +337,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		int numOfTabs = 0;
 		String numOfTabsString = section.get(STORE_COUNT_KEY);
 		// numOfTabsString can be null if plugin was not previously launched in this working environment.
-		if (numOfTabsString != null)
+		if (numOfTabsString != null) {
 			numOfTabs = Integer.parseInt(numOfTabsString);
+		}
 
 		if (numOfTabs == 0) {
 			// No tabs were previously opened: create new tab.
@@ -368,8 +380,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			}
 		});
 		NoteTab tab = new NoteTab(noteTabsFolder, text, shortcutManager);
-		if (style.length() > 0)
+		if (style.length() > 0) {
 			tab.deserialiseStyle(style);
+		}
 		noteTabItem.setControl(tab);
 	}
 

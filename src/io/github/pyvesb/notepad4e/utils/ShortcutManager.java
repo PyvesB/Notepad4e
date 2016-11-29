@@ -42,8 +42,9 @@ public class ShortcutManager implements Listener {
 			// ctrl+shift+z redo shortcut; also available via ctrl+y.
 			if (event.keyCode == 'z') {
 				notepadView.doRedo();
-			} else
+			} else {
 				return;
+			}
 		} else if ((event.stateMask & SWT.CTRL) == SWT.CTRL || (event.stateMask & SWT.COMMAND) == SWT.COMMAND) {
 			// ctrl+key shortcut.
 			switch (event.keyCode) {

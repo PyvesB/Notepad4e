@@ -100,8 +100,9 @@ public class NoteTab extends StyledText {
 		super.dispose();
 		fontColor.dispose();
 		backgroundColor.dispose();
-		if (font != null)
+		if (font != null) {
 			font.dispose();
+		}
 		menuItemUndo.dispose();
 		menuItemRedo.dispose();
 		menuItemCut.dispose();
@@ -121,20 +122,22 @@ public class NoteTab extends StyledText {
 				PreferenceConstants.PREF_LINE_SPACING_DEFAULT));
 
 		// Line wrap parameter.
-		if (preferences.getBoolean(PreferenceConstants.PREF_WRAP, PreferenceConstants.PREF_WRAP_DEFAULT) == true)
+		if (preferences.getBoolean(PreferenceConstants.PREF_WRAP, PreferenceConstants.PREF_WRAP_DEFAULT)) {
 			setWordWrap(true);
-		else
+		} else {
 			setWordWrap(false);
+		}
 
 		// Text justify parameter.
-		if (preferences.getBoolean(PreferenceConstants.PREF_JUSTIFY, PreferenceConstants.PREF_JUSTIFY_DEFAULT) == true)
+		if (preferences.getBoolean(PreferenceConstants.PREF_JUSTIFY, PreferenceConstants.PREF_JUSTIFY_DEFAULT)) {
 			setJustify(true);
-		else
+		} else {
 			setJustify(false);
+		}
 
 		// Alignment parameter (left or right).
-		if (preferences.get(PreferenceConstants.PREF_ALIGNMENT, PreferenceConstants.PREF_ALIGNMENT_DEFAULT)
-				.equals("right")) {
+		if ("right".equals(
+				preferences.get(PreferenceConstants.PREF_ALIGNMENT, PreferenceConstants.PREF_ALIGNMENT_DEFAULT))) {
 			setAlignment(SWT.RIGHT);
 			// Word wrapping must be enabled for right alignment to be effective.
 			setWordWrap(true);
@@ -264,7 +267,7 @@ public class NoteTab extends StyledText {
 			styleSerialisation.append(currentStyles[styleIndex].fontStyle);
 			styleSerialisation.append(STRING_SEPARATOR);
 			// If underlined, 1, else 0.
-			styleSerialisation.append((currentStyles[styleIndex].underline) ? 1 : 0);
+			styleSerialisation.append(currentStyles[styleIndex].underline ? 1 : 0);
 			styleSerialisation.append(STRING_SEPARATOR);
 		}
 		return styleSerialisation.toString();
@@ -303,43 +306,30 @@ public class NoteTab extends StyledText {
 		fileDialog.setText("Save to File");
 		String fileName = fileDialog.open();
 		// Invalid name specified.
-		if (fileName == null || fileName.length() == 0)
+		if (fileName == null || fileName.length() == 0) {
 			return;
+		}
 
 		File file = new File(fileName);
 		if (file.exists()) {
 			boolean overwrite = MessageDialog.openQuestion(iWorkbenchPartSite.getShell(), "File already exists",
 					"Do you want to overwrite?");
-			if (!overwrite)
+			if (!overwrite) {
 				return;
+			}
 		}
 
-		FileOutputStream outStream = null;
-		PrintWriter printStream = null;
 		// Write the current note tab's text to the file, with handling of IO exceptions.
-		try {
-			outStream = new FileOutputStream(file);
-			printStream = new PrintWriter(outStream);
+		try (FileOutputStream outStream = new FileOutputStream(file);
+				PrintWriter printStream = new PrintWriter(outStream)) {
 			printStream.print(getText());
 			printStream.flush();
+			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "File Saved",
+					"The file has been succesfully saved.");
 		} catch (IOException e) {
 			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Error", SAVE_ERROR);
 			ILog log = Notepad4e.getDefault().getLog();
 			log.log(new Status(IStatus.ERROR, SAVE_ERROR, e.toString()));
-		} finally {
-			if (printStream != null)
-				printStream.close();
-			try {
-				if (outStream != null) {
-					outStream.close();
-					MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "File Saved",
-							"The file has been succesfully saved.");
-				}
-			} catch (IOException e) {
-				MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Error", SAVE_ERROR);
-				ILog log = Notepad4e.getDefault().getLog();
-				log.log(new Status(IStatus.ERROR, SAVE_ERROR, e.toString()));
-			}
 		}
 	}
 
