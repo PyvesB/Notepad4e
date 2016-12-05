@@ -15,10 +15,13 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabFolder2Listener;
+import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -96,7 +99,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		noteTabsFolder = new CTabFolder(parent, SWT.MULTI | SWT.WRAP);
 		// Listen to disposal of the tab folder and save state for next Eclipse session or when reopening the view.
 		noteTabsFolder.addDisposeListener(new DisposeListener() {
-
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				IDialogSettings settings = Notepad4e.getDefault().getDialogSettings();
@@ -108,7 +110,30 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).serialiseStyle());
 					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, noteTabsFolder.getItem(tabIndex).getText());
 				}
+			}
+		});
+		noteTabsFolder.addCTabFolder2Listener(new CTabFolder2Listener() {
 
+			@Override
+			public void close(CTabFolderEvent e) {
+				e.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Note",
+						"Are you sure you want to close this note?");
+			}
+
+			@Override
+			public void minimize(CTabFolderEvent event) {
+			}
+
+			@Override
+			public void maximize(CTabFolderEvent event) {
+			}
+
+			@Override
+			public void restore(CTabFolderEvent event) {
+			}
+
+			@Override
+			public void showList(CTabFolderEvent event) {
 			}
 		});
 
@@ -300,6 +325,19 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	public void doRedo() {
 		getNoteTab(noteTabsFolder.getSelectionIndex()).redo();
+	}
+	
+	/**
+	 * Performs the close note action.
+	 */
+	public void doClose() {
+		if (noteTabsFolder.getItemCount() == 0) {
+			return;
+		}
+		if (MessageDialog.openQuestion(getSite().getShell(), "Close Note",
+				"Are you sure you want to close this note?")) {
+			noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).dispose();
+		}
 	}
 
 	/**

@@ -34,8 +34,9 @@ public class ShortcutManager implements Listener {
 	@Override
 	public void handleEvent(Event event) {
 		// Check whether focus is on the plugin's view, ignore if not.
-		if (!notepadView.isFocused())
+		if (!notepadView.isFocused()) {
 			return;
+		}
 
 		if ((event.stateMask & (SWT.CTRL | SWT.SHIFT)) == (SWT.CTRL | SWT.SHIFT)
 				|| (event.stateMask & (SWT.COMMAND | SWT.SHIFT)) == (SWT.COMMAND | SWT.SHIFT)) {
@@ -71,6 +72,9 @@ public class ShortcutManager implements Listener {
 				break;
 			case 'y':
 				notepadView.doRedo();
+				break;
+			case 'w':
+				notepadView.doClose();
 				break;
 			default:
 				return;
