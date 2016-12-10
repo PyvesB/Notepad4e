@@ -21,6 +21,7 @@ public class ViewImages {
 	public static final String MOVE_NOTE_RIGHT = "/icons/navigate-next.gif";
 	public static final String PREFERENCES = "/icons/settings_obj.png";
 	public static final String WEBSITE = "/icons/web.png";
+	public static final String CHANGELOG = "/icons/changelog_obj.gif";
 
 	private ViewImages() {
 		// Not called.

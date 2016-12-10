@@ -312,7 +312,7 @@ public class NoteTab extends StyledText {
 
 		File file = new File(fileName);
 		if (file.exists()) {
-			boolean overwrite = MessageDialog.openQuestion(iWorkbenchPartSite.getShell(), "File already exists",
+			boolean overwrite = MessageDialog.openQuestion(iWorkbenchPartSite.getShell(), "File Already Exists",
 					"Do you want to overwrite?");
 			if (!overwrite) {
 				return;

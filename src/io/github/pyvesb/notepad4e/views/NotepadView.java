@@ -70,6 +70,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action moveNoteRightAction;
 	private Action preferencesAction;
 	private Action websiteAction;
+	private Action changelogAction;
 
 	// User defined preferences.
 	private IEclipsePreferences preferences;
@@ -312,6 +313,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		// Open website in the user's external browser.
 		Program.launch("https://github.com/PyvesB/Notepad4e");
 	}
+	
+	/**
+	 * Performs the changelog action.
+	 */
+	public void doChangelog() {
+		// Open changelog page in the user's external browser.
+		Program.launch("https://github.com/PyvesB/Notepad4e/releases");
+	}
 
 	/**
 	 * Performs the undo text action.
@@ -446,6 +455,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		manager.add(new Separator());
 		manager.add(preferencesAction);
 		manager.add(websiteAction);
+		manager.add(changelogAction);
 	}
 
 	/**
@@ -562,6 +572,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			}
 		};
 		setTextAndImageToAction(websiteAction, "Webpage", ViewImages.WEBSITE);
+		
+		changelogAction = new Action() {
+			@Override
+			public void run() {
+				doChangelog();
+			}
+		};
+		setTextAndImageToAction(changelogAction, "Changelog", ViewImages.CHANGELOG);
 	}
 
 	/**
