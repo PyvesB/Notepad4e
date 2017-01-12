@@ -18,6 +18,7 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.util.Geometry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Listener;
@@ -25,9 +26,16 @@ import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.DragDetectEvent;
+import org.eclipse.swt.events.DragDetectListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Tracker;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
@@ -66,8 +74,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action clearTextStyleAction;
 	private Action saveNoteAction;
 	private Action renameNoteAction;
-	private Action moveNoteLeftAction;
-	private Action moveNoteRightAction;
 	private Action preferencesAction;
 	private Action websiteAction;
 	private Action changelogAction;
@@ -135,6 +141,38 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 			@Override
 			public void showList(CTabFolderEvent event) {
+			}
+		});
+
+		noteTabsFolder.addDragDetectListener(new DragDetectListener() {
+			@Override
+			public void dragDetected(DragDetectEvent dragDetectedEvent) {
+				Rectangle viewRectangle = Geometry.toDisplay(noteTabsFolder.getParent(), noteTabsFolder.getBounds());
+				Tracker tracker = new Tracker(noteTabsFolder, SWT.NONE);
+				tracker.setStippled(true);
+				tracker.addListener(SWT.Move, new Listener() {
+					@Override
+					public void handleEvent(Event event) {
+						Point location = new Point(event.x - viewRectangle.x, event.y - viewRectangle.y);
+						CTabItem tabAtLocation = noteTabsFolder.getItem(location);
+						if (tabAtLocation != null) {
+							tracker.setRectangles(new Rectangle[] { tabAtLocation.getBounds() });
+						} else {
+							tracker.setRectangles(new Rectangle[0]);
+						}
+					}
+				});
+				if (tracker.open()) {
+					Rectangle[] rectangles = tracker.getRectangles();
+					if (rectangles.length > 0) {
+						CTabItem tabToSwap = noteTabsFolder.getItem(new Point(rectangles[0].x, rectangles[0].y));
+						if (tabToSwap != null) {
+							swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.indexOf(tabToSwap));
+						}
+					}
+				}
+				tracker.close();
+				tracker.dispose();
 			}
 		});
 
@@ -313,7 +351,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		// Open website in the user's external browser.
 		Program.launch("https://github.com/PyvesB/Notepad4e");
 	}
-	
+
 	/**
 	 * Performs the changelog action.
 	 */
@@ -335,7 +373,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doRedo() {
 		getNoteTab(noteTabsFolder.getSelectionIndex()).redo();
 	}
-	
+
 	/**
 	 * Performs the close note action.
 	 */
@@ -450,8 +488,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private void fillLocalPullDown(IMenuManager manager) {
 		manager.add(saveNoteAction);
 		manager.add(renameNoteAction);
-		manager.add(moveNoteLeftAction);
-		manager.add(moveNoteRightAction);
 		manager.add(new Separator());
 		manager.add(preferencesAction);
 		manager.add(websiteAction);
@@ -541,22 +577,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		};
 		setTextAndImageToAction(renameNoteAction, "Rename Note", ViewImages.RENAME_NOTE);
 
-		moveNoteLeftAction = new Action() {
-			@Override
-			public void run() {
-				doMoveNoteLeft();
-			}
-		};
-		setTextAndImageToAction(moveNoteLeftAction, "Move Left", ViewImages.MOVE_NOTE_LEFT);
-
-		moveNoteRightAction = new Action() {
-			@Override
-			public void run() {
-				doMoveNoteRight();
-			}
-		};
-		setTextAndImageToAction(moveNoteRightAction, "Move Right", ViewImages.MOVE_NOTE_RIGHT);
-
 		preferencesAction = new Action() {
 			@Override
 			public void run() {
@@ -572,7 +592,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			}
 		};
 		setTextAndImageToAction(websiteAction, "Webpage", ViewImages.WEBSITE);
-		
+
 		changelogAction = new Action() {
 			@Override
 			public void run() {

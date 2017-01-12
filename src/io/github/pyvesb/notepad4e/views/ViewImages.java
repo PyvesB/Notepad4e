@@ -17,8 +17,6 @@ public class ViewImages {
 	public static final String CLEAR_TEXT = "/icons/clear_co.gif";
 	public static final String SAVE_NOTE = "/icons/saveas_edit_floppy.png";
 	public static final String RENAME_NOTE = "/icons/text_edit.gif";
-	public static final String MOVE_NOTE_LEFT = "/icons/navigate-previous.gif";
-	public static final String MOVE_NOTE_RIGHT = "/icons/navigate-next.gif";
 	public static final String PREFERENCES = "/icons/settings_obj.png";
 	public static final String WEBSITE = "/icons/web.png";
 	public static final String CHANGELOG = "/icons/changelog_obj.gif";
