@@ -156,8 +156,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 						Point location = new Point(event.x - viewRectangle.x, event.y - viewRectangle.y);
 						CTabItem tabAtLocation = noteTabsFolder.getItem(location);
 						if (tabAtLocation != null) {
+							// Move tracker to follow mouse cursor.
 							tracker.setRectangles(new Rectangle[] { tabAtLocation.getBounds() });
 						} else {
+							// Mouse cursor no longer above any tab in the action bar, hide tacker.
 							tracker.setRectangles(new Rectangle[0]);
 						}
 					}
@@ -166,6 +168,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 					Rectangle[] rectangles = tracker.getRectangles();
 					if (rectangles.length > 0) {
 						CTabItem tabToSwap = noteTabsFolder.getItem(new Point(rectangles[0].x, rectangles[0].y));
+						// Swap selected tab with the one situated at the mouse cursor's position.
 						if (tabToSwap != null) {
 							swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.indexOf(tabToSwap));
 						}
