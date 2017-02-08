@@ -48,5 +48,131 @@
             file="contexts.xml">
       </contexts>
    </extension>
-   
+   <extension
+	point="org.eclipse.ui.commands">
+	<category
+        id="notepad4e.command.category"
+        name="Notepad4e" 
+        description="Category for Notepad4e commands">
+  </category>
+      <command
+            categoryId="notepad4e.command.category"
+            id="notepad4e.command.note.new"
+            description="Creates a new note"
+            name="New Note">
+      </command>
+      <command
+            categoryId="notepad4e.command.category"
+            id="notepad4e.command.text.bold"
+            description="Sets the style of the currently selected text to bold"
+            name="Bold">
+      </command>
+       <command
+            categoryId="notepad4e.command.category"
+            id="notepad4e.command.text.italic"
+            description="Sets the style of the currently selected text to italic"
+            name="Italic">
+      </command>
+      <command
+            categoryId="notepad4e.command.category"
+            id="notepad4e.command.text.underline"
+            description="Underlines the currently selected text"
+            name="Underline">
+      </command>
+      <command
+            categoryId="notepad4e.command.category"
+            id="notepad4e.command.text.clear"
+            description="Clears the style of the currently selected text"
+            name="Clear Style">
+      </command>
+      <command
+            categoryId="notepad4e.command.category"
+            id="notepad4e.command.note.clear"
+            description="Clears the current note"
+            name="Clear Note">
+      </command>
+      <command
+            categoryId="notepad4e.command.category"
+            id="notepad4e.command.text.undo"
+            description="Performs an undo action on the current note"
+            name="Undo">
+      </command>
+      <command
+            categoryId="notepad4e.command.category"
+            id="notepad4e.command.text.redo"
+            description="Performs a redo action on the current note"
+            name="Redo">
+      </command>
+      <command
+            categoryId="notepad4e.command.category"
+            id="notepad4e.command.note.close"
+            description="Closes the currently selected note"
+            name="Close Note">
+      </command>
+       </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="notepad4e.command.note.new"
+            contextId="notepad4e.context"
+            sequence="M1+T"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="notepad4e.command.text.bold"
+            contextId="notepad4e.context"
+            sequence="M1+B"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="notepad4e.command.text.italic"
+            contextId="notepad4e.context"
+            sequence="M1+I"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="notepad4e.command.text.underline"
+            contextId="notepad4e.context"
+            sequence="M1+U"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="notepad4e.command.text.clear"
+            contextId="notepad4e.context"
+            sequence="M1+D"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="notepad4e.command.note.clear"
+            contextId="notepad4e.context"
+            sequence="M1+K"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="notepad4e.command.text.undo"
+            contextId="notepad4e.context"
+            sequence="M1+Z"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="notepad4e.command.text.redo"
+            contextId="notepad4e.context"
+            sequence="M1+M2+Z"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="notepad4e.command.note.close"
+            contextId="notepad4e.context"
+            sequence="M1+W"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            id="notepad4e.context"
+            name="In Notepad4e"
+            parentId="org.eclipse.ui.contexts.window">
+      </context>
+   </extension>
 </plugin>

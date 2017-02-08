@@ -13,6 +13,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.bindings.Binding;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -32,18 +33,21 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tracker;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.keys.IBindingService;
 import org.eclipse.ui.part.ViewPart;
 
 import io.github.pyvesb.notepad4e.Notepad4e;
 import io.github.pyvesb.notepad4e.preferences.PreferenceConstants;
-import io.github.pyvesb.notepad4e.utils.ShortcutManager;
+import io.github.pyvesb.notepad4e.utils.NotepadAction;
+import io.github.pyvesb.notepad4e.utils.ShortcutHandler;
 
 /**
  * Class handling the plugin's view with the different note tabs.
@@ -82,13 +86,13 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private IEclipsePreferences preferences;
 
 	// Keyboard events listener.
-	private ShortcutManager shortcutManager;
+	private ShortcutHandler shortcutHandler;
 
 	/**
 	 * Constructor.
 	 */
 	public NotepadView() {
-		shortcutManager = new ShortcutManager(this);
+		shortcutHandler = new ShortcutHandler(this);
 	}
 
 	/**
@@ -99,9 +103,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		preferences = InstanceScope.INSTANCE.getNode(Notepad4e.PLUGIN_ID);
 		// Listen to any change to the preferences of the plugin.
 		preferences.addPreferenceChangeListener(this);
-
-		// Listen to keyboard events.
-		Display.getCurrent().addFilter(SWT.KeyDown, shortcutManager);
 
 		noteTabsFolder = new CTabFolder(parent, SWT.MULTI | SWT.WRAP);
 		// Listen to disposal of the tab folder and save state for next Eclipse session or when reopening the view.
@@ -183,16 +184,28 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(noteTabsFolder, "Notepad4e.viewer");
 
+		IContextService contextService = getSite().getService(IContextService.class);
+		contextService.activateContext("notepad4e.context");
+
+		shortcutHandler = new ShortcutHandler(this);
+		IHandlerService handlerService = getSite().getService(IHandlerService.class);
+		// Associate each shortcut command with the shortcut handler.
+		for (NotepadAction notepadAction : NotepadAction.values()) {
+			if (notepadAction.getCommandID() != null) {
+				handlerService.activateHandler(notepadAction.getCommandID(), shortcutHandler);
+			}
+		}
+
 		makeActions();
 		contributeToActionBars();
 	}
 
 	/**
-	 * Unregister listeners and clean up.
+	 * Unregisters listeners and cleans up.
 	 */
 	@Override
 	public void dispose() {
-		Display.getCurrent().removeFilter(SWT.KeyDown, shortcutManager);
+		shortcutHandler.dispose();
 		preferences.removePreferenceChangeListener(this);
 		super.dispose();
 	}
@@ -391,18 +404,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Checks whether the selected NoteTab in the view has focus.
-	 * 
-	 * @return true if the selected NoteTab in the view has focus
-	 */
-	public boolean isFocused() {
-		if (noteTabsFolder.getItemCount() == 0) {
-			return false;
-		}
-		return getNoteTab(noteTabsFolder.getSelectionIndex()).isFocusControl() || noteTabsFolder.isFocusControl();
-	}
-
-	/**
 	 * Returns a NoteTab object given an index in the tab folder.
 	 * 
 	 * @param index
@@ -467,7 +468,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				((NoteTab) itemToDispose.getControl()).dispose();
 			}
 		});
-		NoteTab tab = new NoteTab(noteTabsFolder, text, shortcutManager);
+		NoteTab tab = new NoteTab(noteTabsFolder, text, shortcutHandler);
 		if (style.length() > 0) {
 			tab.deserialiseStyle(style);
 		}
@@ -522,7 +523,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doNewNote();
 			}
 		};
-		setTextAndImageToAction(addNewNoteAction, "New Note (Ctrl+T)", ViewImages.NEW_NOTE);
+		setTextAndImageToAction(addNewNoteAction, NotepadAction.NEW_NOTE);
 
 		clearNoteAction = new Action() {
 			@Override
@@ -530,7 +531,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doClearNote();
 			}
 		};
-		setTextAndImageToAction(clearNoteAction, "Clear Note (Ctrl+K)", ViewImages.CLEAR_NOTE);
+		setTextAndImageToAction(clearNoteAction, NotepadAction.CLEAR_NOTE);
 
 		boldTextAction = new Action() {
 			@Override
@@ -538,7 +539,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doBoldText();
 			}
 		};
-		setTextAndImageToAction(boldTextAction, "Bold (Ctrl+B)", ViewImages.BOLD_TEXT);
+		setTextAndImageToAction(boldTextAction, NotepadAction.BOLD_TEXT);
 
 		italicTextAction = new Action() {
 			@Override
@@ -546,7 +547,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doItalicText();
 			}
 		};
-		setTextAndImageToAction(italicTextAction, "Italic (Ctrl+I)", ViewImages.ITALIC_TEXT);
+		setTextAndImageToAction(italicTextAction, NotepadAction.ITALIC_TEXT);
 
 		underlineTextAction = new Action() {
 			@Override
@@ -554,7 +555,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doUnderlineText();
 			}
 		};
-		setTextAndImageToAction(underlineTextAction, "Underline (Ctrl+U)", ViewImages.UNDERLINE_TEXT);
+		setTextAndImageToAction(underlineTextAction, NotepadAction.UNDERLINE_TEXT);
 
 		clearTextStyleAction = new Action() {
 			@Override
@@ -562,7 +563,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doClearTextStyle();
 			}
 		};
-		setTextAndImageToAction(clearTextStyleAction, "Clear Style (Ctrl+D)", ViewImages.CLEAR_TEXT);
+		setTextAndImageToAction(clearTextStyleAction, NotepadAction.CLEAR_TEXT_STYLE);
 
 		saveNoteAction = new Action() {
 			@Override
@@ -570,7 +571,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doSaveNote();
 			}
 		};
-		setTextAndImageToAction(saveNoteAction, "Export File", ViewImages.SAVE_NOTE);
+		setTextAndImageToAction(saveNoteAction, NotepadAction.SAVE_NOTE);
 
 		renameNoteAction = new Action() {
 			@Override
@@ -578,7 +579,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doRenameNote();
 			}
 		};
-		setTextAndImageToAction(renameNoteAction, "Rename Note", ViewImages.RENAME_NOTE);
+		setTextAndImageToAction(renameNoteAction, NotepadAction.RENAME_NOTE);
 
 		preferencesAction = new Action() {
 			@Override
@@ -586,7 +587,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doPreferences();
 			}
 		};
-		setTextAndImageToAction(preferencesAction, "Preferences", ViewImages.PREFERENCES);
+		setTextAndImageToAction(preferencesAction, NotepadAction.PREFERENCES);
 
 		websiteAction = new Action() {
 			@Override
@@ -594,7 +595,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doWebsite();
 			}
 		};
-		setTextAndImageToAction(websiteAction, "Webpage", ViewImages.WEBSITE);
+		setTextAndImageToAction(websiteAction, NotepadAction.WEBSITE);
 
 		changelogAction = new Action() {
 			@Override
@@ -602,7 +603,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doChangelog();
 			}
 		};
-		setTextAndImageToAction(changelogAction, "Changelog", ViewImages.CHANGELOG);
+		setTextAndImageToAction(changelogAction, NotepadAction.CHANGELOG);
 	}
 
 	/**
@@ -611,15 +612,44 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * @param action
 	 * @param text
 	 * @param image
+	 * @param shortcut
 	 */
-	private static void setTextAndImageToAction(Action action, String text, String image) {
-		action.setText(text);
-		action.setToolTipText(text);
+	private void setTextAndImageToAction(Action action, NotepadAction notepadAction) {
+		if (notepadAction.getCommandID() != null) {
+			// Action appears in action bar with an associated shortcut.
+			action.setToolTipText(notepadAction.getText() + getShortcutDescription(notepadAction.getCommandID()));
+		} else {
+			// Action appears in drop down menu.
+			action.setText(notepadAction.getText());
+		}
 
-		// The URL matches an image in Eclipse's platform image bank.
-		URL url = FileLocator.find(Platform.getBundle(Notepad4e.PLUGIN_ID), new Path(image), null);
+		// The URL matches an image in the plugin's icons folder.
+		URL url = FileLocator.find(Platform.getBundle(Notepad4e.PLUGIN_ID), new Path(notepadAction.getImagePath()), null);
 		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(url);
 		action.setImageDescriptor(imageDescriptor);
+	}
+
+	/**
+	 * Returns key binding as a String for a given ShortcutCommand.
+	 * 
+	 * @param shortcut
+	 * @return
+	 */
+	private String getShortcutDescription(String commandID) {
+		Binding bestBinding = null;
+		for (Binding binding : getViewSite().getService(IBindingService.class).getBindings()) {
+			if (binding.getParameterizedCommand() != null
+					&& commandID.equals(binding.getParameterizedCommand().getId())) {
+				if (bestBinding == null) {
+					bestBinding = binding;
+				} else if (binding.getType() == Binding.USER) {
+					// Give higher priority to a user type binding (user has overriden default).
+					bestBinding = binding;
+					break;
+				}
+			}
+		}
+		return bestBinding == null ? "" : " " + bestBinding.getTriggerSequence().format();
 	}
 
 	/**

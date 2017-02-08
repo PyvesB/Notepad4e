@@ -29,7 +29,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 
 import io.github.pyvesb.notepad4e.Notepad4e;
 import io.github.pyvesb.notepad4e.preferences.PreferenceConstants;
-import io.github.pyvesb.notepad4e.utils.ShortcutManager;
+import io.github.pyvesb.notepad4e.utils.ShortcutHandler;
 import io.github.pyvesb.notepad4e.utils.UndoRedoManager;
 
 /**
@@ -72,9 +72,9 @@ public class NoteTab extends StyledText {
 	 * 
 	 * @param parent
 	 * @param text
-	 * @param shortcutManager
+	 * @param shortcutHandler
 	 */
-	public NoteTab(Composite parent, String text, ShortcutManager shortcutManager) {
+	public NoteTab(Composite parent, String text, ShortcutHandler shortcutHandler) {
 		// Enable multiple lines and scroll bars.
 		super(parent, SWT.V_SCROLL | SWT.H_SCROLL);
 
