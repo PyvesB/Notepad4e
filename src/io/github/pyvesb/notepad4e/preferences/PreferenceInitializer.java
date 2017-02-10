@@ -27,5 +27,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.PREF_BACKGROUND_COLOR, PreferenceConstants.PREF_BACKGROUND_COLOR_DEFAULT);
 		store.setDefault(PreferenceConstants.PREF_LINE_SPACING, PreferenceConstants.PREF_LINE_SPACING_DEFAULT);
 		store.setDefault(PreferenceConstants.PREF_NAME_PREFIX, PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
+		store.setDefault(PreferenceConstants.PREF_CLOSE_CONFIRMATION, PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT);
 	}
 }

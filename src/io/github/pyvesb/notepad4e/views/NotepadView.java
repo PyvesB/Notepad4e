@@ -125,8 +125,11 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 			@Override
 			public void close(CTabFolderEvent e) {
-				e.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Note",
-						"Are you sure you want to close this note?");
+				if (preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
+						PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)) {
+					e.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Note",
+							"Are you sure you want to close this note?");
+				}
 			}
 
 			@Override
