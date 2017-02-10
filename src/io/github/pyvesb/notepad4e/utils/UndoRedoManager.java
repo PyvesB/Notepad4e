@@ -17,19 +17,19 @@ import io.github.pyvesb.notepad4e.views.NoteTab;
  */
 public class UndoRedoManager {
 
-	// When performing an undo or redo action action, the ExtendedModifyListener is fired; boolean used to prevent from
-	// populating deques in this case.
-	protected boolean lastActionUndoOrRedo = true;
-
-	// Reference to the NoteTab this manager is handling.
-	protected NoteTab noteTab;
-
 	// Used to limit the size of undo and redo actions from growing indefinitely.
 	private static final int MAX_DEQUE_SIZES = 250;
 
+	// Reference to the NoteTab this manager is handling.
+	private final NoteTab noteTab;
+
 	// Deques used to store previous text actions and styles.
-	private Deque<ModificationRecord> undoDeque;
-	private Deque<ModificationRecord> redoDeque;
+	private final Deque<ModificationRecord> undoDeque;
+	private final Deque<ModificationRecord> redoDeque;
+
+	// When performing an undo or redo action action, the ExtendedModifyListener is fired; boolean used to prevent from
+	// populating deques in this case.
+	private boolean lastActionUndoOrRedo = true;
 
 	// Styles before starting any undo actions.
 	private StyleRange[] stylesBeforeUndo;

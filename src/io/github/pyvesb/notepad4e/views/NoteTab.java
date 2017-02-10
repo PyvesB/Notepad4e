@@ -347,8 +347,7 @@ public class NoteTab extends StyledText {
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
+			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		menuItemRedo = new MenuItem(menu, SWT.NONE);
 		menuItemRedo.setText("Redo");
@@ -359,8 +358,7 @@ public class NoteTab extends StyledText {
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
+			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		menuItemSeparator1 = new MenuItem(menu, SWT.SEPARATOR);
 		menuItemCut = new MenuItem(menu, SWT.NONE);
@@ -372,8 +370,7 @@ public class NoteTab extends StyledText {
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
+			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		menuItemCopy = new MenuItem(menu, SWT.NONE);
 		menuItemCopy.setText("Copy");
@@ -384,8 +381,7 @@ public class NoteTab extends StyledText {
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
+			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		menuItemPaste = new MenuItem(menu, SWT.NONE);
 		menuItemPaste.setText("Paste");
@@ -396,8 +392,7 @@ public class NoteTab extends StyledText {
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
+			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		menuItemSeparator2 = new MenuItem(menu, SWT.SEPARATOR);
 		menuItemSelectAll = new MenuItem(menu, SWT.NONE);
@@ -409,8 +404,7 @@ public class NoteTab extends StyledText {
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
+			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		setMenu(menu);
 	}

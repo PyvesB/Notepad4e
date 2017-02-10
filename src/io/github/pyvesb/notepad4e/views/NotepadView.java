@@ -62,9 +62,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	// The ID of the view as specified by the extension.
 	public static final String ID = "notepad4e.views.NotepadView";
 
-	// Object handling the different tabs.
-	protected CTabFolder noteTabsFolder;
-
 	// Keys used to store and retrieve the plugin's view between Eclipse sessions.
 	private static final String STORE_COUNT_KEY = "NumOfTabs";
 	private static final String STORE_TEXT_PREFIX_KEY = "TabText";
@@ -89,6 +86,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	// Keyboard events listener.
 	private ShortcutHandler shortcutHandler;
 
+	// Object handling the different tabs.
+	private CTabFolder noteTabsFolder;
+
 	/**
 	 * Constructor.
 	 */
@@ -106,110 +106,11 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		preferences.addPreferenceChangeListener(this);
 
 		noteTabsFolder = new CTabFolder(parent, SWT.MULTI | SWT.WRAP);
-		// Listen to disposal of the tab folder and save state for next Eclipse session or when reopening the view.
-		noteTabsFolder.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				IDialogSettings settings = Notepad4e.getDefault().getDialogSettings();
-				IDialogSettings section = settings.getSection(ID);
-				section.put(STORE_COUNT_KEY, noteTabsFolder.getItemCount());
 
-				for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
-					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).getText());
-					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).serialiseStyle());
-					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, noteTabsFolder.getItem(tabIndex).getText());
-				}
-			}
-		});
-		noteTabsFolder.addCTabFolder2Listener(new CTabFolder2Listener() {
-
-			@Override
-			public void close(CTabFolderEvent e) {
-				if (preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
-						PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)) {
-					e.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Note",
-							"Are you sure you want to close this note?");
-				}
-			}
-
-			@Override
-			public void minimize(CTabFolderEvent event) {
-			}
-
-			@Override
-			public void maximize(CTabFolderEvent event) {
-			}
-
-			@Override
-			public void restore(CTabFolderEvent event) {
-			}
-
-			@Override
-			public void showList(CTabFolderEvent event) {
-			}
-		});
-
-		noteTabsFolder.addDragDetectListener(new DragDetectListener() {
-			@Override
-			public void dragDetected(DragDetectEvent dragDetectedEvent) {
-				Rectangle viewRectangle = Geometry.toDisplay(noteTabsFolder.getParent(), noteTabsFolder.getBounds());
-				Tracker tracker = new Tracker(noteTabsFolder, SWT.NONE);
-				tracker.setStippled(true);
-				tracker.addListener(SWT.Move, new Listener() {
-					@Override
-					public void handleEvent(Event event) {
-						Point location = new Point(event.x - viewRectangle.x, event.y - viewRectangle.y);
-						CTabItem tabAtLocation = noteTabsFolder.getItem(location);
-						if (tabAtLocation != null) {
-							// Move tracker to follow mouse cursor.
-							tracker.setRectangles(new Rectangle[] { tabAtLocation.getBounds() });
-						} else {
-							// Mouse cursor no longer above any tab in the action bar, hide tacker.
-							tracker.setRectangles(new Rectangle[0]);
-						}
-					}
-				});
-				if (tracker.open()) {
-					Rectangle[] rectangles = tracker.getRectangles();
-					if (rectangles.length > 0) {
-						CTabItem tabToSwap = noteTabsFolder.getItem(new Point(rectangles[0].x, rectangles[0].y));
-						// Swap selected tab with the one situated at the mouse cursor's position.
-						if (tabToSwap != null) {
-							swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.indexOf(tabToSwap));
-						}
-					}
-				}
-				tracker.close();
-				tracker.dispose();
-			}
-		});
-
-		noteTabsFolder.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseUp(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseDown(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseDoubleClick(MouseEvent event) {
-				Point location = new Point(event.x, event.y);
-				CTabItem tabAtLocation = noteTabsFolder.getItem(location);
-				if (tabAtLocation == null) {
-					return;
-				}
-				// Open a dialog window so user can enter the new name of his note.
-				InputDialog inputDialog = new InputDialog(null, "Rename Note",
-						"Please select the new name of the note:", tabAtLocation.getText(), null);
-				inputDialog.open();
-				// If user selected Cancel, text will be null.
-				if (inputDialog.getValue() != null) {
-					tabAtLocation.setText(inputDialog.getValue());
-				}
-			}
-		});
+		addPluginDisposeListener();
+		addCloseNoteTabListener();
+		addSwapNoteTabListener();
+		addRenameNoteTabListener();
 
 		restoreViewFromPreviousSession();
 
@@ -416,12 +317,127 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
+	 * Listens to disposal of the tab folder and save state for next Eclipse session or when reopening the view.
+	 */
+	private void addPluginDisposeListener() {
+		noteTabsFolder.addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				IDialogSettings section = Notepad4e.getDefault().getDialogSettings().getSection(ID);
+				section.put(STORE_COUNT_KEY, noteTabsFolder.getItemCount());
+				for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
+					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).getText());
+					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).serialiseStyle());
+					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, noteTabsFolder.getItem(tabIndex).getText());
+				}
+			}
+		});
+	}
+
+	/**
+	 * Displays a confirmation dialog when closing a NoteTab, if enabled in preferences.
+	 */
+	private void addCloseNoteTabListener() {
+		noteTabsFolder.addCTabFolder2Listener(new CTabFolder2Listener() {
+			@Override
+			public void close(CTabFolderEvent e) {
+				if (preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
+						PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)) {
+					e.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Note",
+							"Are you sure you want to close this note?");
+				}
+			}
+
+			@Override
+			public void minimize(CTabFolderEvent event) {}
+
+			@Override
+			public void maximize(CTabFolderEvent event) {}
+
+			@Override
+			public void restore(CTabFolderEvent event) {}
+
+			@Override
+			public void showList(CTabFolderEvent event) {}
+		});
+	}
+
+	/**
+	 * Allows to rename a NoteTab when user double clicks on its title.
+	 */
+	private void addRenameNoteTabListener() {
+		noteTabsFolder.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseUp(MouseEvent e) {}
+
+			@Override
+			public void mouseDown(MouseEvent e) {}
+
+			@Override
+			public void mouseDoubleClick(MouseEvent event) {
+				CTabItem tabAtLocation = noteTabsFolder.getItem(new Point(event.x, event.y));
+				if (tabAtLocation == null) {
+					return;
+				}
+				// Open a dialog window so user can enter the new name of his note.
+				InputDialog inputDialog = new InputDialog(null, "Rename Note",
+						"Please select the new name of the note:", tabAtLocation.getText(), null);
+				inputDialog.open();
+				// If user selected Cancel, text will be null.
+				if (inputDialog.getValue() != null) {
+					tabAtLocation.setText(inputDialog.getValue());
+				}
+			}
+		});
+	}
+
+	/**
+	 * Swaps two NoteTabs when a user drags one to another.
+	 */
+	private void addSwapNoteTabListener() {
+		noteTabsFolder.addDragDetectListener(new DragDetectListener() {
+			@Override
+			public void dragDetected(DragDetectEvent dragDetectedEvent) {
+				Rectangle viewRectangle = Geometry.toDisplay(noteTabsFolder.getParent(), noteTabsFolder.getBounds());
+				Tracker tracker = new Tracker(noteTabsFolder, SWT.NONE);
+				tracker.setStippled(true);
+				tracker.addListener(SWT.Move, new Listener() {
+					@Override
+					public void handleEvent(Event event) {
+						Point location = new Point(event.x - viewRectangle.x, event.y - viewRectangle.y);
+						CTabItem tabAtLocation = noteTabsFolder.getItem(location);
+						if (tabAtLocation != null) {
+							// Move tracker to follow mouse cursor.
+							tracker.setRectangles(new Rectangle[] { tabAtLocation.getBounds() });
+						} else {
+							// Mouse cursor no longer above any tab in the action bar, hide tacker.
+							tracker.setRectangles(new Rectangle[0]);
+						}
+					}
+				});
+				if (tracker.open()) {
+					Rectangle[] rectangles = tracker.getRectangles();
+					if (rectangles.length > 0) {
+						CTabItem tabToSwap = noteTabsFolder.getItem(new Point(rectangles[0].x, rectangles[0].y));
+						// Swap selected tab with the one situated at the mouse cursor's position.
+						if (tabToSwap != null) {
+							swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.indexOf(tabToSwap));
+						}
+					}
+				}
+				tracker.close();
+				tracker.dispose();
+			}
+		});
+	}
+
+	/**
 	 * Returns a NoteTab object given an index in the tab folder.
 	 * 
 	 * @param index
 	 * @return
 	 */
-	protected NoteTab getNoteTab(int index) {
+	private NoteTab getNoteTab(int index) {
 		return (NoteTab) (noteTabsFolder.getItem(index).getControl());
 	}
 

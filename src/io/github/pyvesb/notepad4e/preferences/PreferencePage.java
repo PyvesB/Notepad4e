@@ -48,7 +48,6 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 	 * Initialise the preference page.
 	 */
 	@Override
-	public void init(IWorkbench workbench) {
-	}
+	public void init(IWorkbench workbench) {}
 
 }

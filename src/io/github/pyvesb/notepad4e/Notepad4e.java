@@ -21,8 +21,7 @@ public class Notepad4e extends AbstractUIPlugin {
 	/**
 	 * Constructor.
 	 */
-	public Notepad4e() {
-	}
+	public Notepad4e() {}
 
 	/**
 	 * Starts the plugin.

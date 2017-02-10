@@ -36,7 +36,7 @@ public class ShortcutHandler extends AbstractHandler {
 		if (event.getCommand() == null) {
 			return null;
 		}
-		
+
 		switch (NotepadAction.of(event.getCommand().getId())) {
 		case NEW_NOTE:
 			notepadView.doNewNote();

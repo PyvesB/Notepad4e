@@ -41,7 +41,7 @@ public enum NotepadAction {
 		}
 		return null;
 	}
-	
+
 	public final String getText() {
 		return text;
 	}
@@ -49,7 +49,7 @@ public enum NotepadAction {
 	public final String getCommandID() {
 		return commandID;
 	}
-	
+
 	public final String getImagePath() {
 		return imagePath;
 	}
