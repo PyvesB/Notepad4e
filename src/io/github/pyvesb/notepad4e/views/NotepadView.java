@@ -29,6 +29,8 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.DragDetectEvent;
 import org.eclipse.swt.events.DragDetectListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.program.Program;
@@ -77,7 +79,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action underlineTextAction;
 	private Action clearTextStyleAction;
 	private Action saveNoteAction;
-	private Action renameNoteAction;
 	private Action preferencesAction;
 	private Action websiteAction;
 	private Action changelogAction;
@@ -177,6 +178,33 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				}
 				tracker.close();
 				tracker.dispose();
+			}
+		});
+
+		noteTabsFolder.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseUp(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseDoubleClick(MouseEvent event) {
+				Point location = new Point(event.x, event.y);
+				CTabItem tabAtLocation = noteTabsFolder.getItem(location);
+				if (tabAtLocation == null) {
+					return;
+				}
+				// Open a dialog window so user can enter the new name of his note.
+				InputDialog inputDialog = new InputDialog(null, "Rename Note",
+						"Please select the new name of the note:", tabAtLocation.getText(), null);
+				inputDialog.open();
+				// If user selected Cancel, text will be null.
+				if (inputDialog.getValue() != null) {
+					tabAtLocation.setText(inputDialog.getValue());
+				}
 			}
 		});
 
@@ -306,25 +334,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			return;
 		}
 		getNoteTab(noteTabsFolder.getSelectionIndex()).saveToFile(getSite());
-	}
-
-	/**
-	 * Performs the rename note action.
-	 */
-	public void doRenameNote() {
-		if (noteTabsFolder.getItemCount() == 0) {
-			return;
-		}
-
-		// Open a dialog window so user can enter the new name of his note.
-		InputDialog inputDialog = new InputDialog(getSite().getShell(), "Rename Note",
-				"Please select the new name of the note:", null, null);
-		int returnValue = inputDialog.open();
-		if (returnValue == SWT.CANCEL) {
-			return;
-		}
-
-		noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).setText(inputDialog.getValue());
 	}
 
 	/**
@@ -491,8 +500,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	private void fillLocalPullDown(IMenuManager manager) {
 		manager.add(saveNoteAction);
-		manager.add(renameNoteAction);
-		manager.add(new Separator());
 		manager.add(preferencesAction);
 		manager.add(websiteAction);
 		manager.add(changelogAction);
@@ -573,14 +580,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		};
 		setTextAndImageToAction(saveNoteAction, NotepadAction.SAVE_NOTE);
 
-		renameNoteAction = new Action() {
-			@Override
-			public void run() {
-				doRenameNote();
-			}
-		};
-		setTextAndImageToAction(renameNoteAction, NotepadAction.RENAME_NOTE);
-
 		preferencesAction = new Action() {
 			@Override
 			public void run() {
@@ -624,7 +623,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		}
 
 		// The URL matches an image in the plugin's icons folder.
-		URL url = FileLocator.find(Platform.getBundle(Notepad4e.PLUGIN_ID), new Path(notepadAction.getImagePath()), null);
+		URL url = FileLocator.find(Platform.getBundle(Notepad4e.PLUGIN_ID), new Path(notepadAction.getImagePath()),
+				null);
 		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(url);
 		action.setImageDescriptor(imageDescriptor);
 	}

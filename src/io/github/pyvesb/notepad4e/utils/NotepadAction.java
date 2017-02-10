@@ -19,7 +19,6 @@ public enum NotepadAction {
 	REDO(null, "notepad4e.command.text.redo", null),
 	CLOSE(null, "notepad4e.command.note.close", null),
 	SAVE_NOTE("Export File", null, "/icons/saveas_edit_floppy.png"),
-	RENAME_NOTE("Rename Note", null, "/icons/text_edit.gif"),
 	PREFERENCES("Preferences", null, "/icons/settings_obj.png"),
 	WEBSITE("Webpage", null, "/icons/web.png"),
 	CHANGELOG("Changelog", null, "/icons/changelog_obj.gif");
