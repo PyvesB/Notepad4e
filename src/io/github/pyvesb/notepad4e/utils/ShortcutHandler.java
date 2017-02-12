@@ -70,5 +70,4 @@ public class ShortcutHandler extends AbstractHandler {
 		}
 		return null;
 	}
-
 }

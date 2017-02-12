@@ -29,7 +29,6 @@ import org.eclipse.ui.IWorkbenchPartSite;
 
 import io.github.pyvesb.notepad4e.Notepad4e;
 import io.github.pyvesb.notepad4e.preferences.PreferenceConstants;
-import io.github.pyvesb.notepad4e.utils.ShortcutHandler;
 import io.github.pyvesb.notepad4e.utils.UndoRedoManager;
 
 /**
@@ -42,18 +41,18 @@ public class NoteTab extends StyledText {
 
 	// Used to parse strings.
 	private static final String STRING_SEPARATOR = ",";
-
 	// Error message
 	private static final String SAVE_ERROR = "Error while attempting to save the file.";
-
+	
+	// Used to enable undo and redo actions.
+	private final UndoRedoManager undoredoManager;
 	// User defined preferences.
-	private IEclipsePreferences preferences;
+	private final IEclipsePreferences preferences;
 
 	// Appearance parameters of the note tab.
 	private Color fontColor;
 	private Color backgroundColor;
 	private Font font;
-
 	// Menu items (mouse right-click).
 	private MenuItem menuItemUndo;
 	private MenuItem menuItemRedo;
@@ -64,9 +63,6 @@ public class NoteTab extends StyledText {
 	private MenuItem menuItemSeparator1;
 	private MenuItem menuItemSeparator2;
 
-	// Used to enable undo and redo actions.
-	private UndoRedoManager undoredoManager;
-
 	/**
 	 * Constructor. Sets properties of the editor window.
 	 * 
@@ -74,7 +70,7 @@ public class NoteTab extends StyledText {
 	 * @param text
 	 * @param shortcutHandler
 	 */
-	public NoteTab(Composite parent, String text, ShortcutHandler shortcutHandler) {
+	public NoteTab(Composite parent, String text) {
 		// Enable multiple lines and scroll bars.
 		super(parent, SWT.V_SCROLL | SWT.H_SCROLL);
 
@@ -311,12 +307,9 @@ public class NoteTab extends StyledText {
 		}
 
 		File file = new File(fileName);
-		if (file.exists()) {
-			boolean overwrite = MessageDialog.openQuestion(iWorkbenchPartSite.getShell(), "File Already Exists",
-					"Do you want to overwrite?");
-			if (!overwrite) {
-				return;
-			}
+		if (file.exists() && !MessageDialog.openQuestion(iWorkbenchPartSite.getShell(), "File Already Exists",
+				"Do you want to overwrite?")) {
+			return;
 		}
 
 		// Write the current note tab's text to the file, with handling of IO exceptions.

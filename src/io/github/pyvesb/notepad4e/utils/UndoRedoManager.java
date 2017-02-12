@@ -22,15 +22,12 @@ public class UndoRedoManager {
 
 	// Reference to the NoteTab this manager is handling.
 	private final NoteTab noteTab;
-
 	// Deques used to store previous text actions and styles.
 	private final Deque<ModificationRecord> undoDeque;
 	private final Deque<ModificationRecord> redoDeque;
-
 	// When performing an undo or redo action action, the ExtendedModifyListener is fired; boolean used to prevent from
 	// populating deques in this case.
 	private boolean lastActionUndoOrRedo = true;
-
 	// Styles before starting any undo actions.
 	private StyleRange[] stylesBeforeUndo;
 

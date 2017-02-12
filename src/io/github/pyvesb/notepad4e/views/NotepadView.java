@@ -79,13 +79,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action preferencesAction;
 	private Action websiteAction;
 	private Action changelogAction;
-
 	// User defined preferences.
 	private IEclipsePreferences preferences;
-
 	// Keyboard events listener.
 	private ShortcutHandler shortcutHandler;
-
 	// Object handling the different tabs.
 	private CTabFolder noteTabsFolder;
 
@@ -184,109 +181,45 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the clear note action.
 	 */
 	public void doClearNote() {
-		if (noteTabsFolder.getItemCount() == 0) {
-			return;
+		if (noteTabsFolder.getItemCount() > 0) {
+			getNoteTab(noteTabsFolder.getSelectionIndex()).clearText();
 		}
-		getNoteTab(noteTabsFolder.getSelectionIndex()).clearText();
 	}
 
 	/**
 	 * Performs the bold text action.
 	 */
 	public void doBoldText() {
-		if (noteTabsFolder.getItemCount() == 0) {
-			return;
+		if (noteTabsFolder.getItemCount() > 0) {
+			getNoteTab(noteTabsFolder.getSelectionIndex()).boldSelection();
 		}
-		getNoteTab(noteTabsFolder.getSelectionIndex()).boldSelection();
 	}
 
 	/**
 	 * Performs the italic text action.
 	 */
 	public void doItalicText() {
-		if (noteTabsFolder.getItemCount() == 0) {
-			return;
+		if (noteTabsFolder.getItemCount() > 0) {
+			getNoteTab(noteTabsFolder.getSelectionIndex()).italicSelection();
 		}
-		getNoteTab(noteTabsFolder.getSelectionIndex()).italicSelection();
 	}
 
 	/**
 	 * Performs the underline text action.
 	 */
 	public void doUnderlineText() {
-		if (noteTabsFolder.getItemCount() == 0) {
-			return;
+		if (noteTabsFolder.getItemCount() > 0) {
+			getNoteTab(noteTabsFolder.getSelectionIndex()).underlineSelection();
 		}
-		getNoteTab(noteTabsFolder.getSelectionIndex()).underlineSelection();
 	}
 
 	/**
 	 * Performs the clear text action.
 	 */
 	public void doClearTextStyle() {
-		if (noteTabsFolder.getItemCount() == 0) {
-			return;
+		if (noteTabsFolder.getItemCount() > 0) {
+			getNoteTab(noteTabsFolder.getSelectionIndex()).underlineSelection();
 		}
-		getNoteTab(noteTabsFolder.getSelectionIndex()).clearSelectionStyles();
-	}
-
-	/**
-	 * Performs the save note action.
-	 */
-	public void doSaveNote() {
-		if (noteTabsFolder.getItemCount() == 0) {
-			return;
-		}
-		getNoteTab(noteTabsFolder.getSelectionIndex()).saveToFile(getSite());
-	}
-
-	/**
-	 * Performs the move note left action.
-	 */
-	public void doMoveNoteLeft() {
-		// Do not move left if there are no notes (== -1), or if first note.
-		if (noteTabsFolder.getSelectionIndex() < 1) {
-			return;
-		}
-		swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() - 1);
-	}
-
-	/**
-	 * Performs the move note right action.
-	 */
-	public void doMoveNoteRight() {
-		// Do note move right if only one or no notes, or if last note.
-		if (noteTabsFolder.getItemCount() < 2
-				|| noteTabsFolder.getSelectionIndex() == noteTabsFolder.getItemCount() - 1) {
-			return;
-		}
-		swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.getSelectionIndex() + 1);
-	}
-
-	/**
-	 * Performs the preferences action.
-	 */
-	public void doPreferences() {
-		// Create preference dialog page that will appear in current workbench window.
-		PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null, "notepad4e.preferences.PreferencePage",
-				new String[] { "notepad4e.preferences.PreferencePage" }, null);
-		dialog.open();
-	}
-
-	/**
-	 * Performs the website action.
-	 */
-	public void doWebsite() {
-		// Open website in the user's external browser.
-		Program.launch("https://github.com/PyvesB/Notepad4e");
-	}
-
-	/**
-	 * Performs the changelog action.
-	 */
-	public void doChangelog() {
-		// Open changelog page in the user's external browser.
-		Program.launch("https://github.com/PyvesB/Notepad4e/releases");
 	}
 
 	/**
@@ -307,10 +240,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the close note action.
 	 */
 	public void doClose() {
-		if (noteTabsFolder.getItemCount() == 0) {
-			return;
-		}
-		if (MessageDialog.openQuestion(getSite().getShell(), "Close Note",
+		if (noteTabsFolder.getItemCount() > 0 && MessageDialog.openQuestion(getSite().getShell(), "Close Note",
 				"Are you sure you want to close this note?")) {
 			noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).dispose();
 		}
@@ -384,7 +314,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 						"Please select the new name of the note:", tabAtLocation.getText(), null);
 				inputDialog.open();
 				// If user selected Cancel, text will be null.
-				if (inputDialog.getValue() != null) {
+				if (inputDialog.getValue() != null && !inputDialog.getValue().isEmpty()) {
 					tabAtLocation.setText(inputDialog.getValue());
 				}
 			}
@@ -496,7 +426,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				((NoteTab) itemToDispose.getControl()).dispose();
 			}
 		});
-		NoteTab tab = new NoteTab(noteTabsFolder, text, shortcutHandler);
+		NoteTab tab = new NoteTab(noteTabsFolder, text);
 		if (style.length() > 0) {
 			tab.deserialiseStyle(style);
 		}
@@ -594,7 +524,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		saveNoteAction = new Action() {
 			@Override
 			public void run() {
-				doSaveNote();
+				if (noteTabsFolder.getItemCount() > 0) {
+					getNoteTab(noteTabsFolder.getSelectionIndex()).saveToFile(getSite());
+				}
 			}
 		};
 		setTextAndImageToAction(saveNoteAction, NotepadAction.SAVE_NOTE);
@@ -602,7 +534,11 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		preferencesAction = new Action() {
 			@Override
 			public void run() {
-				doPreferences();
+				// Create preference dialog page that will appear in current workbench window.
+				PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
+						"notepad4e.preferences.PreferencePage", new String[] { "notepad4e.preferences.PreferencePage" },
+						null);
+				dialog.open();
 			}
 		};
 		setTextAndImageToAction(preferencesAction, NotepadAction.PREFERENCES);
@@ -610,7 +546,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		websiteAction = new Action() {
 			@Override
 			public void run() {
-				doWebsite();
+				// Open website in the user's external browser.
+				Program.launch("https://github.com/PyvesB/Notepad4e");
 			}
 		};
 		setTextAndImageToAction(websiteAction, NotepadAction.WEBSITE);
@@ -618,7 +555,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		changelogAction = new Action() {
 			@Override
 			public void run() {
-				doChangelog();
+				// Open changelog page in the user's external browser.
+				Program.launch("https://github.com/PyvesB/Notepad4e/releases");
 			}
 		};
 		setTextAndImageToAction(changelogAction, NotepadAction.CHANGELOG);
@@ -680,13 +618,11 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private void swapTabs(int selectedIndex, int swappedIndex) {
 		NoteTab selectedTab = getNoteTab(selectedIndex);
 		NoteTab swappedTab = getNoteTab(swappedIndex);
-
 		noteTabsFolder.getItem(swappedIndex).setControl(selectedTab);
 		noteTabsFolder.getItem(selectedIndex).setControl(swappedTab);
 
 		String selectedTitle = noteTabsFolder.getItem(selectedIndex).getText();
 		String swappedTitle = noteTabsFolder.getItem(swappedIndex).getText();
-
 		noteTabsFolder.getItem(swappedIndex).setText(selectedTitle);
 		noteTabsFolder.getItem(selectedIndex).setText(swappedTitle);
 
