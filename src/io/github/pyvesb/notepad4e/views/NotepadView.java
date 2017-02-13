@@ -218,7 +218,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	public void doClearTextStyle() {
 		if (noteTabsFolder.getItemCount() > 0) {
-			getNoteTab(noteTabsFolder.getSelectionIndex()).underlineSelection();
+			getNoteTab(noteTabsFolder.getSelectionIndex()).clearSelectionStyles();
 		}
 	}
 
