@@ -13,7 +13,7 @@ public enum NotepadAction {
 	BOLD_TEXT("Bold", "notepad4e.command.text.bold", "/icons/style_bold.gif"),
 	ITALIC_TEXT("Italic", "notepad4e.command.text.italic", "/icons/style_italic.gif"),
 	UNDERLINE_TEXT("Underline", "notepad4e.command.text.underline", "/icons/style_underline.gif"),
-	CLEAR_TEXT_STYLE("Clear Style", "notepad4e.command.text.clear", "/icons/clear_co.gif"),
+	CLEAR_TEXT_STYLE("Clear Style", "notepad4e.command.text.clear", "/icons/clear_co.png"),
 	CLEAR_NOTE("Clear Note", "notepad4e.command.note.clear", "/icons/clear.png"),
 	UNDO(null, "notepad4e.command.text.undo", null),
 	REDO(null, "notepad4e.command.text.redo", null),
