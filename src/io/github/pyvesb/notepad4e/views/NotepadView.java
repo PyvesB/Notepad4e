@@ -252,7 +252,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private void addPluginDisposeListener() {
 		noteTabsFolder.addDisposeListener(new DisposeListener() {
 			@Override
-			public void widgetDisposed(DisposeEvent e) {
+			public void widgetDisposed(DisposeEvent event) {
 				IDialogSettings section = Notepad4e.getDefault().getDialogSettings().getSection(ID);
 				section.put(STORE_COUNT_KEY, noteTabsFolder.getItemCount());
 				for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
@@ -270,10 +270,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private void addCloseNoteTabListener() {
 		noteTabsFolder.addCTabFolder2Listener(new CTabFolder2Listener() {
 			@Override
-			public void close(CTabFolderEvent e) {
+			public void close(CTabFolderEvent event) {
 				if (preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
 						PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)) {
-					e.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Note",
+					event.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Note",
 							"Are you sure you want to close this note?");
 				}
 			}
@@ -298,10 +298,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private void addRenameNoteTabListener() {
 		noteTabsFolder.addMouseListener(new MouseListener() {
 			@Override
-			public void mouseUp(MouseEvent e) {}
+			public void mouseUp(MouseEvent event) {}
 
 			@Override
-			public void mouseDown(MouseEvent e) {}
+			public void mouseDown(MouseEvent event) {}
 
 			@Override
 			public void mouseDoubleClick(MouseEvent event) {
@@ -421,8 +421,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		// Add listener to clean up corresponding NoteTab when disposing the CTabItem.
 		noteTabItem.addDisposeListener(new DisposeListener() {
 			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				CTabItem itemToDispose = (CTabItem) e.getSource();
+			public void widgetDisposed(DisposeEvent event) {
+				CTabItem itemToDispose = (CTabItem) event.getSource();
 				((NoteTab) itemToDispose.getControl()).dispose();
 			}
 		});

@@ -335,69 +335,69 @@ public class NoteTab extends StyledText {
 		menuItemUndo.setText("Undo");
 		menuItemUndo.addSelectionListener(new SelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent event) {
 				undo();
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {}
+			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemRedo = new MenuItem(menu, SWT.NONE);
 		menuItemRedo.setText("Redo");
 		menuItemRedo.addSelectionListener(new SelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent event) {
 				redo();
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {}
+			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemSeparator1 = new MenuItem(menu, SWT.SEPARATOR);
 		menuItemCut = new MenuItem(menu, SWT.NONE);
 		menuItemCut.setText("Cut");
 		menuItemCut.addSelectionListener(new SelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent event) {
 				cut();
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {}
+			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemCopy = new MenuItem(menu, SWT.NONE);
 		menuItemCopy.setText("Copy");
 		menuItemCopy.addSelectionListener(new SelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent event) {
 				copy();
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {}
+			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemPaste = new MenuItem(menu, SWT.NONE);
 		menuItemPaste.setText("Paste");
 		menuItemPaste.addSelectionListener(new SelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent event) {
 				paste();
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {}
+			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemSeparator2 = new MenuItem(menu, SWT.SEPARATOR);
 		menuItemSelectAll = new MenuItem(menu, SWT.NONE);
 		menuItemSelectAll.setText("Select All");
 		menuItemSelectAll.addSelectionListener(new SelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent event) {
 				selectAll();
 			}
 
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {}
+			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		setMenu(menu);
 	}
