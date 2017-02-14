@@ -61,12 +61,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 	// The ID of the view as specified by the extension.
 	public static final String ID = "notepad4e.views.NotepadView";
-
 	// Keys used to store and retrieve the plugin's view between Eclipse sessions.
 	private static final String STORE_COUNT_KEY = "NumOfTabs";
 	private static final String STORE_TEXT_PREFIX_KEY = "TabText";
 	private static final String STORE_STYLE_PREFIX_KEY = "TabStyle";
 	private static final String STORE_TITLE_PREFIX_KEY = "TabTitle";
+
+	// Keyboard events listener.
+	private final ShortcutHandler shortcutHandler;
 
 	// Actions corresponding to the different buttons in the view.
 	private Action addNewNoteAction;
@@ -81,8 +83,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action changelogAction;
 	// User defined preferences.
 	private IEclipsePreferences preferences;
-	// Keyboard events listener.
-	private ShortcutHandler shortcutHandler;
 	// Object handling the different tabs.
 	private CTabFolder noteTabsFolder;
 
@@ -116,7 +116,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		IContextService contextService = getSite().getService(IContextService.class);
 		contextService.activateContext("notepad4e.context");
 
-		shortcutHandler = new ShortcutHandler(this);
 		IHandlerService handlerService = getSite().getService(IHandlerService.class);
 		// Associate each shortcut command with the shortcut handler.
 		for (NotepadAction notepadAction : NotepadAction.values()) {
@@ -328,8 +327,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		noteTabsFolder.addDragDetectListener(new DragDetectListener() {
 			@Override
 			public void dragDetected(DragDetectEvent dragDetectedEvent) {
-				Rectangle viewRectangle = Geometry.toDisplay(noteTabsFolder.getParent(), noteTabsFolder.getBounds());
-				Tracker tracker = new Tracker(noteTabsFolder, SWT.NONE);
+				final Rectangle viewRectangle = Geometry.toDisplay(noteTabsFolder.getParent(),
+						noteTabsFolder.getBounds());
+				final Tracker tracker = new Tracker(noteTabsFolder, SWT.NONE);
 				tracker.setStippled(true);
 				tracker.addListener(SWT.Move, new Listener() {
 					@Override

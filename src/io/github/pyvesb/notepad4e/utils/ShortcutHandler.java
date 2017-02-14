@@ -14,7 +14,7 @@ import io.github.pyvesb.notepad4e.views.NotepadView;
  */
 public class ShortcutHandler extends AbstractHandler {
 
-	private NotepadView notepadView;
+	private final NotepadView notepadView;
 
 	/**
 	 * Constructor.
