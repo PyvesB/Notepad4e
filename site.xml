@@ -9,7 +9,10 @@
    <feature url="features/io.github.pyvesb.notepad4e_1.0.1.201611292050.jar" id="io.github.pyvesb.notepad4e" version="1.0.1.201611292050">
       <category name="io.github.pyvesb.notepad4e"/>
    </feature>
-   <feature url="features/io.github.pyvesb.notepad4e_1.0.2.201612101908.jar" id="io.github.pyvesb.notepad4e" version="1.0.2.201612101908">
+   <feature url="features/io.github.pyvesb.notepad4e_1.0.2.201612101906.jar" id="io.github.pyvesb.notepad4e" version="1.0.2.201612101906">
+      <category name="io.github.pyvesb.notepad4e"/>
+   </feature>
+   <feature url="features/io.github.pyvesb.notepad4e_1.1.0.201702141900.jar" id="io.github.pyvesb.notepad4e" version="1.1.0.201702141900">
       <category name="io.github.pyvesb.notepad4e"/>
    </feature>
    <category-def name="io.github.pyvesb.notepad4e" label="Notepad4e">
