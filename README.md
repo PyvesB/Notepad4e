@@ -3,9 +3,9 @@
 **Create highly customisable notes in Eclipse, and never lose track of your thoughts, ideas or code snippets!**
 
 <p align="center" style="font-size:5px">
-<img src ="http://images.jupload.fr/1475921583.png" />
+<img src ="http://images.jupload.fr/1487114429.png" />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src ="http://images.jupload.fr/1475927146.png" />
+<img src ="http://images.jupload.fr/1487114448.png" />
 <br />
 <i><sub>Two simple examples of how the plugin can be used and customised. You have countless possibilities!</sub></i>
 
@@ -15,25 +15,26 @@ ___
 
 ### Main features
 
-* Create as many notes as you like in one separate Eclipse view.
-* Modify the style of the text (bold, italic, underlined, font, colour, etc.).
+* Create as many notes as you like in a separate Eclipse view.
+* Modify the style of the text (font, colour, bold, italic, underlined, etc.).
 * Customise the appearance of the plugin.
-* Automatically save the contents of your notes between Eclipse sessions.
-* Use traditional text editor shortcuts to boost your productivity.
+* Automatically save the contents of your notes between workspace launches.
+* Use editable shortcuts to boost your productivity.
 * Export notes as text files.
-* Tune the plugin as you wish via a dedicated preferences page.
 * Lightweight and user-friendly.
-* No cloud-based data, no user tracking, no ads.
+* No user tracking, no ads.
+* Source code available.
+* More to discover and to come in future updates!
 
 ___
 
 ### Installation
 
-You can download and install the plugin via the [Eclipse Marketplace](https://marketplace.eclipse.org/content/notepad4e), or simply drag the below button to you running Eclipse workspace:
+You can download and install the plugin via the [Eclipse Marketplace](https://marketplace.eclipse.org/content/notepad4e), or simply drag the below button to your running Eclipse workspace:
 
 <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3108021" class="drag" title="Drag to your running Eclipse workspace to install Notepad4e"><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace to install Notepad4e" /></a>
 
-Alternatively, head to the [update site](https://pyvesb.github.io/Notepad4e/).
+Alternatively, head to the [update site](https://pyvesb.github.io/Notepad4e/) and follow the instructions listed there.
 
 ___
 
