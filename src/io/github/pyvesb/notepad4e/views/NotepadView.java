@@ -239,8 +239,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the close note action.
 	 */
 	public void doClose() {
-		if (noteTabsFolder.getItemCount() > 0 && MessageDialog.openQuestion(getSite().getShell(), "Close Note",
-				"Are you sure you want to close this note?")) {
+		if (noteTabsFolder.getItemCount() > 0 && (!preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
+				PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)
+				|| MessageDialog.openQuestion(getSite().getShell(), "Close Note",
+						"Are you sure you want to close this note?"))) {
 			noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).dispose();
 		}
 	}
