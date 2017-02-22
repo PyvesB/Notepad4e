@@ -29,7 +29,7 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 	public void createFieldEditors() {
 		addField(new RadioGroupFieldEditor(PreferenceConstants.PREF_ALIGNMENT, "Text alignment:", 2,
 				new String[][] { { "Left", "left" }, { "Right", "right" } }, getFieldEditorParent(), true));
-		addField(new BooleanFieldEditor(PreferenceConstants.PREF_CLOSE_CONFIRMATION, "Conformation when closing a note",
+		addField(new BooleanFieldEditor(PreferenceConstants.PREF_CLOSE_CONFIRMATION, "Confirmation when closing a note",
 				getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_WRAP,
 				"Wrap lines in notes (automatically enforced if right alignment)", getFieldEditorParent()));
