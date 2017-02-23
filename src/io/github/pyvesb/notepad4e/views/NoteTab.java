@@ -68,9 +68,10 @@ public class NoteTab extends StyledText {
 	 * 
 	 * @param parent
 	 * @param text
+	 * @param editable 
 	 * @param shortcutHandler
 	 */
-	public NoteTab(Composite parent, String text) {
+	public NoteTab(Composite parent, String text, boolean editable) {
 		// Enable multiple lines and scroll bars.
 		super(parent, SWT.V_SCROLL | SWT.H_SCROLL);
 
@@ -80,10 +81,9 @@ public class NoteTab extends StyledText {
 
 		// Scroll bars only appear when the text extends beyond the note window.
 		setAlwaysShowScrollBars(false);
-
 		setPreferences();
-
 		setText(text);
+		setEditable(editable);
 
 		initialiseMenu();
 	}
@@ -243,6 +243,13 @@ public class NoteTab extends StyledText {
 		// No colors are specified as they are defined by the plugin's preferences.
 		StyleRange styleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null, SWT.NORMAL);
 		setStyleRange(styleRange);
+	}
+	
+	/**
+	 * Makes the note read-only or editable again.
+	 */
+	public void toggleEditable() {
+		setEditable(!getEditable());
 	}
 
 	/**

@@ -66,6 +66,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private static final String STORE_TEXT_PREFIX_KEY = "TabText";
 	private static final String STORE_STYLE_PREFIX_KEY = "TabStyle";
 	private static final String STORE_TITLE_PREFIX_KEY = "TabTitle";
+	private static final String STORE_EDITABLE_PREFIX_KEY = "TabEditable";
 
 	// Keyboard events listener.
 	private final ShortcutHandler shortcutHandler;
@@ -77,6 +78,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action italicTextAction;
 	private Action underlineTextAction;
 	private Action clearTextStyleAction;
+	private Action toggleEditableAction;
 	private Action saveNoteAction;
 	private Action preferencesAction;
 	private Action websiteAction;
@@ -172,7 +174,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		String namePrefix = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
 				PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
 		// Add a new tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
-		addNewTab(namePrefix + " " + (noteTabsFolder.getItemCount() + 1), "", "");
+		addNewTab(namePrefix + " " + (noteTabsFolder.getItemCount() + 1), "", "", true);
 		noteTabsFolder.setSelection(noteTabsFolder.getItemCount() - 1);
 	}
 
@@ -239,11 +241,18 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the close note action.
 	 */
 	public void doClose() {
-		if (noteTabsFolder.getItemCount() > 0 && (!preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
-				PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)
-				|| MessageDialog.openQuestion(getSite().getShell(), "Close Note",
-						"Are you sure you want to close this note?"))) {
-			noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).dispose();
+		if (noteTabsFolder.getItemCount() > 0) {
+			if (!getNoteTab(noteTabsFolder.getSelectionIndex()).getEditable()) {
+				if (MessageDialog.openQuestion(getSite().getShell(), "Close Locked Note",
+						"This note is locked. Are you really sure you want to close it?")) {
+					noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).dispose();
+				}
+			} else if (!preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
+					PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)
+					|| MessageDialog.openQuestion(getSite().getShell(), "Close Note",
+							"Are you sure you want to close this note?")) {
+				noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).dispose();
+			}
 		}
 	}
 
@@ -260,6 +269,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).getText());
 					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).serialiseStyle());
 					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, noteTabsFolder.getItem(tabIndex).getText());
+					section.put(STORE_EDITABLE_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).getEditable());
 				}
 			}
 		});
@@ -272,7 +282,11 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		noteTabsFolder.addCTabFolder2Listener(new CTabFolder2Listener() {
 			@Override
 			public void close(CTabFolderEvent event) {
-				if (preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
+				// Selected tab may not be the one being closed, the one provided by the event must be used.
+				if (!getNoteTab(noteTabsFolder.indexOf((CTabItem) event.item)).getEditable()) {
+					event.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Locked Note",
+							"This note is locked. Are you really sure you want to close it?");
+				} else if (preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
 						PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)) {
 					event.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Note",
 							"Are you sure you want to close this note?");
@@ -394,7 +408,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			// No tabs were previously opened: create new tab.
 			String prefixName = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
 					PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
-			addNewTab(prefixName + " 1", "", "");
+			addNewTab(prefixName + " 1", "", "", true);
 			// Set selection on this tab.
 			noteTabsFolder.setSelection(0);
 		} else {
@@ -403,7 +417,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				String tabTitle = section.get(STORE_TITLE_PREFIX_KEY + tabIndex);
 				String tabText = section.get(STORE_TEXT_PREFIX_KEY + tabIndex);
 				String tabStyle = section.get(STORE_STYLE_PREFIX_KEY + tabIndex);
-				addNewTab(tabTitle, tabText, tabStyle);
+				boolean editable = section.get(STORE_EDITABLE_PREFIX_KEY + tabIndex) == null ? true
+						: section.getBoolean(STORE_EDITABLE_PREFIX_KEY + tabIndex);
+				addNewTab(tabTitle, tabText, tabStyle, editable);
 				// Set selection on the last tab.
 				noteTabsFolder.setSelection(numOfTabs - 1);
 			}
@@ -416,8 +432,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * @param title
 	 * @param text
 	 * @param style
+	 * @param editable
 	 */
-	private void addNewTab(String title, String text, String style) {
+	private void addNewTab(String title, String text, String style, boolean editable) {
 		CTabItem noteTabItem = new CTabItem(noteTabsFolder, SWT.NONE);
 		noteTabItem.setText(title);
 		// Add listener to clean up corresponding NoteTab when disposing the CTabItem.
@@ -428,7 +445,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				((NoteTab) itemToDispose.getControl()).dispose();
 			}
 		});
-		NoteTab tab = new NoteTab(noteTabsFolder, text);
+		NoteTab tab = new NoteTab(noteTabsFolder, text, editable);
 		if (style.length() > 0) {
 			tab.deserialiseStyle(style);
 		}
@@ -450,7 +467,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * @param manager
 	 */
 	private void fillLocalPullDown(IMenuManager manager) {
+		manager.add(toggleEditableAction);
 		manager.add(saveNoteAction);
+		manager.add(new Separator());
 		manager.add(preferencesAction);
 		manager.add(websiteAction);
 		manager.add(changelogAction);
@@ -522,6 +541,16 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			}
 		};
 		setTextAndImageToAction(clearTextStyleAction, NotepadAction.CLEAR_TEXT_STYLE);
+
+		toggleEditableAction = new Action() {
+			@Override
+			public void run() {
+				if (noteTabsFolder.getItemCount() > 0) {
+					getNoteTab(noteTabsFolder.getSelectionIndex()).toggleEditable();
+				}
+			}
+		};
+		setTextAndImageToAction(toggleEditableAction, NotepadAction.TOGGLE_EDITABLE);
 
 		saveNoteAction = new Action() {
 			@Override

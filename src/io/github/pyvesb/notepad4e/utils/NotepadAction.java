@@ -18,7 +18,8 @@ public enum NotepadAction {
 	UNDO(null, "notepad4e.command.text.undo", null),
 	REDO(null, "notepad4e.command.text.redo", null),
 	CLOSE(null, "notepad4e.command.note.close", null),
-	SAVE_NOTE("Export File", null, "/icons/saveas_edit_floppy.png"),
+	TOGGLE_EDITABLE("Lock/Unlock Note", null, "/icons/deadlock_view.png"),
+	SAVE_NOTE("Export Note", null, "/icons/saveas_edit_floppy.png"),
 	PREFERENCES("Preferences", null, "/icons/settings_obj.png"),
 	WEBSITE("Webpage", null, "/icons/web.png"),
 	CHANGELOG("Changelog", null, "/icons/changelog_obj.gif");
