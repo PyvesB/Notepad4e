@@ -35,6 +35,8 @@ import org.eclipse.swt.events.DragDetectEvent;
 import org.eclipse.swt.events.DragDetectListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.program.Program;
@@ -64,6 +66,7 @@ import io.github.pyvesb.notepad4e.utils.ShortcutHandler;
  */
 public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
+	private static final String LOCK_CHARACTER = "\uD83D\uDD12";
 	private static final int SAVE_INTERVAL_MILLIS = 120000;
 	// The ID of the view as specified by the extension.
 	public static final String ID = "notepad4e.views.NotepadView";
@@ -116,9 +119,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		addCloseNoteTabListener();
 		addSwapNoteTabListener();
 		addRenameNoteTabListener();
+		addSelectionListener();
 
 		restoreViewFromPreviousSession();
-		
+
 		Job autosaveJob = new Job("ScheduledAutosave") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -288,7 +292,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			}
 		});
 	}
-	
+
 	/**
 	 * Saves plugin state for next Eclipse session or when reopening the view
 	 */
@@ -358,13 +362,23 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				if (tabAtLocation == null) {
 					return;
 				}
+				boolean isLocked = false;
+				String dialogText = tabAtLocation.getText();
+				if (dialogText.startsWith(LOCK_CHARACTER)) {
+					isLocked = true;
+					dialogText = dialogText.substring(3);
+				}
 				// Open a dialog window so user can enter the new name of his note.
 				InputDialog inputDialog = new InputDialog(null, "Rename Note",
-						"Please select the new name of the note:", tabAtLocation.getText(), null);
+						"Please select the new name of the note:", dialogText, null);
 				inputDialog.open();
 				// If user selected Cancel, text will be null.
 				if (inputDialog.getValue() != null && !inputDialog.getValue().isEmpty()) {
-					tabAtLocation.setText(inputDialog.getValue());
+					if (isLocked) {
+						tabAtLocation.setText(LOCK_CHARACTER + " " + inputDialog.getValue());
+					} else {
+						tabAtLocation.setText(inputDialog.getValue());
+					}
 				}
 			}
 		});
@@ -408,6 +422,31 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				tracker.close();
 				tracker.dispose();
 			}
+		});
+	}
+
+	/**
+	 * Listens for NoteTab selections and displays or removes lock symbol when a locked tab is selected.
+	 */
+	private void addSelectionListener() {
+		noteTabsFolder.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
+					CTabItem item = noteTabsFolder.getItem(tabIndex);
+					if (item.getText().startsWith(LOCK_CHARACTER)) {
+						item.setText(item.getText().substring(3));
+					}
+				}
+				if (!getNoteTab(noteTabsFolder.getSelectionIndex()).getEditable()) {
+					CTabItem selectedItem = (CTabItem) event.item;
+					selectedItem.setText(LOCK_CHARACTER + " " + selectedItem.getText());
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 	}
 
@@ -580,7 +619,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			@Override
 			public void run() {
 				if (noteTabsFolder.getItemCount() > 0) {
-					getNoteTab(noteTabsFolder.getSelectionIndex()).toggleEditable();
+					CTabItem item = noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex());
+					NoteTab selectectedNoteTab = getNoteTab(noteTabsFolder.getSelectionIndex());
+					if (!selectectedNoteTab.getEditable()) {
+						item.setText(item.getText().substring(3));
+					} else {
+						item.setText(LOCK_CHARACTER + " " + item.getText());
+					}
+					selectectedNoteTab.toggleEditable();
 				}
 			}
 		};
