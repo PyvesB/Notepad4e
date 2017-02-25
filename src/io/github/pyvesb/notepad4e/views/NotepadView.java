@@ -3,8 +3,12 @@ package io.github.pyvesb.notepad4e.views;
 import java.net.URL;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
@@ -35,6 +39,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tracker;
@@ -59,6 +64,7 @@ import io.github.pyvesb.notepad4e.utils.ShortcutHandler;
  */
 public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
+	private static final int SAVE_INTERVAL_MILLIS = 120000;
 	// The ID of the view as specified by the extension.
 	public static final String ID = "notepad4e.views.NotepadView";
 	// Keys used to store and retrieve the plugin's view between Eclipse sessions.
@@ -112,6 +118,21 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		addRenameNoteTabListener();
 
 		restoreViewFromPreviousSession();
+		
+		Job autosaveJob = new Job("ScheduledAutosave") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						savePluginState();
+					}
+				});
+				schedule(SAVE_INTERVAL_MILLIS);
+				return Status.OK_STATUS;
+			}
+		};
+		autosaveJob.schedule(SAVE_INTERVAL_MILLIS);
 
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(noteTabsFolder, "Notepad4e.viewer");
 
@@ -257,22 +278,35 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Listens to disposal of the tab folder and save state for next Eclipse session or when reopening the view.
+	 * Listens to disposal of the tab folder and saves state for next Eclipse session or when reopening the view.
 	 */
 	private void addPluginDisposeListener() {
 		noteTabsFolder.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
-				IDialogSettings section = Notepad4e.getDefault().getDialogSettings().getSection(ID);
-				section.put(STORE_COUNT_KEY, noteTabsFolder.getItemCount());
-				for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
-					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).getText());
-					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).serialiseStyle());
-					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, noteTabsFolder.getItem(tabIndex).getText());
-					section.put(STORE_EDITABLE_PREFIX_KEY + tabIndex, getNoteTab(tabIndex).getEditable());
-				}
+				savePluginState();
 			}
 		});
+	}
+	
+	/**
+	 * Saves plugin state for next Eclipse session or when reopening the view
+	 */
+	private void savePluginState() {
+		if (!noteTabsFolder.isDisposed()) {
+			IDialogSettings section = Notepad4e.getDefault().getDialogSettings().getSection(ID);
+			section.put(STORE_COUNT_KEY, noteTabsFolder.getItemCount());
+			for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
+				if (noteTabsFolder.getItem(tabIndex).isDisposed()) {
+					NoteTab noteTab = getNoteTab(tabIndex);
+					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, noteTab.getText());
+					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, noteTab.serialiseStyle());
+					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, noteTabsFolder.getItem(tabIndex).getText());
+					section.put(STORE_EDITABLE_PREFIX_KEY + tabIndex, noteTab.getEditable());
+				}
+			}
+			Notepad4e.save();
+		}
 	}
 
 	/**

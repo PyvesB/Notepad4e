@@ -42,6 +42,14 @@ public class Notepad4e extends AbstractUIPlugin {
 	}
 
 	/**
+	 * Saves the DialogSettings (used to remeber the plugin's state).
+	 *
+	 */
+	public static void save() {
+		plugin.saveDialogSettings();
+	}
+	
+	/**
 	 * Returns the shared instance.
 	 *
 	 * @return the shared instance
