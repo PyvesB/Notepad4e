@@ -86,6 +86,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action boldTextAction;
 	private Action italicTextAction;
 	private Action underlineTextAction;
+	private Action strikeoutTextAction;
 	private Action clearTextStyleAction;
 	private Action toggleEditableAction;
 	private Action saveNoteAction;
@@ -236,6 +237,15 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doUnderlineText() {
 		if (noteTabsFolder.getItemCount() > 0) {
 			getNoteTab(noteTabsFolder.getSelectionIndex()).underlineSelection();
+		}
+	}
+	
+	/**
+	 * Performs the strikeout text action.
+	 */
+	public void doStrikeoutText() {
+		if (noteTabsFolder.getItemCount() > 0) {
+			getNoteTab(noteTabsFolder.getSelectionIndex()).strikeoutSelection();
 		}
 	}
 
@@ -557,6 +567,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		manager.add(boldTextAction);
 		manager.add(italicTextAction);
 		manager.add(underlineTextAction);
+		manager.add(strikeoutTextAction);
 		manager.add(clearTextStyleAction);
 		manager.add(new Separator());
 		manager.add(addNewNoteAction);
@@ -606,6 +617,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			}
 		};
 		setTextAndImageToAction(underlineTextAction, NotepadAction.UNDERLINE_TEXT);
+		
+		strikeoutTextAction = new Action() {
+			@Override
+			public void run() {
+				doStrikeoutText();
+			}
+		};
+		setTextAndImageToAction(strikeoutTextAction, NotepadAction.STRIKEOUT_TEXT);
 
 		clearTextStyleAction = new Action() {
 			@Override

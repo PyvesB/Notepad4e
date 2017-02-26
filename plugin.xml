@@ -81,6 +81,12 @@
       </command>
       <command
             categoryId="notepad4e.command.category"
+            id="notepad4e.command.text.strikeout"
+            description="Strikes out the currently selected text"
+            name="Strikethrough">
+      </command>
+      <command
+            categoryId="notepad4e.command.category"
             id="notepad4e.command.text.clear"
             description="Clears the style of the currently selected text"
             name="Clear Style">
@@ -134,6 +140,12 @@
             commandId="notepad4e.command.text.underline"
             contextId="notepad4e.context"
             sequence="M1+U"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="notepad4e.command.text.strikeout"
+            contextId="notepad4e.context"
+            sequence="M1+S"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key

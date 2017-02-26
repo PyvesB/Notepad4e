@@ -43,7 +43,7 @@ public class NoteTab extends StyledText {
 	private static final String STRING_SEPARATOR = ",";
 	// Error message
 	private static final String SAVE_ERROR = "Error while attempting to save the file.";
-	
+
 	// Used to enable undo and redo actions.
 	private final UndoRedoManager undoredoManager;
 	// User defined preferences.
@@ -68,7 +68,7 @@ public class NoteTab extends StyledText {
 	 * 
 	 * @param parent
 	 * @param text
-	 * @param editable 
+	 * @param editable
 	 * @param shortcutHandler
 	 */
 	public NoteTab(Composite parent, String text, boolean editable) {
@@ -210,26 +210,11 @@ public class NoteTab extends StyledText {
 	 * Applies an underlined style to the currently selected text.
 	 */
 	public void underlineSelection() {
-		// Record style modification for undo actions.
-		undoredoManager.recordTabModification(null, getStyleRanges());
+		addStyleToSelection(true);
+	}
 
-		Point selectionRange = getSelectionRange();
-		// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
-		// there are no corresponding entries in the following array.
-		StyleRange[] currentStyles = getStyleRanges(selectionRange.x, selectionRange.y);
-
-		StyleRange selectionStyleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null);
-		selectionStyleRange.underline = true;
-		// Apply underlined style to the whole selection range; ranges that previously had no style and that are are not
-		// accounted for in currentStyles are now underlined.
-		setStyleRange(selectionStyleRange);
-
-		// The above call overwrote the previous styles; the previous styles are re-applied with the additional
-		// underlined style.
-		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
-			currentStyles[styleIndex].underline = true;
-			setStyleRange(currentStyles[styleIndex]);
-		}
+	public void strikeoutSelection() {
+		addStyleToSelection(false);
 	}
 
 	/**
@@ -244,7 +229,7 @@ public class NoteTab extends StyledText {
 		StyleRange styleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null, SWT.NORMAL);
 		setStyleRange(styleRange);
 	}
-	
+
 	/**
 	 * Makes the note read-only or editable again.
 	 */
@@ -271,6 +256,8 @@ public class NoteTab extends StyledText {
 			styleSerialisation.append(STRING_SEPARATOR);
 			// If underlined, 1, else 0.
 			styleSerialisation.append(currentStyles[styleIndex].underline ? 1 : 0);
+			// If strikeout, 1, else 0.
+			styleSerialisation.append(currentStyles[styleIndex].strikeout ? 1 : 0);
 			styleSerialisation.append(STRING_SEPARATOR);
 		}
 		return styleSerialisation.toString();
@@ -283,16 +270,17 @@ public class NoteTab extends StyledText {
 	 */
 	public void deserialiseStyle(String serialisation) {
 		String[] integers = serialisation.split(STRING_SEPARATOR);
-		StyleRange[] styles = new StyleRange[integers.length / 4];
+		StyleRange[] styles = new StyleRange[integers.length / 5];
 		// Do the parsing.
 		for (int styleIndex = 0; styleIndex < styles.length; ++styleIndex) {
-			// Each StyleRange object has 4 corresponding integers in the CSV string.
-			int integerIndex = 4 * styleIndex;
+			// Each StyleRange object has 5 corresponding integers in the CSV string.
+			int integerIndex = 5 * styleIndex;
 			styles[styleIndex] = new StyleRange();
 			styles[styleIndex].start = Integer.parseInt(integers[integerIndex]);
 			styles[styleIndex].length = Integer.parseInt(integers[integerIndex + 1]);
 			styles[styleIndex].fontStyle = Integer.parseInt(integers[integerIndex + 2]);
 			styles[styleIndex].underline = (Integer.parseInt(integers[integerIndex + 3]) == 1) ? true : false;
+			styles[styleIndex].strikeout = (Integer.parseInt(integers[integerIndex + 4]) == 1) ? true : false;
 		}
 		// Apply the parsed styles.
 		setStyleRanges(styles);
@@ -432,6 +420,42 @@ public class NoteTab extends StyledText {
 		// new one.
 		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
 			currentStyles[styleIndex].fontStyle |= newStyle;
+			setStyleRange(currentStyles[styleIndex]);
+		}
+	}
+
+	/**
+	 * Underlines or strikes out the currently selected text.
+	 * 
+	 * @param underline
+	 */
+	private void addStyleToSelection(boolean underline) {
+		// Record style modification for undo actions.
+		undoredoManager.recordTabModification(null, getStyleRanges());
+
+		Point selectionRange = getSelectionRange();
+		// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
+		// there are no corresponding entries in the following array.
+		StyleRange[] currentStyles = getStyleRanges(selectionRange.x, selectionRange.y);
+
+		StyleRange selectionStyleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null);
+		if (underline) {
+			selectionStyleRange.underline = true;
+		} else {
+			selectionStyleRange.strikeout = true;
+		}
+		// Apply underlined or strikeout style to the whole selection range; ranges that previously had no style and
+		// that are are not accounted for in currentStyles are now underlined or striked out.
+		setStyleRange(selectionStyleRange);
+
+		// The above call overwrote the previous styles; the previous styles are re-applied with the additional
+		// underlined or strikeout style.
+		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
+			if (underline) {
+				currentStyles[styleIndex].underline = true;
+			} else {
+				currentStyles[styleIndex].strikeout = true;
+			}
 			setStyleRange(currentStyles[styleIndex]);
 		}
 	}
