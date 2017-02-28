@@ -29,6 +29,9 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Listener;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.DragDetectEvent;
@@ -97,6 +100,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private IEclipsePreferences preferences;
 	// Object handling the different tabs.
 	private CTabFolder noteTabsFolder;
+	// Current clipboard, used for paste contents of clipboard in new notes feature.
+	private Clipboard clipboard;
 
 	/**
 	 * Constructor.
@@ -114,6 +119,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		// Listen to any change to the preferences of the plugin.
 		preferences.addPreferenceChangeListener(this);
 
+		clipboard = new Clipboard(Display.getCurrent());
+		
 		noteTabsFolder = new CTabFolder(parent, SWT.MULTI | SWT.WRAP);
 
 		addPluginDisposeListener();
@@ -199,8 +206,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doNewNote() {
 		String namePrefix = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
 				PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
+		String noteText = "";
+		if (preferences.getBoolean(PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES,
+				PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES_DEFAULT)) {
+			TextTransfer plainTextTransfer = TextTransfer.getInstance();
+			noteText = (String) clipboard.getContents(plainTextTransfer, DND.CLIPBOARD);
+		}
 		// Add a new tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
-		addNewTab(namePrefix + " " + (noteTabsFolder.getItemCount() + 1), "", "", true);
+		addNewTab(namePrefix + " " + (noteTabsFolder.getItemCount() + 1), noteText, "", true);
 		noteTabsFolder.setSelection(noteTabsFolder.getItemCount() - 1);
 	}
 

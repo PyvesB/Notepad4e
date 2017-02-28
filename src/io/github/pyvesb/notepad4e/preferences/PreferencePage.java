@@ -31,6 +31,8 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 				new String[][] { { "Left", "left" }, { "Right", "right" } }, getFieldEditorParent(), true));
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_CLOSE_CONFIRMATION, "Confirmation when closing a note",
 				getFieldEditorParent()));
+		addField(new BooleanFieldEditor(PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES,
+				"Paste current contents of clipboard when creating a new note", getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_WRAP,
 				"Wrap lines in notes (automatically enforced if right alignment)", getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_JUSTIFY, "Justify lines", getFieldEditorParent()));
