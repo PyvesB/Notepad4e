@@ -32,12 +32,12 @@ import io.github.pyvesb.notepad4e.preferences.PreferenceConstants;
 import io.github.pyvesb.notepad4e.utils.UndoRedoManager;
 
 /**
- * Class representing a note tab in the plugin's view.
+ * Class representing a note in the plugin's view.
  * 
  * @author Pyves
  *
  */
-public class NoteTab extends StyledText {
+public class Note extends StyledText {
 
 	// Used to parse strings.
 	private static final String STRING_SEPARATOR = ",";
@@ -45,11 +45,11 @@ public class NoteTab extends StyledText {
 	private static final String SAVE_ERROR = "Error while attempting to save the file.";
 
 	// Used to enable undo and redo actions.
-	private final UndoRedoManager undoredoManager;
+	private final UndoRedoManager undoRedoManager;
 	// User defined preferences.
 	private final IEclipsePreferences preferences;
 
-	// Appearance parameters of the note tab.
+	// Appearance parameters of the note.
 	private Color fontColor;
 	private Color backgroundColor;
 	private Font font;
@@ -62,6 +62,10 @@ public class NoteTab extends StyledText {
 	private MenuItem menuItemSelectAll;
 	private MenuItem menuItemSeparator1;
 	private MenuItem menuItemSeparator2;
+	
+	private enum TextStyle {
+		BOLD, ITALIC, UNDERLINE, STRIKEOUT
+	}
 
 	/**
 	 * Constructor. Sets properties of the editor window.
@@ -71,17 +75,17 @@ public class NoteTab extends StyledText {
 	 * @param editable
 	 * @param shortcutHandler
 	 */
-	public NoteTab(Composite parent, String text, boolean editable) {
+	public Note(Composite parent, String text, boolean editable) {
 		// Enable multiple lines and scroll bars.
 		super(parent, SWT.V_SCROLL | SWT.H_SCROLL);
 
 		preferences = InstanceScope.INSTANCE.getNode(Notepad4e.PLUGIN_ID);
 
-		undoredoManager = new UndoRedoManager(this);
+		undoRedoManager = new UndoRedoManager(this);
 
 		// Scroll bars only appear when the text extends beyond the note window.
 		setAlwaysShowScrollBars(false);
-		setPreferences();
+		setParametersFromPreferences();
 		setText(text);
 		setEditable(editable);
 
@@ -89,7 +93,7 @@ public class NoteTab extends StyledText {
 	}
 
 	/**
-	 * Disposes the resources owned by the note tab.
+	 * Disposes the resources owned by the note.
 	 */
 	@Override
 	public void dispose() {
@@ -112,7 +116,7 @@ public class NoteTab extends StyledText {
 	/**
 	 * Sets properties that can be defined by the user in the plugin's preferences page.
 	 */
-	public void setPreferences() {
+	public void setParametersFromPreferences() {
 		// Line spacing parameter.
 		setLineSpacing(preferences.getInt(PreferenceConstants.PREF_LINE_SPACING,
 				PreferenceConstants.PREF_LINE_SPACING_DEFAULT));
@@ -172,21 +176,21 @@ public class NoteTab extends StyledText {
 	}
 
 	/**
-	 * Undos latest NoteTab modification.
+	 * Undos latest Note modification.
 	 */
 	public void undo() {
-		undoredoManager.undo();
+		undoRedoManager.undo();
 	}
 
 	/**
-	 * Redos latest NoteTab modification.
+	 * Redos latest Note modification.
 	 */
 	public void redo() {
-		undoredoManager.redo();
+		undoRedoManager.redo();
 	}
 
 	/**
-	 * Removes all the text from the note tab.
+	 * Removes all the text from the note.
 	 */
 	public void clearText() {
 		setText("");
@@ -196,25 +200,28 @@ public class NoteTab extends StyledText {
 	 * Applies a bold style to the currently selected text.
 	 */
 	public void boldSelection() {
-		addStyleToSelection(SWT.BOLD);
+		addStyleToSelection(TextStyle.BOLD);
 	}
 
 	/**
 	 * Applies an italic style to the currently selected text.
 	 */
 	public void italicSelection() {
-		addStyleToSelection(SWT.ITALIC);
+		addStyleToSelection(TextStyle.ITALIC);
 	}
 
 	/**
 	 * Applies an underlined style to the currently selected text.
 	 */
 	public void underlineSelection() {
-		addStyleToSelection(true);
+		addStyleToSelection(TextStyle.UNDERLINE);
 	}
 
+	/**
+	 * Applies a strikeout style to the currently selected text.
+	 */
 	public void strikeoutSelection() {
-		addStyleToSelection(false);
+		addStyleToSelection(TextStyle.STRIKEOUT);
 	}
 
 	/**
@@ -222,7 +229,7 @@ public class NoteTab extends StyledText {
 	 */
 	public void clearSelectionStyles() {
 		// Record style modification for undo actions.
-		undoredoManager.recordTabModification(null, getStyleRanges());
+		undoRedoManager.recordNoteModification(null, getStyleRanges());
 
 		Point selectionRange = getSelectionRange();
 		// No colors are specified as they are defined by the plugin's preferences.
@@ -238,7 +245,7 @@ public class NoteTab extends StyledText {
 	}
 
 	/**
-	 * Creates as string giving a description of the styles in the current note tab.
+	 * Creates as string giving a description of the styles in the current note.
 	 * 
 	 * @return CSV string containing a serialised representation of the styles
 	 */
@@ -264,7 +271,7 @@ public class NoteTab extends StyledText {
 	}
 
 	/**
-	 * Applies styles to the current note tab based on a styles' serialisation string.
+	 * Applies styles to the current note based on a styles' serialisation string.
 	 * 
 	 * @param serialisation
 	 */
@@ -287,7 +294,7 @@ public class NoteTab extends StyledText {
 	}
 
 	/**
-	 * Exports the brute text in the current note tab as a text file.
+	 * Exports the brute text in the current note as a text file.
 	 * 
 	 * @param iWorkbenchPartSite
 	 */
@@ -307,7 +314,7 @@ public class NoteTab extends StyledText {
 			return;
 		}
 
-		// Write the current note tab's text to the file, with handling of IO exceptions.
+		// Write the current note's text to the file, with handling of IO exceptions.
 		try (FileOutputStream outStream = new FileOutputStream(file);
 				PrintWriter printStream = new PrintWriter(outStream)) {
 			printStream.print(getText());
@@ -322,7 +329,7 @@ public class NoteTab extends StyledText {
 	}
 
 	/**
-	 * Initialises the menu triggered by a right-click inside the tab.
+	 * Initialises the menu triggered by a right-click inside the note.
 	 */
 	private void initialiseMenu() {
 		Menu menu = new Menu(getShell(), SWT.POP_UP);
@@ -402,36 +409,9 @@ public class NoteTab extends StyledText {
 	 * 
 	 * @param newStyle
 	 */
-	private void addStyleToSelection(int newStyle) {
+	private void addStyleToSelection(TextStyle newStyle) {
 		// Record style modification for undo actions.
-		undoredoManager.recordTabModification(null, getStyleRanges());
-
-		Point selectionRange = getSelectionRange();
-		// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
-		// there are no corresponding entries in the following array.
-		StyleRange[] currentStyles = getStyleRanges(selectionRange.x, selectionRange.y);
-
-		StyleRange selectionStyleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null, newStyle);
-		// Apply the style to the whole selection range; ranges that previously had no style and that are are not
-		// accounted for in currentStyles now have the wanted style.
-		setStyleRange(selectionStyleRange);
-
-		// The above call overwrote the previous styles; the previous styles are re-applied with the additional
-		// new one.
-		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
-			currentStyles[styleIndex].fontStyle |= newStyle;
-			setStyleRange(currentStyles[styleIndex]);
-		}
-	}
-
-	/**
-	 * Underlines or strikes out the currently selected text.
-	 * 
-	 * @param underline
-	 */
-	private void addStyleToSelection(boolean underline) {
-		// Record style modification for undo actions.
-		undoredoManager.recordTabModification(null, getStyleRanges());
+		undoRedoManager.recordNoteModification(null, getStyleRanges());
 
 		Point selectionRange = getSelectionRange();
 		// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
@@ -439,22 +419,44 @@ public class NoteTab extends StyledText {
 		StyleRange[] currentStyles = getStyleRanges(selectionRange.x, selectionRange.y);
 
 		StyleRange selectionStyleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null);
-		if (underline) {
-			selectionStyleRange.underline = true;
-		} else {
-			selectionStyleRange.strikeout = true;
+		switch (newStyle) {
+			case BOLD:
+				selectionStyleRange.fontStyle = SWT.BOLD;
+				break;
+			case ITALIC:
+				selectionStyleRange.fontStyle = SWT.ITALIC;
+				break;
+			case UNDERLINE:
+				selectionStyleRange.underline = true;
+				break;
+			case STRIKEOUT:
+				selectionStyleRange.strikeout = true;
+				break;
+			default:
+				return;
 		}
-		// Apply underlined or strikeout style to the whole selection range; ranges that previously had no style and
-		// that are are not accounted for in currentStyles are now underlined or striked out.
+		// Apply the style to the whole selection range; ranges that previously had no style and that are are not
+		// accounted for in currentStyles now have the wanted style.
 		setStyleRange(selectionStyleRange);
 
 		// The above call overwrote the previous styles; the previous styles are re-applied with the additional
-		// underlined or strikeout style.
+		// new one.
 		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
-			if (underline) {
-				currentStyles[styleIndex].underline = true;
-			} else {
-				currentStyles[styleIndex].strikeout = true;
+			switch (newStyle) {
+				case BOLD:
+					currentStyles[styleIndex].fontStyle |= SWT.BOLD;
+					break;
+				case ITALIC:
+					currentStyles[styleIndex].fontStyle |= SWT.ITALIC;
+					break;
+				case UNDERLINE:
+					currentStyles[styleIndex].underline = true;
+					break;
+				case STRIKEOUT:
+					currentStyles[styleIndex].strikeout = true;
+					break;
+				default:
+					return;
 			}
 			setStyleRange(currentStyles[styleIndex]);
 		}

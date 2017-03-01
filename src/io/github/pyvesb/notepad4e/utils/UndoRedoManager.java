@@ -7,10 +7,10 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 
-import io.github.pyvesb.notepad4e.views.NoteTab;
+import io.github.pyvesb.notepad4e.views.Note;
 
 /**
- * Class in charge of handling the undo and redo actions of a NoteTab.
+ * Class in charge of handling the undo and redo actions of a note.
  * 
  * @author Pyves
  *
@@ -20,8 +20,8 @@ public class UndoRedoManager {
 	// Used to limit the size of undo and redo actions from growing indefinitely.
 	private static final int MAX_DEQUE_SIZES = 250;
 
-	// Reference to the NoteTab this manager is handling.
-	private final NoteTab noteTab;
+	// Reference to the note this manager is handling.
+	private final Note note;
 	// Deques used to store previous text actions and styles.
 	private final Deque<ModificationRecord> undoDeque;
 	private final Deque<ModificationRecord> redoDeque;
@@ -34,15 +34,15 @@ public class UndoRedoManager {
 	/**
 	 * Constructor.
 	 * 
-	 * @param noteTab
+	 * @param note
 	 */
-	public UndoRedoManager(NoteTab note) {
+	public UndoRedoManager(Note note) {
 		undoDeque = new ArrayDeque<>();
 		redoDeque = new ArrayDeque<>();
-		this.noteTab = note;
+		this.note = note;
 
 		// Listen to text modifications.
-		noteTab.addVerifyListener(new VerifyListener() {
+		note.addVerifyListener(new VerifyListener() {
 			@Override
 			public void verifyText(VerifyEvent event) {
 				// Last modification was due to an undo/redo action: do not record it.
@@ -50,7 +50,7 @@ public class UndoRedoManager {
 					lastActionUndoOrRedo = false;
 					return;
 				}
-				recordTabModification(event, noteTab.getStyleRanges());
+				recordNoteModification(event, note.getStyleRanges());
 			}
 		});
 	}
@@ -61,7 +61,7 @@ public class UndoRedoManager {
 	 * @param event
 	 * @param styles
 	 */
-	public void recordTabModification(VerifyEvent event, StyleRange[] styles) {
+	public void recordNoteModification(VerifyEvent event, StyleRange[] styles) {
 		// Previous action cannot be an undo: empty redo deque and remove stylesBeforeUndo.
 		redoDeque.clear();
 		stylesBeforeUndo = null;
@@ -70,7 +70,7 @@ public class UndoRedoManager {
 		// modification and push it on the deque.
 		if (event != null) {
 			undoDeque.push(new ModificationRecord(styles, event.start, event.text.length(),
-					noteTab.getText().substring(event.start, event.end), event.text));
+					note.getText().substring(event.start, event.end), event.text));
 		} else {
 			undoDeque.push(new ModificationRecord(styles, 0, 0, null, null));
 		}
@@ -93,7 +93,7 @@ public class UndoRedoManager {
 		// Set styles at the point where undo action start being performed; this information is not stored by any
 		// ModificationRecord as they contain styles as they were before the event.
 		if (stylesBeforeUndo == null) {
-			stylesBeforeUndo = noteTab.getStyleRanges();
+			stylesBeforeUndo = note.getStyleRanges();
 		}
 
 		ModificationRecord undoFragment = undoDeque.pop();
@@ -102,16 +102,16 @@ public class UndoRedoManager {
 			// Ignore next ExtendedModifyEvent.
 			lastActionUndoOrRedo = true;
 
-			String noteTabText = noteTab.getText();
+			String noteText = note.getText();
 
-			StringBuilder previousString = new StringBuilder(noteTabText.substring(0, undoFragment.getStart()));
+			StringBuilder previousString = new StringBuilder(noteText.substring(0, undoFragment.getStart()));
 			previousString.append(undoFragment.getReplacedText());
-			previousString.append(noteTabText.substring(undoFragment.getStart() + undoFragment.getLength()));
+			previousString.append(noteText.substring(undoFragment.getStart() + undoFragment.getLength()));
 
-			noteTab.setText(previousString.toString());
+			note.setText(previousString.toString());
 		}
 
-		noteTab.setStyleRanges(undoFragment.getStyles());
+		note.setStyleRanges(undoFragment.getStyles());
 
 		redoDeque.push(undoFragment);
 	}
@@ -131,31 +131,30 @@ public class UndoRedoManager {
 			// Ignore next ExtendedModifyEvent.
 			lastActionUndoOrRedo = true;
 
-			String noteTabText = noteTab.getText();
+			String noteText = note.getText();
 
-			StringBuilder previousString = new StringBuilder(noteTabText.substring(0, redoFragment.getStart()));
+			StringBuilder previousString = new StringBuilder(noteText.substring(0, redoFragment.getStart()));
 			previousString.append(redoFragment.getNewText());
 			previousString
-					.append(noteTabText.substring(redoFragment.getStart() + redoFragment.getReplacedText().length()));
+					.append(noteText.substring(redoFragment.getStart() + redoFragment.getReplacedText().length()));
 
-			noteTab.setText(previousString.toString());
+			note.setText(previousString.toString());
 		}
 
 		if (!redoDeque.isEmpty()) {
 			// Styles in ModificationRecord correspond to how they were before the change; redo actions go through the
-			// timeline in the other way, the styles must be taken from the next element in the deque without removing
-			// it.
-			noteTab.setStyleRanges(redoDeque.peek().getStyles());
+			// timeline the other way, the styles must be taken from the next element in the deque without removing it.
+			note.setStyleRanges(redoDeque.peek().getStyles());
 		} else {
 			// deque empty: set styles to how they were before any undo actions.
-			noteTab.setStyleRanges(stylesBeforeUndo);
+			note.setStyleRanges(stylesBeforeUndo);
 		}
 
 		undoDeque.push(redoFragment);
 	}
 
 	/**
-	 * Class used to keep records of the state of the note tab to be able to perform undo and redo actions.
+	 * Class used to keep records of the state of the note to be able to perform undo and redo actions.
 	 * 
 	 * @author Pyves
 	 *

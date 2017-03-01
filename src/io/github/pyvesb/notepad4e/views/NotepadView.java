@@ -69,6 +69,7 @@ import io.github.pyvesb.notepad4e.utils.ShortcutHandler;
  */
 public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
+	// Various constants.
 	private static final String LOCK_CHARACTER = "\uD83D\uDD12";
 	private static final int SAVE_INTERVAL_MILLIS = 120000;
 	// The ID of the view as specified by the extension.
@@ -99,8 +100,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	// User defined preferences.
 	private IEclipsePreferences preferences;
 	// Object handling the different tabs.
-	private CTabFolder noteTabsFolder;
-	// Current clipboard, used for paste contents of clipboard in new notes feature.
+	private CTabFolder tabFolder;
+	// Current clipboard, used for the paste contents of clipboard in new notes feature.
 	private Clipboard clipboard;
 
 	/**
@@ -121,13 +122,13 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 		clipboard = new Clipboard(Display.getCurrent());
 		
-		noteTabsFolder = new CTabFolder(parent, SWT.MULTI | SWT.WRAP);
+		tabFolder = new CTabFolder(parent, SWT.MULTI | SWT.WRAP);
 
 		addPluginDisposeListener();
-		addCloseNoteTabListener();
-		addSwapNoteTabListener();
-		addRenameNoteTabListener();
-		addSelectionListener();
+		addCloseTabListener();
+		addSwapTabListener();
+		addRenameTabListener();
+		addTabSelectionListener();
 
 		restoreViewFromPreviousSession();
 
@@ -146,7 +147,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		};
 		autosaveJob.schedule(SAVE_INTERVAL_MILLIS);
 
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(noteTabsFolder, "Notepad4e.viewer");
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(tabFolder, "Notepad4e.viewer");
 
 		IContextService contextService = getSite().getService(IContextService.class);
 		contextService.activateContext("notepad4e.context");
@@ -174,14 +175,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Refreshes all note tabs when a change in the plugin's preferences is detected.
+	 * Refreshes all notes when a change in the plugin's preferences is detected.
 	 * 
 	 * @param event
 	 */
 	@Override
 	public void preferenceChange(PreferenceChangeEvent event) {
-		for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
-			getNoteTab(tabIndex).setPreferences();
+		for (int tabIndex = 0; tabIndex < tabFolder.getItemCount(); ++tabIndex) {
+			getNote(tabIndex).setParametersFromPreferences();
 		}
 	}
 
@@ -190,20 +191,20 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	@Override
 	public void setFocus() {
-		if (noteTabsFolder.getItemCount() == 0) {
+		if (tabFolder.getItemCount() == 0) {
 			// Give focus to the plugin; hack-ish trick to "steal" focus from other elements in some scenarios (example:
 			// no tabs and try to open view again via quick access).
-			noteTabsFolder.getAccessible().getControl().setFocus();
+			tabFolder.getAccessible().getControl().setFocus();
 		} else {
 			// Set focus on the last item in the tabs folder component.
-			noteTabsFolder.getItem(noteTabsFolder.getItemCount() - 1).getControl().setFocus();
+			tabFolder.getItem(tabFolder.getItemCount() - 1).getControl().setFocus();
 		}
 	}
 
 	/**
 	 * Performs the new note action.
 	 */
-	public void doNewNote() {
+	public void doNewNoteTab() {
 		String namePrefix = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
 				PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
 		String noteText = "";
@@ -212,17 +213,17 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			TextTransfer plainTextTransfer = TextTransfer.getInstance();
 			noteText = (String) clipboard.getContents(plainTextTransfer, DND.CLIPBOARD);
 		}
-		// Add a new tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
-		addNewTab(namePrefix + " " + (noteTabsFolder.getItemCount() + 1), noteText, "", true);
-		noteTabsFolder.setSelection(noteTabsFolder.getItemCount() - 1);
+		// Add a new note tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
+		addNewNoteTab(namePrefix + " " + (tabFolder.getItemCount() + 1), noteText, "", true);
+		tabFolder.setSelection(tabFolder.getItemCount() - 1);
 	}
 
 	/**
 	 * Performs the clear note action.
 	 */
 	public void doClearNote() {
-		if (noteTabsFolder.getItemCount() > 0) {
-			getNoteTab(noteTabsFolder.getSelectionIndex()).clearText();
+		if (tabFolder.getItemCount() > 0) {
+			getNote(tabFolder.getSelectionIndex()).clearText();
 		}
 	}
 
@@ -230,8 +231,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the bold text action.
 	 */
 	public void doBoldText() {
-		if (noteTabsFolder.getItemCount() > 0) {
-			getNoteTab(noteTabsFolder.getSelectionIndex()).boldSelection();
+		if (tabFolder.getItemCount() > 0) {
+			getNote(tabFolder.getSelectionIndex()).boldSelection();
 		}
 	}
 
@@ -239,8 +240,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the italic text action.
 	 */
 	public void doItalicText() {
-		if (noteTabsFolder.getItemCount() > 0) {
-			getNoteTab(noteTabsFolder.getSelectionIndex()).italicSelection();
+		if (tabFolder.getItemCount() > 0) {
+			getNote(tabFolder.getSelectionIndex()).italicSelection();
 		}
 	}
 
@@ -248,8 +249,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the underline text action.
 	 */
 	public void doUnderlineText() {
-		if (noteTabsFolder.getItemCount() > 0) {
-			getNoteTab(noteTabsFolder.getSelectionIndex()).underlineSelection();
+		if (tabFolder.getItemCount() > 0) {
+			getNote(tabFolder.getSelectionIndex()).underlineSelection();
 		}
 	}
 	
@@ -257,8 +258,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the strikeout text action.
 	 */
 	public void doStrikeoutText() {
-		if (noteTabsFolder.getItemCount() > 0) {
-			getNoteTab(noteTabsFolder.getSelectionIndex()).strikeoutSelection();
+		if (tabFolder.getItemCount() > 0) {
+			getNote(tabFolder.getSelectionIndex()).strikeoutSelection();
 		}
 	}
 
@@ -266,40 +267,40 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Performs the clear text action.
 	 */
 	public void doClearTextStyle() {
-		if (noteTabsFolder.getItemCount() > 0) {
-			getNoteTab(noteTabsFolder.getSelectionIndex()).clearSelectionStyles();
+		if (tabFolder.getItemCount() > 0) {
+			getNote(tabFolder.getSelectionIndex()).clearSelectionStyles();
 		}
 	}
 
 	/**
 	 * Performs the undo text action.
 	 */
-	public void doUndo() {
-		getNoteTab(noteTabsFolder.getSelectionIndex()).undo();
+	public void doUndoText() {
+		getNote(tabFolder.getSelectionIndex()).undo();
 	}
 
 	/**
 	 * Performs the redo text action.
 	 */
-	public void doRedo() {
-		getNoteTab(noteTabsFolder.getSelectionIndex()).redo();
+	public void doRedoText() {
+		getNote(tabFolder.getSelectionIndex()).redo();
 	}
 
 	/**
-	 * Performs the close note action.
+	 * Performs the close action.
 	 */
-	public void doClose() {
-		if (noteTabsFolder.getItemCount() > 0) {
-			if (!getNoteTab(noteTabsFolder.getSelectionIndex()).getEditable()) {
+	public void doCloseNoteTab() {
+		if (tabFolder.getItemCount() > 0) {
+			if (!getNote(tabFolder.getSelectionIndex()).getEditable()) {
 				if (MessageDialog.openQuestion(getSite().getShell(), "Close Locked Note",
 						"This note is locked. Are you really sure you want to close it?")) {
-					noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).dispose();
+					tabFolder.getItem(tabFolder.getSelectionIndex()).dispose();
 				}
 			} else if (!preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
 					PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)
 					|| MessageDialog.openQuestion(getSite().getShell(), "Close Note",
 							"Are you sure you want to close this note?")) {
-				noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex()).dispose();
+				tabFolder.getItem(tabFolder.getSelectionIndex()).dispose();
 			}
 		}
 	}
@@ -308,7 +309,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Listens to disposal of the tab folder and saves state for next Eclipse session or when reopening the view.
 	 */
 	private void addPluginDisposeListener() {
-		noteTabsFolder.addDisposeListener(new DisposeListener() {
+		tabFolder.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
 				savePluginState();
@@ -317,19 +318,19 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Saves plugin state for next Eclipse session or when reopening the view
+	 * Saves plugin state for next Eclipse session or when reopening the view.
 	 */
 	private void savePluginState() {
-		if (!noteTabsFolder.isDisposed()) {
+		if (!tabFolder.isDisposed()) {
 			IDialogSettings section = Notepad4e.getDefault().getDialogSettings().getSection(ID);
-			section.put(STORE_COUNT_KEY, noteTabsFolder.getItemCount());
-			for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
-				if (noteTabsFolder.getItem(tabIndex).isDisposed()) {
-					NoteTab noteTab = getNoteTab(tabIndex);
-					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, noteTab.getText());
-					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, noteTab.serialiseStyle());
-					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, noteTabsFolder.getItem(tabIndex).getText());
-					section.put(STORE_EDITABLE_PREFIX_KEY + tabIndex, noteTab.getEditable());
+			section.put(STORE_COUNT_KEY, tabFolder.getItemCount());
+			for (int tabIndex = 0; tabIndex < tabFolder.getItemCount(); ++tabIndex) {
+				if (tabFolder.getItem(tabIndex).isDisposed()) {
+					Note note = getNote(tabIndex);
+					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, note.getText());
+					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, note.serialiseStyle());
+					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tabFolder.getItem(tabIndex).getText());
+					section.put(STORE_EDITABLE_PREFIX_KEY + tabIndex, note.getEditable());
 				}
 			}
 			Notepad4e.save();
@@ -337,14 +338,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Displays a confirmation dialog when closing a NoteTab, if enabled in preferences.
+	 * Displays a confirmation dialog when closing a note tab, if enabled in preferences.
 	 */
-	private void addCloseNoteTabListener() {
-		noteTabsFolder.addCTabFolder2Listener(new CTabFolder2Listener() {
+	private void addCloseTabListener() {
+		tabFolder.addCTabFolder2Listener(new CTabFolder2Listener() {
 			@Override
 			public void close(CTabFolderEvent event) {
 				// Selected tab may not be the one being closed, the one provided by the event must be used.
-				if (!getNoteTab(noteTabsFolder.indexOf((CTabItem) event.item)).getEditable()) {
+				if (!getNote(tabFolder.indexOf((CTabItem) event.item)).getEditable()) {
 					event.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Locked Note",
 							"This note is locked. Are you really sure you want to close it?");
 				} else if (preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
@@ -369,10 +370,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Allows to rename a NoteTab when user double clicks on its title.
+	 * Allows to rename a tab when user double clicks on its title.
 	 */
-	private void addRenameNoteTabListener() {
-		noteTabsFolder.addMouseListener(new MouseListener() {
+	private void addRenameTabListener() {
+		tabFolder.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseUp(MouseEvent event) {}
 
@@ -381,12 +382,12 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 			@Override
 			public void mouseDoubleClick(MouseEvent event) {
-				CTabItem tabAtLocation = noteTabsFolder.getItem(new Point(event.x, event.y));
-				if (tabAtLocation == null) {
+				CTabItem clickedTab = tabFolder.getItem(new Point(event.x, event.y));
+				if (clickedTab == null) {
 					return;
 				}
 				boolean isLocked = false;
-				String dialogText = tabAtLocation.getText();
+				String dialogText = clickedTab.getText();
 				if (dialogText.startsWith(LOCK_CHARACTER)) {
 					isLocked = true;
 					dialogText = dialogText.substring(3);
@@ -398,9 +399,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				// If user selected Cancel, text will be null.
 				if (inputDialog.getValue() != null && !inputDialog.getValue().isEmpty()) {
 					if (isLocked) {
-						tabAtLocation.setText(LOCK_CHARACTER + " " + inputDialog.getValue());
+						clickedTab.setText(LOCK_CHARACTER + " " + inputDialog.getValue());
 					} else {
-						tabAtLocation.setText(inputDialog.getValue());
+						clickedTab.setText(inputDialog.getValue());
 					}
 				}
 			}
@@ -408,21 +409,21 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Swaps two NoteTabs when a user drags one to another.
+	 * Swaps two tabs and corresponding notes when a user drags one to another.
 	 */
-	private void addSwapNoteTabListener() {
-		noteTabsFolder.addDragDetectListener(new DragDetectListener() {
+	private void addSwapTabListener() {
+		tabFolder.addDragDetectListener(new DragDetectListener() {
 			@Override
 			public void dragDetected(DragDetectEvent dragDetectedEvent) {
-				final Rectangle viewRectangle = Geometry.toDisplay(noteTabsFolder.getParent(),
-						noteTabsFolder.getBounds());
-				final Tracker tracker = new Tracker(noteTabsFolder, SWT.NONE);
+				final Rectangle viewRectangle = Geometry.toDisplay(tabFolder.getParent(),
+						tabFolder.getBounds());
+				final Tracker tracker = new Tracker(tabFolder, SWT.NONE);
 				tracker.setStippled(true);
 				tracker.addListener(SWT.Move, new Listener() {
 					@Override
 					public void handleEvent(Event event) {
 						Point location = new Point(event.x - viewRectangle.x, event.y - viewRectangle.y);
-						CTabItem tabAtLocation = noteTabsFolder.getItem(location);
+						CTabItem tabAtLocation = tabFolder.getItem(location);
 						if (tabAtLocation != null) {
 							// Move tracker to follow mouse cursor.
 							tracker.setRectangles(new Rectangle[] { tabAtLocation.getBounds() });
@@ -435,10 +436,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				if (tracker.open()) {
 					Rectangle[] rectangles = tracker.getRectangles();
 					if (rectangles.length > 0) {
-						CTabItem tabToSwap = noteTabsFolder.getItem(new Point(rectangles[0].x, rectangles[0].y));
+						CTabItem tabToSwap = tabFolder.getItem(new Point(rectangles[0].x, rectangles[0].y));
 						// Swap selected tab with the one situated at the mouse cursor's position.
 						if (tabToSwap != null) {
-							swapTabs(noteTabsFolder.getSelectionIndex(), noteTabsFolder.indexOf(tabToSwap));
+							swapNoteTabs(tabFolder.getSelectionIndex(), tabFolder.indexOf(tabToSwap));
 						}
 					}
 				}
@@ -449,22 +450,23 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Listens for NoteTab selections and displays or removes lock symbol when a locked tab is selected.
+	 * Listens for tab selections and displays or removes lock symbol when a locked tab is selected.
 	 */
-	private void addSelectionListener() {
-		noteTabsFolder.addSelectionListener(new SelectionListener() {
-
+	private void addTabSelectionListener() {
+		tabFolder.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				for (int tabIndex = 0; tabIndex < noteTabsFolder.getItemCount(); ++tabIndex) {
-					CTabItem item = noteTabsFolder.getItem(tabIndex);
-					if (item.getText().startsWith(LOCK_CHARACTER)) {
-						item.setText(item.getText().substring(3));
+				// Remove lock symbols from all tabs.
+				for (int tabIndex = 0; tabIndex < tabFolder.getItemCount(); ++tabIndex) {
+					CTabItem tab = tabFolder.getItem(tabIndex);
+					if (tab.getText().startsWith(LOCK_CHARACTER)) {
+						tab.setText(tab.getText().substring(3));
 					}
 				}
-				if (!getNoteTab(noteTabsFolder.getSelectionIndex()).getEditable()) {
-					CTabItem selectedItem = (CTabItem) event.item;
-					selectedItem.setText(LOCK_CHARACTER + " " + selectedItem.getText());
+				// Put lock symbol on selected tab, if non editable.
+				if (!getNote(tabFolder.getSelectionIndex()).getEditable()) {
+					CTabItem selectedTab = (CTabItem) event.item;
+					selectedTab.setText(LOCK_CHARACTER + " " + selectedTab.getText());
 				}
 			}
 
@@ -474,13 +476,13 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Returns a NoteTab object given an index in the tab folder.
+	 * Returns a Note object given an index in the tab folder.
 	 * 
 	 * @param index
 	 * @return
 	 */
-	private NoteTab getNoteTab(int index) {
-		return (NoteTab) (noteTabsFolder.getItem(index).getControl());
+	private Note getNote(int index) {
+		return (Note) (tabFolder.getItem(index).getControl());
 	}
 
 	/**
@@ -501,51 +503,51 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		}
 
 		if (numOfTabs == 0) {
-			// No tabs were previously opened: create new tab.
+			// No notes were previously opened: create new one.
 			String prefixName = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
 					PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
-			addNewTab(prefixName + " 1", "", "", true);
+			addNewNoteTab(prefixName + " 1", "", "", true);
 			// Set selection on this tab.
-			noteTabsFolder.setSelection(0);
+			tabFolder.setSelection(0);
 		} else {
 			// Populate with tabs opened in previous session.
 			for (int tabIndex = 0; tabIndex < numOfTabs; ++tabIndex) {
 				String tabTitle = section.get(STORE_TITLE_PREFIX_KEY + tabIndex);
-				String tabText = section.get(STORE_TEXT_PREFIX_KEY + tabIndex);
-				String tabStyle = section.get(STORE_STYLE_PREFIX_KEY + tabIndex);
+				String noteText = section.get(STORE_TEXT_PREFIX_KEY + tabIndex);
+				String noteStyle = section.get(STORE_STYLE_PREFIX_KEY + tabIndex);
 				boolean editable = section.get(STORE_EDITABLE_PREFIX_KEY + tabIndex) == null ? true
 						: section.getBoolean(STORE_EDITABLE_PREFIX_KEY + tabIndex);
-				addNewTab(tabTitle, tabText, tabStyle, editable);
+				addNewNoteTab(tabTitle, noteText, noteStyle, editable);
 				// Set selection on the last tab.
-				noteTabsFolder.setSelection(numOfTabs - 1);
+				tabFolder.setSelection(numOfTabs - 1);
 			}
 		}
 	}
 
 	/**
-	 * Adds a new tab to the view.
+	 * Adds a new note to the view.
 	 * 
 	 * @param title
 	 * @param text
 	 * @param style
 	 * @param editable
 	 */
-	private void addNewTab(String title, String text, String style, boolean editable) {
-		CTabItem noteTabItem = new CTabItem(noteTabsFolder, SWT.NONE);
-		noteTabItem.setText(title);
-		// Add listener to clean up corresponding NoteTab when disposing the CTabItem.
-		noteTabItem.addDisposeListener(new DisposeListener() {
+	private void addNewNoteTab(String title, String text, String style, boolean editable) {
+		CTabItem tab = new CTabItem(tabFolder, SWT.NONE);
+		tab.setText(title);
+		// Add listener to clean up corresponding note when disposing the tab.
+		tab.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
 				CTabItem itemToDispose = (CTabItem) event.getSource();
-				((NoteTab) itemToDispose.getControl()).dispose();
+				((Note) itemToDispose.getControl()).dispose();
 			}
 		});
-		NoteTab tab = new NoteTab(noteTabsFolder, text, editable);
+		Note note = new Note(tabFolder, text, editable);
 		if (style.length() > 0) {
-			tab.deserialiseStyle(style);
+			note.deserialiseStyle(style);
 		}
-		noteTabItem.setControl(tab);
+		tab.setControl(note);
 	}
 
 	/**
@@ -594,7 +596,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		addNewNoteAction = new Action() {
 			@Override
 			public void run() {
-				doNewNote();
+				doNewNoteTab();
 			}
 		};
 		setTextAndImageToAction(addNewNoteAction, NotepadAction.NEW_NOTE);
@@ -645,34 +647,34 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				doClearTextStyle();
 			}
 		};
-		setTextAndImageToAction(clearTextStyleAction, NotepadAction.CLEAR_TEXT_STYLE);
+		setTextAndImageToAction(clearTextStyleAction, NotepadAction.CLEAR_STYLE_TEXT);
 
 		toggleEditableAction = new Action() {
 			@Override
 			public void run() {
-				if (noteTabsFolder.getItemCount() > 0) {
-					CTabItem item = noteTabsFolder.getItem(noteTabsFolder.getSelectionIndex());
-					NoteTab selectectedNoteTab = getNoteTab(noteTabsFolder.getSelectionIndex());
-					if (!selectectedNoteTab.getEditable()) {
-						item.setText(item.getText().substring(3));
+				if (tabFolder.getItemCount() > 0) {
+					CTabItem tab = tabFolder.getItem(tabFolder.getSelectionIndex());
+					Note selectedNote = getNote(tabFolder.getSelectionIndex());
+					if (!selectedNote.getEditable()) {
+						tab.setText(tab.getText().substring(3));
 					} else {
-						item.setText(LOCK_CHARACTER + " " + item.getText());
+						tab.setText(LOCK_CHARACTER + " " + tab.getText());
 					}
-					selectectedNoteTab.toggleEditable();
+					selectedNote.toggleEditable();
 				}
 			}
 		};
-		setTextAndImageToAction(toggleEditableAction, NotepadAction.TOGGLE_EDITABLE);
+		setTextAndImageToAction(toggleEditableAction, NotepadAction.TOGGLE_EDITABLE_NOTE);
 
 		saveNoteAction = new Action() {
 			@Override
 			public void run() {
-				if (noteTabsFolder.getItemCount() > 0) {
-					getNoteTab(noteTabsFolder.getSelectionIndex()).saveToFile(getSite());
+				if (tabFolder.getItemCount() > 0) {
+					getNote(tabFolder.getSelectionIndex()).saveToFile(getSite());
 				}
 			}
 		};
-		setTextAndImageToAction(saveNoteAction, NotepadAction.SAVE_NOTE);
+		setTextAndImageToAction(saveNoteAction, NotepadAction.EXPORT_NOTE);
 
 		preferencesAction = new Action() {
 			@Override
@@ -753,22 +755,22 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Swaps two note tabs in the view.
+	 * Swaps two tabs and corresponding notes in the view.
 	 * 
 	 * @param selectedIndex
 	 * @param swappedIndex
 	 */
-	private void swapTabs(int selectedIndex, int swappedIndex) {
-		NoteTab selectedTab = getNoteTab(selectedIndex);
-		NoteTab swappedTab = getNoteTab(swappedIndex);
-		noteTabsFolder.getItem(swappedIndex).setControl(selectedTab);
-		noteTabsFolder.getItem(selectedIndex).setControl(swappedTab);
+	private void swapNoteTabs(int selectedIndex, int swappedIndex) {
+		Note selectedNote = getNote(selectedIndex);
+		Note swappedNote = getNote(swappedIndex);
+		tabFolder.getItem(swappedIndex).setControl(selectedNote);
+		tabFolder.getItem(selectedIndex).setControl(swappedNote);
 
-		String selectedTitle = noteTabsFolder.getItem(selectedIndex).getText();
-		String swappedTitle = noteTabsFolder.getItem(swappedIndex).getText();
-		noteTabsFolder.getItem(swappedIndex).setText(selectedTitle);
-		noteTabsFolder.getItem(selectedIndex).setText(swappedTitle);
+		String selectedTitle = tabFolder.getItem(selectedIndex).getText();
+		String swappedTitle = tabFolder.getItem(swappedIndex).getText();
+		tabFolder.getItem(swappedIndex).setText(selectedTitle);
+		tabFolder.getItem(selectedIndex).setText(swappedTitle);
 
-		noteTabsFolder.setSelection(swappedIndex);
+		tabFolder.setSelection(swappedIndex);
 	}
 }

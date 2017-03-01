@@ -23,7 +23,7 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 	}
 
 	/**
-	 * Creates the field editors corresponding to different preferences.
+	 * Creates the field editors corresponding to the different preferences.
 	 */
 	@Override
 	public void createFieldEditors() {
@@ -36,8 +36,8 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_WRAP,
 				"Wrap lines in notes (automatically enforced if right alignment)", getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_JUSTIFY, "Justify lines", getFieldEditorParent()));
-		addField(
-				new IntegerFieldEditor(PreferenceConstants.PREF_LINE_SPACING, "Line spacing:", getFieldEditorParent()));
+		addField(new IntegerFieldEditor(PreferenceConstants.PREF_LINE_SPACING, "Line spacing:", 
+				getFieldEditorParent()));
 		addField(new StringFieldEditor(PreferenceConstants.PREF_NAME_PREFIX, "Name prefix of new notes:",
 				getFieldEditorParent()));
 		addField(new ColorFieldEditor(PreferenceConstants.PREF_FONT_COLOR, "Font color:", getFieldEditorParent()));

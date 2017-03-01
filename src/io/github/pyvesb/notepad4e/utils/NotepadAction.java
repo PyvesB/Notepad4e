@@ -1,8 +1,8 @@
 package io.github.pyvesb.notepad4e.utils;
 
 /**
- * Enum used to represent all the possible actions in the plugin that are either handled by shortcuts or by buttons in
- * NotepadView or by both.
+ * Enum used to represent all the possible user actions in the plugin. These are either handled by shortcuts or by
+ * NotepadView buttons or by both.
  * 
  * @author Pyves
  *
@@ -14,13 +14,13 @@ public enum NotepadAction {
 	ITALIC_TEXT("Italic", "notepad4e.command.text.italic", "/icons/style_italic.gif"),
 	UNDERLINE_TEXT("Underline", "notepad4e.command.text.underline", "/icons/style_underline.gif"),
 	STRIKEOUT_TEXT("Strikeout", "notepad4e.command.text.strikeout", "/icons/style_strikeout.gif"),
-	CLEAR_TEXT_STYLE("Clear Style", "notepad4e.command.text.clear", "/icons/clear_co.png"),
+	CLEAR_STYLE_TEXT("Clear Style", "notepad4e.command.text.clear", "/icons/clear_co.png"),
 	CLEAR_NOTE("Clear Note", "notepad4e.command.note.clear", "/icons/clear.png"),
-	UNDO(null, "notepad4e.command.text.undo", null),
-	REDO(null, "notepad4e.command.text.redo", null),
-	CLOSE(null, "notepad4e.command.note.close", null),
-	TOGGLE_EDITABLE("Lock/Unlock Note", null, "/icons/deadlock_view.png"),
-	SAVE_NOTE("Export Note", null, "/icons/saveas_edit_floppy.png"),
+	UNDO_TEXT(null, "notepad4e.command.text.undo", null),
+	REDO_TEXT(null, "notepad4e.command.text.redo", null),
+	CLOSE_NOTE(null, "notepad4e.command.note.close", null),
+	TOGGLE_EDITABLE_NOTE("Lock/Unlock Note", null, "/icons/deadlock_view.png"),
+	EXPORT_NOTE("Export Note", null, "/icons/saveas_edit_floppy.png"),
 	PREFERENCES("Preferences", null, "/icons/settings_obj.png"),
 	WEBSITE("Webpage", null, "/icons/web.png"),
 	CHANGELOG("Changelog", null, "/icons/changelog_obj.gif");

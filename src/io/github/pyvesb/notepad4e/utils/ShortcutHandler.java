@@ -38,38 +38,38 @@ public class ShortcutHandler extends AbstractHandler {
 		}
 
 		switch (NotepadAction.of(event.getCommand().getId())) {
-		case NEW_NOTE:
-			notepadView.doNewNote();
-			break;
-		case BOLD_TEXT:
-			notepadView.doBoldText();
-			break;
-		case ITALIC_TEXT:
-			notepadView.doItalicText();
-			break;
-		case UNDERLINE_TEXT:
-			notepadView.doUnderlineText();
-			break;
-		case STRIKEOUT_TEXT:
-			notepadView.doStrikeoutText();
-			break;
-		case CLEAR_TEXT_STYLE:
-			notepadView.doClearTextStyle();
-			break;
-		case CLEAR_NOTE:
-			notepadView.doClearNote();
-			break;
-		case UNDO:
-			notepadView.doUndo();
-			break;
-		case REDO:
-			notepadView.doRedo();
-			break;
-		case CLOSE:
-			notepadView.doClose();
-			break;
-		default:
-			break;
+			case NEW_NOTE:
+				notepadView.doNewNoteTab();
+				break;
+			case BOLD_TEXT:
+				notepadView.doBoldText();
+				break;
+			case ITALIC_TEXT:
+				notepadView.doItalicText();
+				break;
+			case UNDERLINE_TEXT:
+				notepadView.doUnderlineText();
+				break;
+			case STRIKEOUT_TEXT:
+				notepadView.doStrikeoutText();
+				break;
+			case CLEAR_STYLE_TEXT:
+				notepadView.doClearTextStyle();
+				break;
+			case CLEAR_NOTE:
+				notepadView.doClearNote();
+				break;
+			case UNDO_TEXT:
+				notepadView.doUndoText();
+				break;
+			case REDO_TEXT:
+				notepadView.doRedoText();
+				break;
+			case CLOSE_NOTE:
+				notepadView.doCloseNoteTab();
+				break;
+			default:
+				break;
 		}
 		return null;
 	}
