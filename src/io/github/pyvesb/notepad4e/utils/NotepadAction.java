@@ -13,17 +13,17 @@ public enum NotepadAction {
 	BOLD_TEXT("Bold", "notepad4e.command.text.bold", "/icons/style_bold.gif"),
 	ITALIC_TEXT("Italic", "notepad4e.command.text.italic", "/icons/style_italic.gif"),
 	UNDERLINE_TEXT("Underline", "notepad4e.command.text.underline", "/icons/style_underline.gif"),
-	STRIKEOUT_TEXT("Strikeout", "notepad4e.command.text.strikeout", "/icons/style_strikeout.gif"),
+	STRIKEOUT_TEXT("Strikeout", "notepad4e.command.text.strikeout", "/icons/style_strikeout.png"),
 	CLEAR_STYLE_TEXT("Clear Style", "notepad4e.command.text.clear", "/icons/clear_co.png"),
 	CLEAR_NOTE("Clear Note", "notepad4e.command.note.clear", "/icons/clear.png"),
 	UNDO_TEXT(null, "notepad4e.command.text.undo", null),
 	REDO_TEXT(null, "notepad4e.command.text.redo", null),
 	CLOSE_NOTE(null, "notepad4e.command.note.close", null),
 	TOGGLE_EDITABLE_NOTE("Lock/Unlock Note", null, "/icons/deadlock_view.png"),
-	EXPORT_NOTE("Export Note", null, "/icons/saveas_edit_floppy.png"),
+	EXPORT_NOTE("Export Note", null, "/icons/save_edit.png"),
 	PREFERENCES("Preferences", null, "/icons/settings_obj.png"),
 	WEBSITE("Webpage", null, "/icons/web.png"),
-	CHANGELOG("Changelog", null, "/icons/changelog_obj.gif");
+	CHANGELOG("Changelog", null, "/icons/change.gif");
 	
 	private final String text;
 	private final String commandID;
