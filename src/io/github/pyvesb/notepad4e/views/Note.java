@@ -193,7 +193,9 @@ public class Note extends StyledText {
 	 * Removes all the text from the note.
 	 */
 	public void clearText() {
-		setText("");
+		if (getEditable()) {
+			setText("");
+		}
 	}
 
 	/**
@@ -228,6 +230,9 @@ public class Note extends StyledText {
 	 * Removes all styles from the current selection.
 	 */
 	public void clearSelectionStyles() {
+		if (!getEditable()) {
+			return;
+		}
 		// Record style modification for undo actions.
 		undoRedoManager.recordNoteModification(null, getStyleRanges());
 
@@ -410,6 +415,9 @@ public class Note extends StyledText {
 	 * @param newStyle
 	 */
 	private void addStyleToSelection(TextStyle newStyle) {
+		if (!getEditable()) {
+			return;
+		}
 		// Record style modification for undo actions.
 		undoRedoManager.recordNoteModification(null, getStyleRanges());
 
