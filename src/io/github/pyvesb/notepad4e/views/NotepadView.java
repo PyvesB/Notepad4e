@@ -93,7 +93,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action strikeoutTextAction;
 	private Action clearTextStyleAction;
 	private Action toggleEditableAction;
-	private Action saveNoteAction;
+	private Action exportNoteAction;
 	private Action preferencesAction;
 	private Action websiteAction;
 	private Action changelogAction;
@@ -566,7 +566,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	private void fillLocalPullDown(IMenuManager manager) {
 		manager.add(toggleEditableAction);
-		manager.add(saveNoteAction);
+		manager.add(exportNoteAction);
 		manager.add(new Separator());
 		manager.add(preferencesAction);
 		manager.add(websiteAction);
@@ -666,15 +666,15 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		};
 		setTextAndImageToAction(toggleEditableAction, NotepadAction.TOGGLE_EDITABLE_NOTE);
 
-		saveNoteAction = new Action() {
+		exportNoteAction = new Action() {
 			@Override
 			public void run() {
 				if (tabFolder.getItemCount() > 0) {
-					getNote(tabFolder.getSelectionIndex()).saveToFile(getSite());
+					getNote(tabFolder.getSelectionIndex()).exportToFile(getSite());
 				}
 			}
 		};
-		setTextAndImageToAction(saveNoteAction, NotepadAction.EXPORT_NOTE);
+		setTextAndImageToAction(exportNoteAction, NotepadAction.EXPORT_NOTE);
 
 		preferencesAction = new Action() {
 			@Override

@@ -303,10 +303,10 @@ public class Note extends StyledText {
 	 * 
 	 * @param iWorkbenchPartSite
 	 */
-	public void saveToFile(IWorkbenchPartSite iWorkbenchPartSite) {
+	public void exportToFile(IWorkbenchPartSite iWorkbenchPartSite) {
 		// Retrieve the file to save to with an explorer window.
 		FileDialog fileDialog = new FileDialog(iWorkbenchPartSite.getShell(), SWT.SAVE);
-		fileDialog.setText("Save to File");
+		fileDialog.setText("Export to File");
 		String fileName = fileDialog.open();
 		// Invalid name specified.
 		if (fileName == null || fileName.length() == 0) {
@@ -324,8 +324,8 @@ public class Note extends StyledText {
 				PrintWriter printStream = new PrintWriter(outStream)) {
 			printStream.print(getText());
 			printStream.flush();
-			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "File Saved",
-					"The file has been succesfully saved.");
+			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Note Exported",
+					"The note has been succesfully exported.");
 		} catch (IOException e) {
 			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Error", SAVE_ERROR);
 			ILog log = Notepad4e.getDefault().getLog();

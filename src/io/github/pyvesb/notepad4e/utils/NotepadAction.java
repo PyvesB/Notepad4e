@@ -22,7 +22,7 @@ public enum NotepadAction {
 	TOGGLE_EDITABLE_NOTE("Lock/Unlock Note", null, "/icons/deadlock_view.png"),
 	EXPORT_NOTE("Export Note", null, "/icons/save_edit.png"),
 	PREFERENCES("Preferences", null, "/icons/settings_obj.png"),
-	WEBSITE("Webpage", null, "/icons/web.png"),
+	WEBSITE("Project Webpage", null, "/icons/web.png"),
 	CHANGELOG("Changelog", null, "/icons/change.gif");
 	
 	private final String text;
