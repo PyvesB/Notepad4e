@@ -3,11 +3,9 @@
 **Create highly customisable notes in Eclipse, and never lose track of your thoughts, ideas or code snippets!**
 
 <p align="center" style="font-size:5px">
-<img src ="http://images.jupload.fr/1487114429.png" />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src ="http://images.jupload.fr/1487114448.png" />
+<img src ="http://images.jupload.fr/1488581764.png" />
 <br />
-<i><sub>Two simple examples of how the plugin can be used and customised. You have countless possibilities!</sub></i>
+<i><sub>A simple example of how the plugin can be used and customised. You have countless possibilities!</sub></i>
 
 </p>
 
@@ -25,6 +23,8 @@ ___
 * No user tracking, no ads.
 * Source code available.
 * More to discover and to come in future updates!
+
+Check out the changelog of the plugin [here](https://github.com/PyvesB/Notepad4e/releases)!
 
 ___
 
