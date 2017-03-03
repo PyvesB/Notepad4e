@@ -14,7 +14,7 @@ ___
 ### Main features
 
 * Create as many notes as you like in a separate Eclipse view.
-* Modify the style of the text (font, colour, bold, italic, underlined, etc.).
+* Modify the style of the text (font, colour, bold, italic, underlined, strikeout, etc.).
 * Customise the appearance of the plugin.
 * Automatically save the contents of your notes between workspace launches.
 * Use editable shortcuts to boost your productivity.
@@ -24,7 +24,7 @@ ___
 * Source code available.
 * More to discover and to come in future updates!
 
-Check out the changelog of the plugin [here](https://github.com/PyvesB/Notepad4e/releases)!
+Check out what's new in the [latest releases](https://github.com/PyvesB/Notepad4e/releases) or open an [issue](https://github.com/PyvesB/Notepad4e/issues) to request additional features!
 
 ___
 
