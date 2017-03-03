@@ -121,7 +121,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		preferences.addPreferenceChangeListener(this);
 
 		clipboard = new Clipboard(Display.getCurrent());
-		
+
 		tabFolder = new CTabFolder(parent, SWT.MULTI | SWT.WRAP);
 
 		addPluginDisposeListener();
@@ -253,7 +253,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			getNote(tabFolder.getSelectionIndex()).underlineSelection();
 		}
 	}
-	
+
 	/**
 	 * Performs the strikeout text action.
 	 */
@@ -325,13 +325,11 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			IDialogSettings section = Notepad4e.getDefault().getDialogSettings().getSection(ID);
 			section.put(STORE_COUNT_KEY, tabFolder.getItemCount());
 			for (int tabIndex = 0; tabIndex < tabFolder.getItemCount(); ++tabIndex) {
-				if (tabFolder.getItem(tabIndex).isDisposed()) {
-					Note note = getNote(tabIndex);
-					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, note.getText());
-					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, note.serialiseStyle());
-					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tabFolder.getItem(tabIndex).getText());
-					section.put(STORE_EDITABLE_PREFIX_KEY + tabIndex, note.getEditable());
-				}
+				Note note = getNote(tabIndex);
+				section.put(STORE_TEXT_PREFIX_KEY + tabIndex, note.getText());
+				section.put(STORE_STYLE_PREFIX_KEY + tabIndex, note.serialiseStyle());
+				section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tabFolder.getItem(tabIndex).getText());
+				section.put(STORE_EDITABLE_PREFIX_KEY + tabIndex, note.getEditable());
 			}
 			Notepad4e.save();
 		}
@@ -415,8 +413,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		tabFolder.addDragDetectListener(new DragDetectListener() {
 			@Override
 			public void dragDetected(DragDetectEvent dragDetectedEvent) {
-				final Rectangle viewRectangle = Geometry.toDisplay(tabFolder.getParent(),
-						tabFolder.getBounds());
+				final Rectangle viewRectangle = Geometry.toDisplay(tabFolder.getParent(), tabFolder.getBounds());
 				final Tracker tracker = new Tracker(tabFolder, SWT.NONE);
 				tracker.setStippled(true);
 				tracker.addListener(SWT.Move, new Listener() {
@@ -632,7 +629,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			}
 		};
 		setTextAndImageToAction(underlineTextAction, NotepadAction.UNDERLINE_TEXT);
-		
+
 		strikeoutTextAction = new Action() {
 			@Override
 			public void run() {
