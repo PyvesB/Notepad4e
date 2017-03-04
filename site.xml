@@ -15,7 +15,10 @@
    <feature url="features/io.github.pyvesb.notepad4e_1.1.0.201702141900.jar" id="io.github.pyvesb.notepad4e" version="1.1.0.201702141900">
       <category name="io.github.pyvesb.notepad4e"/>
    </feature>
-   <feature url="features/io.github.pyvesb.notepad4e_1.1.1.201702221840.jar" id="io.github.pyvesb.notepad4e" version="1.1.1.201702221840">
+   <feature url="features/io.github.pyvesb.notepad4e_1.1.1.201702221910.jar" id="io.github.pyvesb.notepad4e" version="1.1.1.201702221910">
+      <category name="io.github.pyvesb.notepad4e"/>
+   </feature>
+   <feature url="features/io.github.pyvesb.notepad4e_1.2.1.201703040907.jar" id="io.github.pyvesb.notepad4e" version="1.2.1.201703040907">
       <category name="io.github.pyvesb.notepad4e"/>
    </feature>
    <category-def name="io.github.pyvesb.notepad4e" label="Notepad4e">
