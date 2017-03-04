@@ -325,11 +325,13 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			IDialogSettings section = Notepad4e.getDefault().getDialogSettings().getSection(ID);
 			section.put(STORE_COUNT_KEY, tabFolder.getItemCount());
 			for (int tabIndex = 0; tabIndex < tabFolder.getItemCount(); ++tabIndex) {
-				Note note = getNote(tabIndex);
-				section.put(STORE_TEXT_PREFIX_KEY + tabIndex, note.getText());
-				section.put(STORE_STYLE_PREFIX_KEY + tabIndex, note.serialiseStyle());
-				section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tabFolder.getItem(tabIndex).getText());
-				section.put(STORE_EDITABLE_PREFIX_KEY + tabIndex, note.getEditable());
+				if (!tabFolder.getItem(tabIndex).isDisposed()) {
+					Note note = getNote(tabIndex);
+					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, note.getText());
+					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, note.serialiseStyle());
+					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tabFolder.getItem(tabIndex).getText());
+					section.put(STORE_EDITABLE_PREFIX_KEY + tabIndex, note.getEditable());
+				}
 			}
 			Notepad4e.save();
 		}
@@ -514,7 +516,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				String noteStyle = section.get(STORE_STYLE_PREFIX_KEY + tabIndex);
 				boolean editable = section.get(STORE_EDITABLE_PREFIX_KEY + tabIndex) == null ? true
 						: section.getBoolean(STORE_EDITABLE_PREFIX_KEY + tabIndex);
-				addNewNoteTab(tabTitle, noteText, noteStyle, editable);
+				if (tabTitle != null && noteText != null && noteStyle != null) {
+					addNewNoteTab(tabTitle, noteText, noteStyle, editable);
+				}
 				// Set selection on the last tab.
 				tabFolder.setSelection(numOfTabs - 1);
 			}

@@ -36,7 +36,7 @@ public class UndoRedoManager {
 	 * 
 	 * @param note
 	 */
-	public UndoRedoManager(Note note) {
+	public UndoRedoManager(final Note note) {
 		undoDeque = new ArrayDeque<>();
 		redoDeque = new ArrayDeque<>();
 		this.note = note;
