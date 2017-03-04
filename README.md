@@ -3,11 +3,9 @@
 **Create highly customisable notes in Eclipse, and never lose track of your thoughts, ideas or code snippets!**
 
 <p align="center" style="font-size:5px">
-<img src ="http://images.jupload.fr/1487114429.png" />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src ="http://images.jupload.fr/1487114448.png" />
+<img src ="http://images.jupload.fr/1488581764.png" />
 <br />
-<i><sub>Two simple examples of how the plugin can be used and customised. You have countless possibilities!</sub></i>
+<i><sub>A simple example of how the plugin can be used and customised. You have countless possibilities!</sub></i>
 
 </p>
 
@@ -16,7 +14,7 @@ ___
 ### Main features
 
 * Create as many notes as you like in a separate Eclipse view.
-* Modify the style of the text (font, colour, bold, italic, underlined, etc.).
+* Modify the style of the text (font, colour, bold, italic, underlined, strikeout, etc.).
 * Customise the appearance of the plugin.
 * Automatically save the contents of your notes between workspace launches.
 * Use editable shortcuts to boost your productivity.
@@ -25,6 +23,8 @@ ___
 * No user tracking, no ads.
 * Source code available.
 * More to discover and to come in future updates!
+
+Check out what's new in the [latest releases](https://github.com/PyvesB/Notepad4e/releases) or open an [issue](https://github.com/PyvesB/Notepad4e/issues) to request additional features!
 
 ___
 
