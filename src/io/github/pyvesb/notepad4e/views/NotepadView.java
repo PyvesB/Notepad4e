@@ -330,11 +330,17 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			IDialogSettings section = Notepad4e.getDefault().getDialogSettings().getSection(ID);
 			section.put(STORE_COUNT_KEY, tabFolder.getItemCount());
 			for (int tabIndex = 0; tabIndex < tabFolder.getItemCount(); ++tabIndex) {
-				if (!tabFolder.getItem(tabIndex).isDisposed()) {
+				CTabItem tab = tabFolder.getItem(tabIndex);
+				if (!tab.isDisposed()) {
 					Note note = getNote(tabIndex);
 					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, note.getText());
 					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, note.serialiseStyle());
-					section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tabFolder.getItem(tabIndex).getText());
+					if (tab.getText().startsWith(LOCK_CHARACTER)) {
+						// Do not save lock symbol.
+						section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tab.getText().substring(3));
+					} else {
+						section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tab.getText());
+					}
 					section.put(STORE_EDITABLE_PREFIX_KEY + tabIndex, note.getEditable());
 				}
 			}
