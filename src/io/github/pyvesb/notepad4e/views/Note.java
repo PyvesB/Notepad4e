@@ -268,6 +268,7 @@ public class Note extends StyledText {
 			styleSerialisation.append(STRING_SEPARATOR);
 			// If underlined, 1, else 0.
 			styleSerialisation.append(currentStyles[styleIndex].underline ? 1 : 0);
+			styleSerialisation.append(STRING_SEPARATOR);
 			// If strikeout, 1, else 0.
 			styleSerialisation.append(currentStyles[styleIndex].strikeout ? 1 : 0);
 			styleSerialisation.append(STRING_SEPARATOR);
