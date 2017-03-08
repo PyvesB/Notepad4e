@@ -215,6 +215,11 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		}
 		// Add a new note tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
 		addNewNoteTab(namePrefix + " " + (tabFolder.getItemCount() + 1), noteText, "", true);
+		CTabItem previousSelectedTab = tabFolder.getSelection();
+		// Remove lock for currently selected tab.
+		if (previousSelectedTab.getText().startsWith(LOCK_CHARACTER)) {
+			previousSelectedTab.setText(previousSelectedTab.getText().substring(3));
+		}
 		tabFolder.setSelection(tabFolder.getItemCount() - 1);
 	}
 
