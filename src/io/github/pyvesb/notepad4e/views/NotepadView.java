@@ -299,13 +299,13 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			if (!getNote(tabFolder.getSelectionIndex()).getEditable()) {
 				if (MessageDialog.openQuestion(getSite().getShell(), "Close Locked Note",
 						"This note is locked. Are you really sure you want to close it?")) {
-					tabFolder.getItem(tabFolder.getSelectionIndex()).dispose();
+					tabFolder.getSelection().dispose();
 				}
 			} else if (!preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
 					PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)
 					|| MessageDialog.openQuestion(getSite().getShell(), "Close Note",
 							"Are you sure you want to close this note?")) {
-				tabFolder.getItem(tabFolder.getSelectionIndex()).dispose();
+				tabFolder.getSelection().dispose();
 			}
 		}
 	}
@@ -449,7 +449,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 						CTabItem tabToSwap = tabFolder.getItem(new Point(rectangles[0].x, rectangles[0].y));
 						// Swap selected tab with the one situated at the mouse cursor's position.
 						if (tabToSwap != null) {
-							swapNoteTabs(tabFolder.getSelectionIndex(), tabFolder.indexOf(tabToSwap));
+							swapNoteTabs(tabFolder.indexOf(tabToSwap));
 						}
 					}
 				}
@@ -665,7 +665,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			@Override
 			public void run() {
 				if (tabFolder.getItemCount() > 0) {
-					CTabItem tab = tabFolder.getItem(tabFolder.getSelectionIndex());
+					CTabItem tab = tabFolder.getSelection();
 					Note selectedNote = getNote(tabFolder.getSelectionIndex());
 					if (!selectedNote.getEditable()) {
 						tab.setText(tab.getText().substring(3));
@@ -769,19 +769,18 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	/**
 	 * Swaps two tabs and corresponding notes in the view.
 	 * 
-	 * @param selectedIndex
 	 * @param swappedIndex
 	 */
-	private void swapNoteTabs(int selectedIndex, int swappedIndex) {
-		Note selectedNote = getNote(selectedIndex);
+	private void swapNoteTabs(int swappedIndex) {
+		Note selectedNote = getNote(tabFolder.getSelectionIndex());
 		Note swappedNote = getNote(swappedIndex);
 		tabFolder.getItem(swappedIndex).setControl(selectedNote);
-		tabFolder.getItem(selectedIndex).setControl(swappedNote);
+		tabFolder.getSelection().setControl(swappedNote);
 
-		String selectedTitle = tabFolder.getItem(selectedIndex).getText();
+		String selectedTitle = tabFolder.getSelection().getText();
 		String swappedTitle = tabFolder.getItem(swappedIndex).getText();
 		tabFolder.getItem(swappedIndex).setText(selectedTitle);
-		tabFolder.getItem(selectedIndex).setText(swappedTitle);
+		tabFolder.getSelection().setText(swappedTitle);
 
 		tabFolder.setSelection(swappedIndex);
 	}
