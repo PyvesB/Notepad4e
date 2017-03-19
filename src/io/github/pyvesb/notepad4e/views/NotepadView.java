@@ -523,15 +523,18 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			// Populate with tabs opened in previous session.
 			for (int tabIndex = 0; tabIndex < numOfTabs; ++tabIndex) {
 				String tabTitle = section.get(STORE_TITLE_PREFIX_KEY + tabIndex);
-				String noteText = section.get(STORE_TEXT_PREFIX_KEY + tabIndex);
-				String noteStyle = section.get(STORE_STYLE_PREFIX_KEY + tabIndex);
 				boolean editable = section.get(STORE_EDITABLE_PREFIX_KEY + tabIndex) == null ? true
 						: section.getBoolean(STORE_EDITABLE_PREFIX_KEY + tabIndex);
+				String noteText = section.get(STORE_TEXT_PREFIX_KEY + tabIndex);
+				String noteStyle = section.get(STORE_STYLE_PREFIX_KEY + tabIndex);
 				if (tabTitle != null && noteText != null && noteStyle != null) {
 					addNewNoteTab(tabTitle, noteText, noteStyle, editable);
 				}
-				// Set selection on the last tab.
-				tabFolder.setSelection(numOfTabs - 1);
+			}
+			// Set selection on the last tab.
+			tabFolder.setSelection(numOfTabs - 1);
+			if (!getNote(tabFolder.getSelectionIndex()).getEditable()) {
+				tabFolder.getSelection().setText(LOCK_CHARACTER + " " + tabFolder.getSelection().getText());
 			}
 		}
 	}
