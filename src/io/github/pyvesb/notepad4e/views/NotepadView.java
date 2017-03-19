@@ -170,6 +170,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	@Override
 	public void dispose() {
 		shortcutHandler.dispose();
+		tabFolder.dispose();
+		clipboard.dispose();
 		preferences.removePreferenceChangeListener(this);
 		super.dispose();
 	}

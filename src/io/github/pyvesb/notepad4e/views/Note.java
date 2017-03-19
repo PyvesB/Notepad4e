@@ -97,7 +97,6 @@ public class Note extends StyledText {
 	 */
 	@Override
 	public void dispose() {
-		super.dispose();
 		fontColor.dispose();
 		backgroundColor.dispose();
 		if (font != null) {
@@ -111,6 +110,7 @@ public class Note extends StyledText {
 		menuItemSelectAll.dispose();
 		menuItemSeparator1.dispose();
 		menuItemSeparator2.dispose();
+		super.dispose();
 	}
 
 	/**
