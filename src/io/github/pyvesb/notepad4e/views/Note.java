@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
@@ -12,6 +14,8 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.Bullet;
+import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,6 +23,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GlyphMetrics;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -88,8 +93,8 @@ public class Note extends StyledText {
 		setParametersFromPreferences();
 		setText(text);
 		initialiseMenu();
-		
-		if(!editable) {
+
+		if (!editable) {
 			toggleEditable();
 		}
 	}
@@ -229,6 +234,32 @@ public class Note extends StyledText {
 	}
 
 	/**
+	 * Applies a bullet list style to the currently selected lines.
+	 */
+	public void bulletListSelection() {
+		int selectionCurrentBullets = 0;
+		int selectionStartLine = getSelectionStartLine();
+		int selectionLineCount = getSelectionLineCount();
+		// Count number of lines that currently have a bullet.
+		for (int line = selectionStartLine; line < selectionStartLine + selectionLineCount; ++line) {
+			if (getLineBullet(line) != null) {
+				++selectionCurrentBullets;
+			}
+		}
+
+		if (selectionCurrentBullets == selectionLineCount) {
+			// All lines have bullets, remove them all.
+			setLineBullet(selectionStartLine, selectionLineCount, null);
+			return;
+		}
+
+		StyleRange bulletStyle = new StyleRange();
+		bulletStyle.metrics = new GlyphMetrics(0, 0, 20);
+		Bullet bullet = new Bullet(ST.BULLET_DOT, bulletStyle);
+		setLineBullet(selectionStartLine, selectionLineCount, bullet);
+	}
+
+	/**
 	 * Removes all styles from the current selection.
 	 */
 	public void clearSelectionStyles() {
@@ -257,7 +288,7 @@ public class Note extends StyledText {
 	}
 
 	/**
-	 * Creates as string giving a description of the styles in the current note.
+	 * Creates a string giving a description of the styles in the current note.
 	 * 
 	 * @return CSV string containing a serialised representation of the styles
 	 */
@@ -284,6 +315,23 @@ public class Note extends StyledText {
 	}
 
 	/**
+	 * Creates a string giving a description of the bullets in the current note.
+	 * 
+	 * @return CSV string containing a serialised representation of the bullets
+	 */
+	public String serialiseBullets() {
+		int totalLines = getStringLineCount(getText());
+		List<Integer> bulletLines = new ArrayList<>();
+		for (int line = 0; line < totalLines; ++line) {
+			if (getLineBullet(line) != null) {
+				// Bullet found: add line number in list.
+				bulletLines.add(line);
+			}
+		}
+		return bulletLines.toString();
+	}
+
+	/**
 	 * Applies styles to the current note based on a styles' serialisation string.
 	 * 
 	 * @param serialisation
@@ -304,6 +352,26 @@ public class Note extends StyledText {
 		}
 		// Apply the parsed styles.
 		setStyleRanges(styles);
+	}
+
+	/**
+	 * Adds bullets to the current note based on a bullets' serialisation string (for instance [0, 1, 4]).
+	 * 
+	 * @param serialisation
+	 */
+	public void deserialiseBullets(String serialisation) {
+		String bracketlessSerialisation = serialisation.substring(1, serialisation.length() - 1);
+		if ("".equals(bracketlessSerialisation)) {
+			// No bullets.
+			return;
+		}
+		String[] bulletLines = bracketlessSerialisation.split(STRING_SEPARATOR + " ");
+		StyleRange bulletStyle = new StyleRange();
+		bulletStyle.metrics = new GlyphMetrics(0, 0, 20);
+		Bullet bullet = new Bullet(ST.BULLET_DOT, bulletStyle);
+		for (int bulletIndex = 0; bulletIndex < bulletLines.length; ++bulletIndex) {
+			setLineBullet(Integer.parseInt(bulletLines[bulletIndex]), 1, bullet);
+		}
 	}
 
 	/**
@@ -476,5 +544,40 @@ public class Note extends StyledText {
 			}
 			setStyleRange(currentStyles[styleIndex]);
 		}
+	}
+
+	/**
+	 * Returns the index of the line at the beginning of the current selection.
+	 * 
+	 * @return
+	 */
+	private int getSelectionStartLine() {
+		String previousNonSelectedText = getText().substring(0, getSelection().x);
+		return getStringLineCount(previousNonSelectedText) - 1;
+	}
+
+	/**
+	 * Returns the number of lines covered by the current selection.
+	 * 
+	 * @return
+	 */
+	private int getSelectionLineCount() {
+		return getStringLineCount(getSelectionText());
+	}
+
+	/**
+	 * Returns the number of lines in the input string.
+	 * 
+	 * @param previousNonSelectedText
+	 * @return
+	 */
+	private int getStringLineCount(String previousNonSelectedText) {
+		int previousLineCount = 1;
+		for (int c = 0; c < previousNonSelectedText.length(); ++c) {
+			if (previousNonSelectedText.charAt(c) == '\n') {
+				++previousLineCount;
+			}
+		}
+		return previousLineCount;
 	}
 }

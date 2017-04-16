@@ -15,6 +15,7 @@ public enum NotepadAction {
 	UNDERLINE_TEXT("Underline", "notepad4e.command.text.underline", "/icons/style_underline.gif"),
 	STRIKEOUT_TEXT("Strikeout", "notepad4e.command.text.strikeout", "/icons/style_strikeout.png"),
 	CLEAR_STYLE_TEXT("Clear Style", "notepad4e.command.text.clear", "/icons/clear_co.png"),
+	BULLET_LIST("Bullet List", "notepad4e.command.bullet.list", "/icons/bullets.png"),
 	CLEAR_NOTE("Clear Note", "notepad4e.command.note.clear", "/icons/clear.png"),
 	UNDO_TEXT(null, "notepad4e.command.text.undo", null),
 	REDO_TEXT(null, "notepad4e.command.text.redo", null),

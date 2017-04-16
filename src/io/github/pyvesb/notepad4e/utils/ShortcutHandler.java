@@ -53,6 +53,9 @@ public class ShortcutHandler extends AbstractHandler {
 			case STRIKEOUT_TEXT:
 				notepadView.doStrikeoutText();
 				break;
+			case BULLET_LIST:
+				notepadView.doBulletList();
+				break;
 			case CLEAR_STYLE_TEXT:
 				notepadView.doClearTextStyle();
 				break;

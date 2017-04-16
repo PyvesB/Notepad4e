@@ -87,6 +87,12 @@
       </command>
       <command
             categoryId="notepad4e.command.category"
+            id="notepad4e.command.bullet.list"
+            description="Turns the currently selected lines into a list"
+            name="Bullet List">
+      </command>
+      <command
+            categoryId="notepad4e.command.category"
             id="notepad4e.command.text.clear"
             description="Clears the style of the currently selected text"
             name="Clear Style">
@@ -146,6 +152,12 @@
             commandId="notepad4e.command.text.strikeout"
             contextId="notepad4e.context"
             sequence="M1+S"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="notepad4e.command.bullet.list"
+            contextId="notepad4e.context"
+            sequence="M1+L"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key

@@ -80,6 +80,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private static final String STORE_STYLE_PREFIX_KEY = "TabStyle";
 	private static final String STORE_TITLE_PREFIX_KEY = "TabTitle";
 	private static final String STORE_EDITABLE_PREFIX_KEY = "TabEditable";
+	private static final String STORE_BULLETS_PREFIX_KEY = "TabBullets";
 
 	// Keyboard events listener.
 	private final ShortcutHandler shortcutHandler;
@@ -91,6 +92,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Action italicTextAction;
 	private Action underlineTextAction;
 	private Action strikeoutTextAction;
+	private Action bulletListAction;
 	private Action clearTextStyleAction;
 	private Action toggleEditableAction;
 	private Action exportNoteAction;
@@ -216,7 +218,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			noteText = (String) clipboard.getContents(plainTextTransfer, DND.CLIPBOARD);
 		}
 		// Add a new note tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
-		addNewNoteTab(namePrefix + " " + (tabFolder.getItemCount() + 1), noteText, "", true);
+		addNewNoteTab(namePrefix + " " + (tabFolder.getItemCount() + 1), noteText, "", true, null);
 		CTabItem previousSelectedTab = tabFolder.getSelection();
 		// Remove lock for currently selected tab.
 		if (previousSelectedTab != null && previousSelectedTab.getText().startsWith(LOCK_CHARACTER)) {
@@ -267,6 +269,15 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doStrikeoutText() {
 		if (tabFolder.getItemCount() > 0) {
 			getNote(tabFolder.getSelectionIndex()).strikeoutSelection();
+		}
+	}
+
+	/**
+	 * Performs the bullet list action.
+	 */
+	public void doBulletList() {
+		if (tabFolder.getItemCount() > 0) {
+			getNote(tabFolder.getSelectionIndex()).bulletListSelection();
 		}
 	}
 
@@ -344,6 +355,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 						section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tab.getText());
 					}
 					section.put(STORE_EDITABLE_PREFIX_KEY + tabIndex, note.getEditable());
+					section.put(STORE_BULLETS_PREFIX_KEY + tabIndex, note.serialiseBullets());
 				}
 			}
 			Notepad4e.save();
@@ -518,7 +530,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			// No notes were previously opened: create new one.
 			String prefixName = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
 					PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
-			addNewNoteTab(prefixName + " 1", "", "", true);
+			addNewNoteTab(prefixName + " 1", "", "", true, null);
 			// Set selection on this tab.
 			tabFolder.setSelection(0);
 		} else {
@@ -529,8 +541,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 						: section.getBoolean(STORE_EDITABLE_PREFIX_KEY + tabIndex);
 				String noteText = section.get(STORE_TEXT_PREFIX_KEY + tabIndex);
 				String noteStyle = section.get(STORE_STYLE_PREFIX_KEY + tabIndex);
+				String noteBullets = section.get(STORE_BULLETS_PREFIX_KEY + tabIndex);
 				if (tabTitle != null && noteText != null && noteStyle != null) {
-					addNewNoteTab(tabTitle, noteText, noteStyle, editable);
+					addNewNoteTab(tabTitle, noteText, noteStyle, editable, noteBullets);
 				}
 			}
 			// Set selection on the last tab.
@@ -548,8 +561,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * @param text
 	 * @param style
 	 * @param editable
+	 * @param noteBullets
 	 */
-	private void addNewNoteTab(String title, String text, String style, boolean editable) {
+	private void addNewNoteTab(String title, String text, String style, boolean editable, String bullets) {
 		CTabItem tab = new CTabItem(tabFolder, SWT.NONE);
 		tab.setText(title);
 		// Add listener to clean up corresponding note when disposing the tab.
@@ -563,6 +577,10 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		Note note = new Note(tabFolder, text, editable);
 		if (style.length() > 0) {
 			note.deserialiseStyle(style);
+		}
+		// Bullets can be null if new note or upgrading from old plugin version.
+		if (bullets != null) {
+			note.deserialiseBullets(bullets);
 		}
 		tab.setControl(note);
 	}
@@ -600,6 +618,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		manager.add(italicTextAction);
 		manager.add(underlineTextAction);
 		manager.add(strikeoutTextAction);
+		manager.add(bulletListAction);
 		manager.add(clearTextStyleAction);
 		manager.add(new Separator());
 		manager.add(addNewNoteAction);
@@ -657,6 +676,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			}
 		};
 		setTextAndImageToAction(strikeoutTextAction, NotepadAction.STRIKEOUT_TEXT);
+
+		bulletListAction = new Action() {
+			@Override
+			public void run() {
+				doBulletList();
+			}
+		};
+		setTextAndImageToAction(bulletListAction, NotepadAction.BULLET_LIST);
 
 		clearTextStyleAction = new Action() {
 			@Override
