@@ -29,5 +29,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.PREF_NAME_PREFIX, PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
 		store.setDefault(PreferenceConstants.PREF_CLOSE_CONFIRMATION, PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT);
 		store.setDefault(PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES, PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES_DEFAULT);
+		store.setDefault(PreferenceConstants.PREF_BULLET_SPACING, PreferenceConstants.PREF_BULLET_SPACING_DEFAULT);
 	}
 }

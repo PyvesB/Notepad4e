@@ -38,6 +38,8 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_JUSTIFY, "Justify lines", getFieldEditorParent()));
 		addField(new IntegerFieldEditor(PreferenceConstants.PREF_LINE_SPACING, "Line spacing:", 
 				getFieldEditorParent()));
+		addField(new IntegerFieldEditor(PreferenceConstants.PREF_BULLET_SPACING, "Bullet list indentation:", 
+				getFieldEditorParent()));
 		addField(new StringFieldEditor(PreferenceConstants.PREF_NAME_PREFIX, "Name prefix of new notes:",
 				getFieldEditorParent()));
 		addField(new ColorFieldEditor(PreferenceConstants.PREF_FONT_COLOR, "Font color:", getFieldEditorParent()));

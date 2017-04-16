@@ -53,6 +53,8 @@ public class Note extends StyledText {
 	private final UndoRedoManager undoRedoManager;
 	// User defined preferences.
 	private final IEclipsePreferences preferences;
+	// Used to set the style of bullet lists.
+	private final GlyphMetrics bulletGlyphMetrics;
 
 	// Appearance parameters of the note.
 	private Color fontColor;
@@ -87,6 +89,7 @@ public class Note extends StyledText {
 		preferences = InstanceScope.INSTANCE.getNode(Notepad4e.PLUGIN_ID);
 
 		undoRedoManager = new UndoRedoManager(this);
+		bulletGlyphMetrics = new GlyphMetrics(0, 0, 0);
 
 		// Scroll bars only appear when the text extends beyond the note window.
 		setAlwaysShowScrollBars(false);
@@ -127,6 +130,10 @@ public class Note extends StyledText {
 		// Line spacing parameter.
 		setLineSpacing(preferences.getInt(PreferenceConstants.PREF_LINE_SPACING,
 				PreferenceConstants.PREF_LINE_SPACING_DEFAULT));
+
+		// Set bullet indentation spacing (width of GlyphMetrics) parameter.
+		bulletGlyphMetrics.width = preferences.getInt(PreferenceConstants.PREF_BULLET_SPACING,
+				PreferenceConstants.PREF_BULLET_SPACING_DEFAULT);
 
 		// Line wrap parameter.
 		if (preferences.getBoolean(PreferenceConstants.PREF_WRAP, PreferenceConstants.PREF_WRAP_DEFAULT)) {
@@ -254,7 +261,7 @@ public class Note extends StyledText {
 		}
 
 		StyleRange bulletStyle = new StyleRange();
-		bulletStyle.metrics = new GlyphMetrics(0, 0, 20);
+		bulletStyle.metrics = bulletGlyphMetrics;
 		Bullet bullet = new Bullet(ST.BULLET_DOT, bulletStyle);
 		setLineBullet(selectionStartLine, selectionLineCount, bullet);
 	}
@@ -367,7 +374,7 @@ public class Note extends StyledText {
 		}
 		String[] bulletLines = bracketlessSerialisation.split(STRING_SEPARATOR + " ");
 		StyleRange bulletStyle = new StyleRange();
-		bulletStyle.metrics = new GlyphMetrics(0, 0, 20);
+		bulletStyle.metrics = bulletGlyphMetrics;
 		Bullet bullet = new Bullet(ST.BULLET_DOT, bulletStyle);
 		for (int bulletIndex = 0; bulletIndex < bulletLines.length; ++bulletIndex) {
 			setLineBullet(Integer.parseInt(bulletLines[bulletIndex]), 1, bullet);
