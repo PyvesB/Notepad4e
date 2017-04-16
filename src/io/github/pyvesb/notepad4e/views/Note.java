@@ -62,7 +62,7 @@ public class Note extends StyledText {
 	private MenuItem menuItemSelectAll;
 	private MenuItem menuItemSeparator1;
 	private MenuItem menuItemSeparator2;
-	
+
 	private enum TextStyle {
 		BOLD, ITALIC, UNDERLINE, STRIKEOUT
 	}
@@ -87,9 +87,11 @@ public class Note extends StyledText {
 		setAlwaysShowScrollBars(false);
 		setParametersFromPreferences();
 		setText(text);
-		setEditable(editable);
-
 		initialiseMenu();
+		
+		if(!editable) {
+			toggleEditable();
+		}
 	}
 
 	/**
@@ -246,7 +248,12 @@ public class Note extends StyledText {
 	 * Makes the note read-only or editable again.
 	 */
 	public void toggleEditable() {
-		setEditable(!getEditable());
+		boolean newState = !getEditable();
+		setEditable(newState);
+		menuItemUndo.setEnabled(newState);
+		menuItemRedo.setEnabled(newState);
+		menuItemCut.setEnabled(newState);
+		menuItemPaste.setEnabled(newState);
 	}
 
 	/**
