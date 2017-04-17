@@ -243,6 +243,10 @@ public class Note extends StyledText {
 	 * Applies a bullet list style to the currently selected lines.
 	 */
 	public void bulletListSelection() {
+		if (!getEditable()) {
+			return;
+		}
+		
 		int selectionCurrentBullets = 0;
 		int selectionStartLine = getSelectionStartLine();
 		int selectionLineCount = getStringLineCount(getSelectionText());
