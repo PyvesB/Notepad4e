@@ -16,6 +16,7 @@ ___
 * Create as many notes as you like in a separate Eclipse view.
 * Modify the style of the text (font, colour, bold, italic, underlined, strikeout, etc.).
 * Customise the appearance of the plugin.
+* Create lists of elements.
 * Automatically save the contents of your notes between workspace launches.
 * Use editable shortcuts to boost your productivity.
 * Export notes as text files.
