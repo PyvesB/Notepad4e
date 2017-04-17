@@ -218,7 +218,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			noteText = (String) clipboard.getContents(plainTextTransfer, DND.CLIPBOARD);
 		}
 		// Add a new note tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
-		addNewNoteTab(namePrefix + " " + (tabFolder.getItemCount() + 1), noteText, "", true, null);
+		addNewNoteTab(namePrefix + " " + (tabFolder.getItemCount() + 1), noteText, null, true, null);
 		CTabItem previousSelectedTab = tabFolder.getSelection();
 		// Remove lock for currently selected tab.
 		if (previousSelectedTab != null && previousSelectedTab.getText().startsWith(LOCK_CHARACTER)) {
@@ -530,7 +530,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			// No notes were previously opened: create new one.
 			String prefixName = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
 					PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
-			addNewNoteTab(prefixName + " 1", "", "", true, null);
+			addNewNoteTab(prefixName + " 1", "", null, true, null);
 			// Set selection on this tab.
 			tabFolder.setSelection(0);
 		} else {
@@ -542,7 +542,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				String noteText = section.get(STORE_TEXT_PREFIX_KEY + tabIndex);
 				String noteStyle = section.get(STORE_STYLE_PREFIX_KEY + tabIndex);
 				String noteBullets = section.get(STORE_BULLETS_PREFIX_KEY + tabIndex);
-				if (tabTitle != null && noteText != null && noteStyle != null) {
+				if (tabTitle != null && noteText != null) {
 					addNewNoteTab(tabTitle, noteText, noteStyle, editable, noteBullets);
 				}
 			}
@@ -575,11 +575,12 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			}
 		});
 		Note note = new Note(tabFolder, text, editable);
-		if (style.length() > 0) {
+		// Style can be null if new note.
+		if (style != null && style.length() > 0) {
 			note.deserialiseStyle(style);
 		}
 		// Bullets can be null if new note or upgrading from old plugin version.
-		if (bullets != null) {
+		if (bullets != null && bullets.length() > 0) {
 			note.deserialiseBullets(bullets);
 		}
 		tab.setControl(note);

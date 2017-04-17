@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
@@ -54,7 +52,7 @@ public class Note extends StyledText {
 	// User defined preferences.
 	private final IEclipsePreferences preferences;
 	// Used to set the style of bullet lists.
-	private final GlyphMetrics bulletGlyphMetrics;
+	private final StyleRange bulletStyle;
 
 	// Appearance parameters of the note.
 	private Color fontColor;
@@ -89,7 +87,8 @@ public class Note extends StyledText {
 		preferences = InstanceScope.INSTANCE.getNode(Notepad4e.PLUGIN_ID);
 
 		undoRedoManager = new UndoRedoManager(this);
-		bulletGlyphMetrics = new GlyphMetrics(0, 0, 0);
+		bulletStyle = new StyleRange();
+		bulletStyle.metrics = new GlyphMetrics(0, 0, 0);
 
 		// Scroll bars only appear when the text extends beyond the note window.
 		setAlwaysShowScrollBars(false);
@@ -132,7 +131,7 @@ public class Note extends StyledText {
 				PreferenceConstants.PREF_LINE_SPACING_DEFAULT));
 
 		// Set bullet indentation spacing (width of GlyphMetrics) parameter.
-		bulletGlyphMetrics.width = preferences.getInt(PreferenceConstants.PREF_BULLET_SPACING,
+		bulletStyle.metrics.width = preferences.getInt(PreferenceConstants.PREF_BULLET_SPACING,
 				PreferenceConstants.PREF_BULLET_SPACING_DEFAULT);
 
 		// Line wrap parameter.
@@ -246,7 +245,7 @@ public class Note extends StyledText {
 	public void bulletListSelection() {
 		int selectionCurrentBullets = 0;
 		int selectionStartLine = getSelectionStartLine();
-		int selectionLineCount = getSelectionLineCount();
+		int selectionLineCount = getStringLineCount(getSelectionText());
 		// Count number of lines that currently have a bullet.
 		for (int line = selectionStartLine; line < selectionStartLine + selectionLineCount; ++line) {
 			if (getLineBullet(line) != null) {
@@ -260,8 +259,6 @@ public class Note extends StyledText {
 			return;
 		}
 
-		StyleRange bulletStyle = new StyleRange();
-		bulletStyle.metrics = bulletGlyphMetrics;
 		Bullet bullet = new Bullet(ST.BULLET_DOT, bulletStyle);
 		setLineBullet(selectionStartLine, selectionLineCount, bullet);
 	}
@@ -328,14 +325,20 @@ public class Note extends StyledText {
 	 */
 	public String serialiseBullets() {
 		int totalLines = getStringLineCount(getText());
-		List<Integer> bulletLines = new ArrayList<>();
+		StringBuilder bulletLines = new StringBuilder();
 		for (int line = 0; line < totalLines; ++line) {
 			if (getLineBullet(line) != null) {
-				// Bullet found: add line number in list.
-				bulletLines.add(line);
+				// Bullet found: add line number with separator.
+				bulletLines.append(line);
+				bulletLines.append(STRING_SEPARATOR);
 			}
 		}
-		return bulletLines.toString();
+
+		if (bulletLines.length() >= 2) {
+			// Remove trailing separator.
+			return bulletLines.substring(0, bulletLines.length() - 1);
+		}
+		return "";
 	}
 
 	/**
@@ -367,17 +370,10 @@ public class Note extends StyledText {
 	 * @param serialisation
 	 */
 	public void deserialiseBullets(String serialisation) {
-		String bracketlessSerialisation = serialisation.substring(1, serialisation.length() - 1);
-		if ("".equals(bracketlessSerialisation)) {
-			// No bullets.
-			return;
-		}
-		String[] bulletLines = bracketlessSerialisation.split(STRING_SEPARATOR + " ");
-		StyleRange bulletStyle = new StyleRange();
-		bulletStyle.metrics = bulletGlyphMetrics;
+		String[] bulletLines = serialisation.split(STRING_SEPARATOR);
 		Bullet bullet = new Bullet(ST.BULLET_DOT, bulletStyle);
-		for (int bulletIndex = 0; bulletIndex < bulletLines.length; ++bulletIndex) {
-			setLineBullet(Integer.parseInt(bulletLines[bulletIndex]), 1, bullet);
+		for (String lineIndex : bulletLines) {
+			setLineBullet(Integer.parseInt(lineIndex), 1, bullet);
 		}
 	}
 
@@ -561,15 +557,6 @@ public class Note extends StyledText {
 	private int getSelectionStartLine() {
 		String previousNonSelectedText = getText().substring(0, getSelection().x);
 		return getStringLineCount(previousNonSelectedText) - 1;
-	}
-
-	/**
-	 * Returns the number of lines covered by the current selection.
-	 * 
-	 * @return
-	 */
-	private int getSelectionLineCount() {
-		return getStringLineCount(getSelectionText());
 	}
 
 	/**
