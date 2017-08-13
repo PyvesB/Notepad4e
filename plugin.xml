@@ -19,7 +19,7 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="General"
+            name="%category.name"
             id="Notepad4e">
       </category>
       <view
@@ -53,73 +53,73 @@
 	<category
         id="notepad4e.command.category"
         name="Notepad4e" 
-        description="Category for Notepad4e commands">
+        description="%category.description">
   </category>
       <command
             categoryId="notepad4e.command.category"
             id="notepad4e.command.note.new"
-            description="Creates a new note"
-            name="New Note">
+            description="%command.description.new_note"
+            name="%command.name.new_note">
       </command>
       <command
             categoryId="notepad4e.command.category"
             id="notepad4e.command.text.bold"
-            description="Sets the style of the currently selected text to bold"
-            name="Bold">
+            description="%command.description.bold"
+            name="%command.name.bold">
       </command>
        <command
             categoryId="notepad4e.command.category"
             id="notepad4e.command.text.italic"
-            description="Sets the style of the currently selected text to italic"
-            name="Italic">
+            description="%command.description.italic"
+            name="%command.name.italic">
       </command>
       <command
             categoryId="notepad4e.command.category"
             id="notepad4e.command.text.underline"
-            description="Underlines the currently selected text"
-            name="Underline">
+            description="%command.description.underline"
+            name="%command.name.underline">
       </command>
       <command
             categoryId="notepad4e.command.category"
             id="notepad4e.command.text.strikeout"
-            description="Strikes out the currently selected text"
-            name="Strikethrough">
+            description="%command.description.strikeout"
+            name="%command.name.strikeout">
       </command>
       <command
             categoryId="notepad4e.command.category"
             id="notepad4e.command.bullet.list"
-            description="Turns the currently selected lines into a list"
-            name="Bullet List">
+            description="%command.description.list"
+            name="%command.name.list">
       </command>
       <command
             categoryId="notepad4e.command.category"
             id="notepad4e.command.text.clear"
-            description="Clears the style of the currently selected text"
-            name="Clear Style">
+            description="%command.description.clear_style"
+            name="%command.name.clear_style">
       </command>
       <command
             categoryId="notepad4e.command.category"
             id="notepad4e.command.note.clear"
-            description="Clears the current note"
-            name="Clear Note">
+            description="%command.description.clear_note"
+            name="%command.name.clear_note">
       </command>
       <command
             categoryId="notepad4e.command.category"
             id="notepad4e.command.text.undo"
-            description="Performs an undo action on the current note"
-            name="Undo">
+            description="%command.description.undo"
+            name="%command.name.undo">
       </command>
       <command
             categoryId="notepad4e.command.category"
             id="notepad4e.command.text.redo"
-            description="Performs a redo action on the current note"
-            name="Redo">
+            description="%command.description.redo"
+            name="%command.name.redo">
       </command>
       <command
             categoryId="notepad4e.command.category"
             id="notepad4e.command.note.close"
-            description="Closes the currently selected note"
-            name="Close Note">
+            description="%command.description.close"
+            name="%command.name.close">
       </command>
        </extension>
    <extension
@@ -195,7 +195,7 @@
          point="org.eclipse.ui.contexts">
       <context
             id="notepad4e.context"
-            name="In Notepad4e"
+            name="%context.name"
             parentId="org.eclipse.ui.contexts.window">
       </context>
    </extension>

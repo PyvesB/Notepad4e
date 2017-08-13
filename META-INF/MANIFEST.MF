@@ -8,7 +8,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
+Bundle-Localization: OSGI-INF/l10n/bundle
 Export-Package: io.github.pyvesb.notepad4e,
  io.github.pyvesb.notepad4e.preferences,
  io.github.pyvesb.notepad4e.views,
- io.github.pyvesb.notepad4e.utils
+ io.github.pyvesb.notepad4e.utils,
+ io.github.pyvesb.notepad4e.strings

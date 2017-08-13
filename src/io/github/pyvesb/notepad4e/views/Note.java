@@ -32,6 +32,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 
 import io.github.pyvesb.notepad4e.Notepad4e;
 import io.github.pyvesb.notepad4e.preferences.PreferenceConstants;
+import io.github.pyvesb.notepad4e.strings.LocalStrings;
 import io.github.pyvesb.notepad4e.utils.UndoRedoManager;
 
 /**
@@ -44,8 +45,6 @@ public class Note extends StyledText {
 
 	// Used to parse strings.
 	private static final String STRING_SEPARATOR = ",";
-	// Error message
-	private static final String SAVE_ERROR = "Error while attempting to save the file.";
 
 	// Used to enable undo and redo actions.
 	private final UndoRedoManager undoRedoManager;
@@ -246,7 +245,7 @@ public class Note extends StyledText {
 		if (!getEditable()) {
 			return;
 		}
-		
+
 		int selectionCurrentBullets = 0;
 		int selectionStartLine = getSelectionStartLine();
 		int selectionLineCount = getStringLineCount(getSelectionText());
@@ -389,7 +388,7 @@ public class Note extends StyledText {
 	public void exportToFile(IWorkbenchPartSite iWorkbenchPartSite) {
 		// Retrieve the file to save to with an explorer window.
 		FileDialog fileDialog = new FileDialog(iWorkbenchPartSite.getShell(), SWT.SAVE);
-		fileDialog.setText("Export to File");
+		fileDialog.setText(LocalStrings.dialogExportTitle);
 		String fileName = fileDialog.open();
 		// Invalid name specified.
 		if (fileName == null || fileName.length() == 0) {
@@ -397,8 +396,8 @@ public class Note extends StyledText {
 		}
 
 		File file = new File(fileName);
-		if (file.exists() && !MessageDialog.openQuestion(iWorkbenchPartSite.getShell(), "File Already Exists",
-				"Do you want to overwrite?")) {
+		if (file.exists() && !MessageDialog.openQuestion(iWorkbenchPartSite.getShell(),
+				LocalStrings.dialogOverwriteTitle, LocalStrings.dialogOverwriteMsg)) {
 			return;
 		}
 
@@ -407,12 +406,13 @@ public class Note extends StyledText {
 				PrintWriter printStream = new PrintWriter(outStream)) {
 			printStream.print(getText());
 			printStream.flush();
-			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Note Exported",
-					"The note has been succesfully exported.");
+			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), LocalStrings.dialogExportedTitle,
+					LocalStrings.dialogExportedMsg);
 		} catch (IOException e) {
-			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), "Error", SAVE_ERROR);
+			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), LocalStrings.dialogErrorTitle,
+					LocalStrings.dialogErrorMsg);
 			ILog log = Notepad4e.getDefault().getLog();
-			log.log(new Status(IStatus.ERROR, SAVE_ERROR, e.toString()));
+			log.log(new Status(IStatus.ERROR, LocalStrings.dialogErrorMsg, e.toString()));
 		}
 	}
 
@@ -422,7 +422,7 @@ public class Note extends StyledText {
 	private void initialiseMenu() {
 		Menu menu = new Menu(getShell(), SWT.POP_UP);
 		menuItemUndo = new MenuItem(menu, SWT.NONE);
-		menuItemUndo.setText("Undo");
+		menuItemUndo.setText(LocalStrings.menuUndo);
 		menuItemUndo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
@@ -433,7 +433,7 @@ public class Note extends StyledText {
 			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemRedo = new MenuItem(menu, SWT.NONE);
-		menuItemRedo.setText("Redo");
+		menuItemRedo.setText(LocalStrings.menuRedo);
 		menuItemRedo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
@@ -445,7 +445,7 @@ public class Note extends StyledText {
 		});
 		menuItemSeparator1 = new MenuItem(menu, SWT.SEPARATOR);
 		menuItemCut = new MenuItem(menu, SWT.NONE);
-		menuItemCut.setText("Cut");
+		menuItemCut.setText(LocalStrings.menuCut);
 		menuItemCut.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
@@ -456,7 +456,7 @@ public class Note extends StyledText {
 			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemCopy = new MenuItem(menu, SWT.NONE);
-		menuItemCopy.setText("Copy");
+		menuItemCopy.setText(LocalStrings.menuCopy);
 		menuItemCopy.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
@@ -467,7 +467,7 @@ public class Note extends StyledText {
 			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemPaste = new MenuItem(menu, SWT.NONE);
-		menuItemPaste.setText("Paste");
+		menuItemPaste.setText(LocalStrings.menuPaste);
 		menuItemPaste.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
@@ -479,7 +479,7 @@ public class Note extends StyledText {
 		});
 		menuItemSeparator2 = new MenuItem(menu, SWT.SEPARATOR);
 		menuItemSelectAll = new MenuItem(menu, SWT.NONE);
-		menuItemSelectAll.setText("Select All");
+		menuItemSelectAll.setText(LocalStrings.menuSelectAll);
 		menuItemSelectAll.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {

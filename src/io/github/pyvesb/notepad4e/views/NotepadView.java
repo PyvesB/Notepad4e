@@ -58,6 +58,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import io.github.pyvesb.notepad4e.Notepad4e;
 import io.github.pyvesb.notepad4e.preferences.PreferenceConstants;
+import io.github.pyvesb.notepad4e.strings.LocalStrings;
 import io.github.pyvesb.notepad4e.utils.NotepadAction;
 import io.github.pyvesb.notepad4e.utils.ShortcutHandler;
 
@@ -310,14 +311,14 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void doCloseNoteTab() {
 		if (tabFolder.getItemCount() > 0) {
 			if (!getNote(tabFolder.getSelectionIndex()).getEditable()) {
-				if (MessageDialog.openQuestion(getSite().getShell(), "Close Locked Note",
-						"This note is locked. Are you really sure you want to close it?")) {
+				if (MessageDialog.openQuestion(getSite().getShell(), LocalStrings.dialogCloseLockedTitle,
+						LocalStrings.dialogCloseLockedMsg)) {
 					tabFolder.getSelection().dispose();
 				}
 			} else if (!preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
 					PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)
-					|| MessageDialog.openQuestion(getSite().getShell(), "Close Note",
-							"Are you sure you want to close this note?")) {
+					|| MessageDialog.openQuestion(getSite().getShell(), LocalStrings.dialogCloseTitle,
+							LocalStrings.dialogCloseMsg)) {
 				tabFolder.getSelection().dispose();
 			}
 		}
@@ -371,12 +372,12 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			public void close(CTabFolderEvent event) {
 				// Selected tab may not be the one being closed, the one provided by the event must be used.
 				if (!getNote(tabFolder.indexOf((CTabItem) event.item)).getEditable()) {
-					event.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Locked Note",
-							"This note is locked. Are you really sure you want to close it?");
+					event.doit = MessageDialog.openQuestion(getSite().getShell(), LocalStrings.dialogCloseLockedTitle,
+							LocalStrings.dialogCloseLockedMsg);
 				} else if (preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
 						PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)) {
-					event.doit = MessageDialog.openQuestion(getSite().getShell(), "Close Note",
-							"Are you sure you want to close this note?");
+					event.doit = MessageDialog.openQuestion(getSite().getShell(), LocalStrings.dialogCloseTitle,
+							LocalStrings.dialogCloseMsg);
 				}
 			}
 
@@ -418,8 +419,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 					dialogText = dialogText.substring(3);
 				}
 				// Open a dialog window so user can enter the new name of his note.
-				InputDialog inputDialog = new InputDialog(null, "Rename Note",
-						"Please select the new name of the note:", dialogText, null);
+				InputDialog inputDialog = new InputDialog(null, LocalStrings.dialogRenameTitle,
+						LocalStrings.dialogRenameMsg, dialogText, null);
 				inputDialog.open();
 				// If user selected Cancel, text will be null.
 				if (inputDialog.getValue() != null && !inputDialog.getValue().isEmpty()) {

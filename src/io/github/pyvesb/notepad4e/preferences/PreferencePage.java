@@ -4,6 +4,7 @@ import org.eclipse.jface.preference.*;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import io.github.pyvesb.notepad4e.Notepad4e;
+import io.github.pyvesb.notepad4e.strings.LocalStrings;
 
 import org.eclipse.ui.IWorkbench;
 
@@ -18,8 +19,7 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 	public PreferencePage() {
 		super(GRID);
 		setPreferenceStore(Notepad4e.getDefault().getPreferenceStore());
-		setDescription(
-				"Modify the appearance and several editor properties of Notepad4e.\nEdit shortcuts in the General -> Keys section of Eclipse preferences.");
+		setDescription(LocalStrings.prefDesc);
 	}
 
 	/**
@@ -27,25 +27,27 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 	 */
 	@Override
 	public void createFieldEditors() {
-		addField(new RadioGroupFieldEditor(PreferenceConstants.PREF_ALIGNMENT, "Text alignment:", 2,
-				new String[][] { { "Left", "left" }, { "Right", "right" } }, getFieldEditorParent(), true));
-		addField(new BooleanFieldEditor(PreferenceConstants.PREF_CLOSE_CONFIRMATION, "Confirmation when closing a note",
+		addField(new RadioGroupFieldEditor(PreferenceConstants.PREF_ALIGNMENT, LocalStrings.prefAlignment, 2,
+				new String[][] { { LocalStrings.prefLeft, "left" }, { LocalStrings.prefRight, "right" } },
+				getFieldEditorParent(), true));
+		addField(new BooleanFieldEditor(PreferenceConstants.PREF_CLOSE_CONFIRMATION, LocalStrings.prefCloseConfirmation,
 				getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES,
-				"Paste current contents of clipboard when creating a new note", getFieldEditorParent()));
-		addField(new BooleanFieldEditor(PreferenceConstants.PREF_WRAP,
-				"Wrap lines in notes (automatically enforced if right alignment)", getFieldEditorParent()));
-		addField(new BooleanFieldEditor(PreferenceConstants.PREF_JUSTIFY, "Justify lines", getFieldEditorParent()));
-		addField(new IntegerFieldEditor(PreferenceConstants.PREF_LINE_SPACING, "Line spacing:", 
+				LocalStrings.prefPasteClipboardInNewNotes, getFieldEditorParent()));
+		addField(new BooleanFieldEditor(PreferenceConstants.PREF_WRAP, LocalStrings.prefWrap, getFieldEditorParent()));
+		addField(new BooleanFieldEditor(PreferenceConstants.PREF_JUSTIFY, LocalStrings.prefJustify,
 				getFieldEditorParent()));
-		addField(new IntegerFieldEditor(PreferenceConstants.PREF_BULLET_SPACING, "Bullet list indentation:", 
+		addField(new IntegerFieldEditor(PreferenceConstants.PREF_LINE_SPACING, LocalStrings.prefLineSpacing,
 				getFieldEditorParent()));
-		addField(new StringFieldEditor(PreferenceConstants.PREF_NAME_PREFIX, "Name prefix of new notes:",
+		addField(new IntegerFieldEditor(PreferenceConstants.PREF_BULLET_SPACING, LocalStrings.prefBulletSpacing,
 				getFieldEditorParent()));
-		addField(new ColorFieldEditor(PreferenceConstants.PREF_FONT_COLOR, "Font color:", getFieldEditorParent()));
-		addField(new ColorFieldEditor(PreferenceConstants.PREF_BACKGROUND_COLOR, "Background color:",
+		addField(new StringFieldEditor(PreferenceConstants.PREF_NAME_PREFIX, LocalStrings.prefNamePrefix,
 				getFieldEditorParent()));
-		addField(new FontFieldEditor(PreferenceConstants.PREF_FONT, "Text font:", getFieldEditorParent()));
+		addField(new ColorFieldEditor(PreferenceConstants.PREF_FONT_COLOR, LocalStrings.prefFontColor,
+				getFieldEditorParent()));
+		addField(new ColorFieldEditor(PreferenceConstants.PREF_BACKGROUND_COLOR, LocalStrings.prefBackgroundColor,
+				getFieldEditorParent()));
+		addField(new FontFieldEditor(PreferenceConstants.PREF_FONT, LocalStrings.prefFont, getFieldEditorParent()));
 	}
 
 	/**
