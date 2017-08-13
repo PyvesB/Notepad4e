@@ -22,7 +22,8 @@ ___
 * Export notes as text files.
 * Lightweight and user-friendly.
 * No user tracking, no ads.
-* Source code available.
+* Source code fully available.
+* Available in English and French.
 * More to discover and to come in future updates!
 
 Check out what's new in the [latest releases](https://github.com/PyvesB/Notepad4e/releases) or open an [issue](https://github.com/PyvesB/Notepad4e/issues) to request additional features!
