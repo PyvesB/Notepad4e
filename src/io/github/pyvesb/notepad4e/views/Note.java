@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -16,8 +15,6 @@ import org.eclipse.swt.custom.Bullet;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -33,10 +30,11 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import io.github.pyvesb.notepad4e.Notepad4e;
 import io.github.pyvesb.notepad4e.preferences.PreferenceConstants;
 import io.github.pyvesb.notepad4e.strings.LocalStrings;
+import io.github.pyvesb.notepad4e.utils.AbstractMenuItemSelectionListener;
 import io.github.pyvesb.notepad4e.utils.UndoRedoManager;
 
 /**
- * Class representing a note in the plugin's view.
+ * Class representing an individual note in the plugin's view.
  * 
  * @author Pyves
  *
@@ -134,18 +132,10 @@ public class Note extends StyledText {
 				PreferenceConstants.PREF_BULLET_SPACING_DEFAULT);
 
 		// Line wrap parameter.
-		if (preferences.getBoolean(PreferenceConstants.PREF_WRAP, PreferenceConstants.PREF_WRAP_DEFAULT)) {
-			setWordWrap(true);
-		} else {
-			setWordWrap(false);
-		}
+		setWordWrap(preferences.getBoolean(PreferenceConstants.PREF_WRAP, PreferenceConstants.PREF_WRAP_DEFAULT));
 
 		// Text justify parameter.
-		if (preferences.getBoolean(PreferenceConstants.PREF_JUSTIFY, PreferenceConstants.PREF_JUSTIFY_DEFAULT)) {
-			setJustify(true);
-		} else {
-			setJustify(false);
-		}
+		setJustify(preferences.getBoolean(PreferenceConstants.PREF_JUSTIFY, PreferenceConstants.PREF_JUSTIFY_DEFAULT));
 
 		// Alignment parameter (left or right).
 		if ("right".equals(
@@ -158,18 +148,18 @@ public class Note extends StyledText {
 		}
 
 		// Font color parameter.
-		String fontColorString = preferences.get(PreferenceConstants.PREF_FONT_COLOR,
-				PreferenceConstants.PREF_FONT_COLOR_DEFAULT);
-		String[] fontColorRGBStrings = fontColorString.split(STRING_SEPARATOR);
+		String[] fontColorRGBStrings = preferences
+				.get(PreferenceConstants.PREF_FONT_COLOR, PreferenceConstants.PREF_FONT_COLOR_DEFAULT)
+				.split(STRING_SEPARATOR);
 		// The strings in the above array correspond to the red, green and blue colors.
 		fontColor = new Color(Display.getCurrent(), Integer.parseInt(fontColorRGBStrings[0]),
 				Integer.parseInt(fontColorRGBStrings[1]), Integer.parseInt(fontColorRGBStrings[2]));
 		setForeground(fontColor);
 
 		// Background color parameter.
-		String backgroundColorString = preferences.get(PreferenceConstants.PREF_BACKGROUND_COLOR,
-				PreferenceConstants.PREF_BACKGROUND_COLOR_DEFAULT);
-		String[] backgroundColorRGBStrings = backgroundColorString.split(STRING_SEPARATOR);
+		String[] backgroundColorRGBStrings = preferences
+				.get(PreferenceConstants.PREF_BACKGROUND_COLOR, PreferenceConstants.PREF_BACKGROUND_COLOR_DEFAULT)
+				.split(STRING_SEPARATOR);
 		// The strings in the above array correspond to the red, green and blue colors.
 		backgroundColor = new Color(Display.getCurrent(), Integer.parseInt(backgroundColorRGBStrings[0]),
 				Integer.parseInt(backgroundColorRGBStrings[1]), Integer.parseInt(backgroundColorRGBStrings[2]));
@@ -181,7 +171,7 @@ public class Note extends StyledText {
 				.replace(";", "");
 		// An empty string is returned when the user has not set the font in the preferences; do not set the font so the
 		// plugin will display the default font of the StyledText component instead.
-		if (fontString.length() != 0) {
+		if (!fontString.isEmpty()) {
 			font = new Font(Display.getCurrent(), new FontData(fontString));
 			setFont(font);
 		}
@@ -246,9 +236,10 @@ public class Note extends StyledText {
 			return;
 		}
 
+		String textBeforeSelection = getText().substring(0, getSelection().x);
+		int selectionStartLine = getTextLineCount(textBeforeSelection) - 1;
+		int selectionLineCount = getTextLineCount(getSelectionText());
 		int selectionCurrentBullets = 0;
-		int selectionStartLine = getSelectionStartLine();
-		int selectionLineCount = getStringLineCount(getSelectionText());
 		// Count number of lines that currently have a bullet.
 		for (int line = selectionStartLine; line < selectionStartLine + selectionLineCount; ++line) {
 			if (getLineBullet(line) != null) {
@@ -327,7 +318,7 @@ public class Note extends StyledText {
 	 * @return CSV string containing a serialised representation of the bullets
 	 */
 	public String serialiseBullets() {
-		int totalLines = getStringLineCount(getText());
+		int totalLines = getTextLineCount(getText());
 		StringBuilder bulletLines = new StringBuilder();
 		for (int line = 0; line < totalLines; ++line) {
 			if (getLineBullet(line) != null) {
@@ -336,12 +327,8 @@ public class Note extends StyledText {
 				bulletLines.append(STRING_SEPARATOR);
 			}
 		}
-
-		if (bulletLines.length() >= 2) {
-			// Remove trailing separator.
-			return bulletLines.substring(0, bulletLines.length() - 1);
-		}
-		return "";
+		// Remove trailing separator.
+		return bulletLines.length() > 1 ? bulletLines.substring(0, bulletLines.length() - 1) : "";
 	}
 
 	/**
@@ -368,15 +355,14 @@ public class Note extends StyledText {
 	}
 
 	/**
-	 * Adds bullets to the current note based on a bullets' serialisation string (for instance [0, 1, 4]).
+	 * Adds bullets to the current note based on a bullets' serialisation string (for instance "0,1,4").
 	 * 
 	 * @param serialisation
 	 */
 	public void deserialiseBullets(String serialisation) {
-		String[] bulletLines = serialisation.split(STRING_SEPARATOR);
 		Bullet bullet = new Bullet(ST.BULLET_DOT, bulletStyle);
-		for (String lineIndex : bulletLines) {
-			setLineBullet(Integer.parseInt(lineIndex), 1, bullet);
+		for (String lineNumber : serialisation.split(STRING_SEPARATOR)) {
+			setLineBullet(Integer.parseInt(lineNumber), 1, bullet);
 		}
 	}
 
@@ -391,7 +377,7 @@ public class Note extends StyledText {
 		fileDialog.setText(LocalStrings.dialogExportTitle);
 		String fileName = fileDialog.open();
 		// Invalid name specified.
-		if (fileName == null || fileName.length() == 0) {
+		if (fileName == null || fileName.isEmpty()) {
 			return;
 		}
 
@@ -411,8 +397,7 @@ public class Note extends StyledText {
 		} catch (IOException e) {
 			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), LocalStrings.dialogErrorTitle,
 					LocalStrings.dialogErrorMsg);
-			ILog log = Notepad4e.getDefault().getLog();
-			log.log(new Status(IStatus.ERROR, LocalStrings.dialogErrorMsg, e.toString()));
+			Notepad4e.getDefault().getLog().log(new Status(IStatus.ERROR, LocalStrings.dialogErrorMsg, e.toString()));
 		}
 	}
 
@@ -423,71 +408,53 @@ public class Note extends StyledText {
 		Menu menu = new Menu(getShell(), SWT.POP_UP);
 		menuItemUndo = new MenuItem(menu, SWT.NONE);
 		menuItemUndo.setText(LocalStrings.menuUndo);
-		menuItemUndo.addSelectionListener(new SelectionListener() {
+		menuItemUndo.addSelectionListener(new AbstractMenuItemSelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent event) {
+			public void onNoteMenuItemSelected() {
 				undo();
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemRedo = new MenuItem(menu, SWT.NONE);
 		menuItemRedo.setText(LocalStrings.menuRedo);
-		menuItemRedo.addSelectionListener(new SelectionListener() {
+		menuItemRedo.addSelectionListener(new AbstractMenuItemSelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent event) {
+			public void onNoteMenuItemSelected() {
 				redo();
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemSeparator1 = new MenuItem(menu, SWT.SEPARATOR);
 		menuItemCut = new MenuItem(menu, SWT.NONE);
 		menuItemCut.setText(LocalStrings.menuCut);
-		menuItemCut.addSelectionListener(new SelectionListener() {
+		menuItemCut.addSelectionListener(new AbstractMenuItemSelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent event) {
+			public void onNoteMenuItemSelected() {
 				cut();
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemCopy = new MenuItem(menu, SWT.NONE);
 		menuItemCopy.setText(LocalStrings.menuCopy);
-		menuItemCopy.addSelectionListener(new SelectionListener() {
+		menuItemCopy.addSelectionListener(new AbstractMenuItemSelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent event) {
+			public void onNoteMenuItemSelected() {
 				copy();
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemPaste = new MenuItem(menu, SWT.NONE);
 		menuItemPaste.setText(LocalStrings.menuPaste);
-		menuItemPaste.addSelectionListener(new SelectionListener() {
+		menuItemPaste.addSelectionListener(new AbstractMenuItemSelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent event) {
+			public void onNoteMenuItemSelected() {
 				paste();
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		menuItemSeparator2 = new MenuItem(menu, SWT.SEPARATOR);
 		menuItemSelectAll = new MenuItem(menu, SWT.NONE);
 		menuItemSelectAll.setText(LocalStrings.menuSelectAll);
-		menuItemSelectAll.addSelectionListener(new SelectionListener() {
+		menuItemSelectAll.addSelectionListener(new AbstractMenuItemSelectionListener() {
 			@Override
-			public void widgetSelected(SelectionEvent event) {
+			public void onNoteMenuItemSelected() {
 				selectAll();
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 		setMenu(menu);
 	}
@@ -554,25 +521,15 @@ public class Note extends StyledText {
 	}
 
 	/**
-	 * Returns the index of the line at the beginning of the current selection.
+	 * Computes the number of lines in the input string.
 	 * 
-	 * @return
+	 * @param text
+	 * @return number of lines in the input string
 	 */
-	private int getSelectionStartLine() {
-		String previousNonSelectedText = getText().substring(0, getSelection().x);
-		return getStringLineCount(previousNonSelectedText) - 1;
-	}
-
-	/**
-	 * Returns the number of lines in the input string.
-	 * 
-	 * @param previousNonSelectedText
-	 * @return
-	 */
-	private int getStringLineCount(String previousNonSelectedText) {
+	private int getTextLineCount(String text) {
 		int previousLineCount = 1;
-		for (int c = 0; c < previousNonSelectedText.length(); ++c) {
-			if (previousNonSelectedText.charAt(c) == '\n') {
+		for (int c = 0; c < text.length(); ++c) {
+			if (text.charAt(c) == '\n') {
 				++previousLineCount;
 			}
 		}

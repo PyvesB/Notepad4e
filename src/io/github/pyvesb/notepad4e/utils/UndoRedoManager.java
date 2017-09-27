@@ -32,7 +32,7 @@ public class UndoRedoManager {
 	private StyleRange[] stylesBeforeUndo;
 
 	/**
-	 * Constructor.
+	 * Constructor. Creates data structures and adds listener to note modifications.
 	 * 
 	 * @param note
 	 */
@@ -162,15 +162,15 @@ public class UndoRedoManager {
 	private class ModificationRecord {
 
 		// Styles at the beginning of the modification.
-		private StyleRange[] styles;
+		private final StyleRange[] styles;
 		// Starting point of what was modified in the new text.
-		private int start;
+		private final int start;
 		// Length of what was modified in the new text.
-		private int length;
+		private final int length;
 		// Replaced text.
-		private String replacedText;
+		private final String replacedText;
 		// New text.
-		private String newText;
+		private final String newText;
 
 		public ModificationRecord(StyleRange[] styles, int start, int length, String replacedText, String newText) {
 			this.styles = styles;

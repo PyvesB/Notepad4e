@@ -1,7 +1,7 @@
 package io.github.pyvesb.notepad4e.preferences;
 
 /**
- * Class used to store the names of the preferences used by the plugin as well as their default values.
+ * Class used to list the names of the preferences used by the plugin as well as their default values.
  * 
  * @author Pyves
  *

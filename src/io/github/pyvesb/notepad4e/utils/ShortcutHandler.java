@@ -4,6 +4,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
+import io.github.pyvesb.notepad4e.views.Note;
 import io.github.pyvesb.notepad4e.views.NotepadView;
 
 /**
@@ -17,7 +18,7 @@ public class ShortcutHandler extends AbstractHandler {
 	private final NotepadView notepadView;
 
 	/**
-	 * Constructor.
+	 * Constructor. Sets a reference to the main plugin's view.
 	 * 
 	 * @param notepadView
 	 */
@@ -26,8 +27,8 @@ public class ShortcutHandler extends AbstractHandler {
 	}
 
 	/**
-	 * Enables to deal with keyboard events, in other words Notepad4e shortcuts. All keyboard events are listened to,
-	 * filtering must therefore be done accordingly.
+	 * Deals with keyboard events, in other words Notepad4e shortcuts. This handler listens to all events, filtering
+	 * must therefore be done accordingly.
 	 * 
 	 * @param event
 	 */
@@ -37,43 +38,57 @@ public class ShortcutHandler extends AbstractHandler {
 			return null;
 		}
 
-		switch (NotepadAction.of(event.getCommand().getId())) {
-			case NEW_NOTE:
-				notepadView.doNewNoteTab();
-				break;
+		NotepadAction action = NotepadAction.of(event.getCommand().getId());
+		if (action == NotepadAction.NEW_NOTE) {
+			notepadView.addNewNote();
+		} else if (action == NotepadAction.CLOSE_NOTE) {
+			notepadView.closeCurrentSelection();
+		} else {
+			Note selectedNote = notepadView.getSelectedNote();
+			if (selectedNote != null) {
+				executeNoteAction(action, selectedNote);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Executes an action on the selected note.
+	 * 
+	 * @param action
+	 * @param selectedNote
+	 */
+	private void executeNoteAction(NotepadAction action, Note selectedNote) {
+		switch (action) {
 			case BOLD_TEXT:
-				notepadView.doBoldText();
+				selectedNote.boldSelection();
 				break;
 			case ITALIC_TEXT:
-				notepadView.doItalicText();
+				selectedNote.italicSelection();
 				break;
 			case UNDERLINE_TEXT:
-				notepadView.doUnderlineText();
+				selectedNote.underlineSelection();
 				break;
 			case STRIKEOUT_TEXT:
-				notepadView.doStrikeoutText();
+				selectedNote.strikeoutSelection();
 				break;
 			case BULLET_LIST:
-				notepadView.doBulletList();
+				selectedNote.bulletListSelection();
 				break;
 			case CLEAR_STYLE_TEXT:
-				notepadView.doClearTextStyle();
+				selectedNote.clearSelectionStyles();
 				break;
 			case CLEAR_NOTE:
-				notepadView.doClearNote();
+				selectedNote.clearText();
 				break;
 			case UNDO_TEXT:
-				notepadView.doUndoText();
+				selectedNote.undo();
 				break;
 			case REDO_TEXT:
-				notepadView.doRedoText();
-				break;
-			case CLOSE_NOTE:
-				notepadView.doCloseNoteTab();
+				selectedNote.redo();
 				break;
 			default:
 				break;
 		}
-		return null;
 	}
 }

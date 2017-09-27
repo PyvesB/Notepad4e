@@ -59,6 +59,7 @@ import org.eclipse.ui.part.ViewPart;
 import io.github.pyvesb.notepad4e.Notepad4e;
 import io.github.pyvesb.notepad4e.preferences.PreferenceConstants;
 import io.github.pyvesb.notepad4e.strings.LocalStrings;
+import io.github.pyvesb.notepad4e.utils.AbstractSelectedNoteAction;
 import io.github.pyvesb.notepad4e.utils.NotepadAction;
 import io.github.pyvesb.notepad4e.utils.ShortcutHandler;
 
@@ -71,7 +72,7 @@ import io.github.pyvesb.notepad4e.utils.ShortcutHandler;
 public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 	// Various constants.
-	private static final String LOCK_CHARACTER = "\uD83D\uDD12";
+	private static final String LOCK_PREFIX = "\uD83D\uDD12 ";
 	private static final int SAVE_INTERVAL_MILLIS = 120000;
 	// The ID of the view as specified by the extension.
 	public static final String ID = "notepad4e.views.NotepadView";
@@ -108,7 +109,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private Clipboard clipboard;
 
 	/**
-	 * Constructor.
+	 * Constructor. Initialises the shortcut handler.
 	 */
 	public NotepadView() {
 		shortcutHandler = new ShortcutHandler(this);
@@ -207,110 +208,33 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Performs the new note action.
+	 * Adds a new note to the notepad.
 	 */
-	public void doNewNoteTab() {
-		String namePrefix = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
-				PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
+	public void addNewNote() {
 		String noteText = "";
 		if (preferences.getBoolean(PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES,
 				PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES_DEFAULT)) {
-			TextTransfer plainTextTransfer = TextTransfer.getInstance();
-			noteText = (String) clipboard.getContents(plainTextTransfer, DND.CLIPBOARD);
+			noteText = (String) clipboard.getContents(TextTransfer.getInstance(), DND.CLIPBOARD);
 		}
+		String noteTitle = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
+				PreferenceConstants.PREF_NAME_PREFIX_DEFAULT) + " " + (tabFolder.getItemCount() + 1);
 		// Add a new note tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
-		addNewNoteTab(namePrefix + " " + (tabFolder.getItemCount() + 1), noteText, null, true, null);
+		addNewNoteTab(noteTitle, noteText, null, true, null);
 		CTabItem previousSelectedTab = tabFolder.getSelection();
 		// Remove lock for currently selected tab.
-		if (previousSelectedTab != null && previousSelectedTab.getText().startsWith(LOCK_CHARACTER)) {
-			previousSelectedTab.setText(previousSelectedTab.getText().substring(3));
+		if (previousSelectedTab != null && previousSelectedTab.getText().startsWith(LOCK_PREFIX)) {
+			previousSelectedTab.setText(previousSelectedTab.getText().substring(LOCK_PREFIX.length()));
 		}
 		tabFolder.setSelection(tabFolder.getItemCount() - 1);
 	}
 
 	/**
-	 * Performs the clear note action.
+	 * Closes the currently selected tab in the view and disposes resources appropriately.
 	 */
-	public void doClearNote() {
-		if (tabFolder.getItemCount() > 0) {
-			getNote(tabFolder.getSelectionIndex()).clearText();
-		}
-	}
-
-	/**
-	 * Performs the bold text action.
-	 */
-	public void doBoldText() {
-		if (tabFolder.getItemCount() > 0) {
-			getNote(tabFolder.getSelectionIndex()).boldSelection();
-		}
-	}
-
-	/**
-	 * Performs the italic text action.
-	 */
-	public void doItalicText() {
-		if (tabFolder.getItemCount() > 0) {
-			getNote(tabFolder.getSelectionIndex()).italicSelection();
-		}
-	}
-
-	/**
-	 * Performs the underline text action.
-	 */
-	public void doUnderlineText() {
-		if (tabFolder.getItemCount() > 0) {
-			getNote(tabFolder.getSelectionIndex()).underlineSelection();
-		}
-	}
-
-	/**
-	 * Performs the strikeout text action.
-	 */
-	public void doStrikeoutText() {
-		if (tabFolder.getItemCount() > 0) {
-			getNote(tabFolder.getSelectionIndex()).strikeoutSelection();
-		}
-	}
-
-	/**
-	 * Performs the bullet list action.
-	 */
-	public void doBulletList() {
-		if (tabFolder.getItemCount() > 0) {
-			getNote(tabFolder.getSelectionIndex()).bulletListSelection();
-		}
-	}
-
-	/**
-	 * Performs the clear text action.
-	 */
-	public void doClearTextStyle() {
-		if (tabFolder.getItemCount() > 0) {
-			getNote(tabFolder.getSelectionIndex()).clearSelectionStyles();
-		}
-	}
-
-	/**
-	 * Performs the undo text action.
-	 */
-	public void doUndoText() {
-		getNote(tabFolder.getSelectionIndex()).undo();
-	}
-
-	/**
-	 * Performs the redo text action.
-	 */
-	public void doRedoText() {
-		getNote(tabFolder.getSelectionIndex()).redo();
-	}
-
-	/**
-	 * Performs the close action.
-	 */
-	public void doCloseNoteTab() {
-		if (tabFolder.getItemCount() > 0) {
-			if (!getNote(tabFolder.getSelectionIndex()).getEditable()) {
+	public void closeCurrentSelection() {
+		Note selectedNote = getSelectedNote();
+		if (selectedNote != null) {
+			if (!selectedNote.getEditable()) {
 				if (MessageDialog.openQuestion(getSite().getShell(), LocalStrings.dialogCloseLockedTitle,
 						LocalStrings.dialogCloseLockedMsg)) {
 					tabFolder.getSelection().dispose();
@@ -322,6 +246,25 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				tabFolder.getSelection().dispose();
 			}
 		}
+	}
+
+	/**
+	 * Returns the currently selected Note or null.
+	 * 
+	 * @return selected Note
+	 */
+	public Note getSelectedNote() {
+		return tabFolder.getSelectionIndex() >= 0 ? getNote(tabFolder.getSelectionIndex()) : null;
+	}
+
+	/**
+	 * Returns a Note object given an index in the tab folder.
+	 * 
+	 * @param index
+	 * @return Note at the given index
+	 */
+	private Note getNote(int index) {
+		return (Note) (tabFolder.getItem(index).getControl());
 	}
 
 	/**
@@ -349,9 +292,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 					Note note = getNote(tabIndex);
 					section.put(STORE_TEXT_PREFIX_KEY + tabIndex, note.getText());
 					section.put(STORE_STYLE_PREFIX_KEY + tabIndex, note.serialiseStyle());
-					if (tab.getText().startsWith(LOCK_CHARACTER)) {
+					if (tab.getText().startsWith(LOCK_PREFIX)) {
 						// Do not save lock symbol.
-						section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tab.getText().substring(3));
+						section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tab.getText().substring(LOCK_PREFIX.length()));
 					} else {
 						section.put(STORE_TITLE_PREFIX_KEY + tabIndex, tab.getText());
 					}
@@ -401,12 +344,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private void addRenameTabListener() {
 		tabFolder.addMouseListener(new MouseListener() {
 			@Override
-			public void mouseUp(MouseEvent event) {}
-
-			@Override
-			public void mouseDown(MouseEvent event) {}
-
-			@Override
 			public void mouseDoubleClick(MouseEvent event) {
 				CTabItem clickedTab = tabFolder.getItem(new Point(event.x, event.y));
 				if (clickedTab == null) {
@@ -414,9 +351,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				}
 				boolean isLocked = false;
 				String dialogText = clickedTab.getText();
-				if (dialogText.startsWith(LOCK_CHARACTER)) {
+				if (dialogText.startsWith(LOCK_PREFIX)) {
 					isLocked = true;
-					dialogText = dialogText.substring(3);
+					dialogText = dialogText.substring(LOCK_PREFIX.length());
 				}
 				// Open a dialog window so user can enter the new name of his note.
 				InputDialog inputDialog = new InputDialog(null, LocalStrings.dialogRenameTitle,
@@ -425,12 +362,18 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				// If user selected Cancel, text will be null.
 				if (inputDialog.getValue() != null && !inputDialog.getValue().isEmpty()) {
 					if (isLocked) {
-						clickedTab.setText(LOCK_CHARACTER + " " + inputDialog.getValue());
+						clickedTab.setText(LOCK_PREFIX + inputDialog.getValue());
 					} else {
 						clickedTab.setText(inputDialog.getValue());
 					}
 				}
 			}
+
+			@Override
+			public void mouseUp(MouseEvent event) {}
+
+			@Override
+			public void mouseDown(MouseEvent event) {}
 		});
 	}
 
@@ -484,30 +427,20 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				// Remove lock symbols from all tabs.
 				for (int tabIndex = 0; tabIndex < tabFolder.getItemCount(); ++tabIndex) {
 					CTabItem tab = tabFolder.getItem(tabIndex);
-					if (tab.getText().startsWith(LOCK_CHARACTER)) {
-						tab.setText(tab.getText().substring(3));
+					if (tab.getText().startsWith(LOCK_PREFIX)) {
+						tab.setText(tab.getText().substring(LOCK_PREFIX.length()));
 					}
 				}
 				// Put lock symbol on selected tab, if non editable.
-				if (!getNote(tabFolder.getSelectionIndex()).getEditable()) {
+				if (!getSelectedNote().getEditable()) {
 					CTabItem selectedTab = (CTabItem) event.item;
-					selectedTab.setText(LOCK_CHARACTER + " " + selectedTab.getText());
+					selectedTab.setText(LOCK_PREFIX + selectedTab.getText());
 				}
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
-	}
-
-	/**
-	 * Returns a Note object given an index in the tab folder.
-	 * 
-	 * @param index
-	 * @return
-	 */
-	private Note getNote(int index) {
-		return (Note) (tabFolder.getItem(index).getControl());
 	}
 
 	/**
@@ -548,9 +481,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				}
 			}
 			// Set selection on the last tab.
-			tabFolder.setSelection(numOfTabs - 1);
-			if (!getNote(tabFolder.getSelectionIndex()).getEditable()) {
-				tabFolder.getSelection().setText(LOCK_CHARACTER + " " + tabFolder.getSelection().getText());
+			tabFolder.setSelection(tabFolder.getItemCount() - 1);
+			if (!getSelectedNote().getEditable()) {
+				tabFolder.getSelection().setText(LOCK_PREFIX + tabFolder.getSelection().getText());
 			}
 		}
 	}
@@ -577,11 +510,11 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		});
 		Note note = new Note(tabFolder, text, editable);
 		// Style can be null if new note.
-		if (style != null && style.length() > 0) {
+		if (style != null && !style.isEmpty()) {
 			note.deserialiseStyle(style);
 		}
 		// Bullets can be null if new note or upgrading from old plugin version.
-		if (bullets != null && bullets.length() > 0) {
+		if (bullets != null && !bullets.isEmpty()) {
 			note.deserialiseBullets(bullets);
 		}
 		tab.setControl(note);
@@ -634,90 +567,85 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		addNewNoteAction = new Action() {
 			@Override
 			public void run() {
-				doNewNoteTab();
+				addNewNote();
 			}
 		};
 		setTextAndImageToAction(addNewNoteAction, NotepadAction.NEW_NOTE);
 
-		clearNoteAction = new Action() {
+		clearNoteAction = new AbstractSelectedNoteAction(this) {
 			@Override
-			public void run() {
-				doClearNote();
+			protected void runSelectedNoteAction(Note selectedNote) {
+				selectedNote.clearText();
 			}
 		};
 		setTextAndImageToAction(clearNoteAction, NotepadAction.CLEAR_NOTE);
 
-		boldTextAction = new Action() {
+		boldTextAction = new AbstractSelectedNoteAction(this) {
 			@Override
-			public void run() {
-				doBoldText();
+			protected void runSelectedNoteAction(Note selectedNote) {
+				selectedNote.boldSelection();
 			}
 		};
 		setTextAndImageToAction(boldTextAction, NotepadAction.BOLD_TEXT);
 
-		italicTextAction = new Action() {
+		italicTextAction = new AbstractSelectedNoteAction(this) {
 			@Override
-			public void run() {
-				doItalicText();
+			protected void runSelectedNoteAction(Note selectedNote) {
+				selectedNote.italicSelection();
 			}
 		};
 		setTextAndImageToAction(italicTextAction, NotepadAction.ITALIC_TEXT);
 
-		underlineTextAction = new Action() {
+		underlineTextAction = new AbstractSelectedNoteAction(this) {
 			@Override
-			public void run() {
-				doUnderlineText();
+			protected void runSelectedNoteAction(Note selectedNote) {
+				selectedNote.underlineSelection();
 			}
 		};
 		setTextAndImageToAction(underlineTextAction, NotepadAction.UNDERLINE_TEXT);
 
-		strikeoutTextAction = new Action() {
+		strikeoutTextAction = new AbstractSelectedNoteAction(this) {
 			@Override
-			public void run() {
-				doStrikeoutText();
+			protected void runSelectedNoteAction(Note selectedNote) {
+				selectedNote.strikeoutSelection();
 			}
 		};
 		setTextAndImageToAction(strikeoutTextAction, NotepadAction.STRIKEOUT_TEXT);
 
-		bulletListAction = new Action() {
+		bulletListAction = new AbstractSelectedNoteAction(this) {
 			@Override
-			public void run() {
-				doBulletList();
+			protected void runSelectedNoteAction(Note selectedNote) {
+				selectedNote.bulletListSelection();
 			}
 		};
 		setTextAndImageToAction(bulletListAction, NotepadAction.BULLET_LIST);
 
-		clearTextStyleAction = new Action() {
+		clearTextStyleAction = new AbstractSelectedNoteAction(this) {
 			@Override
-			public void run() {
-				doClearTextStyle();
+			protected void runSelectedNoteAction(Note selectedNote) {
+				selectedNote.clearSelectionStyles();
 			}
 		};
 		setTextAndImageToAction(clearTextStyleAction, NotepadAction.CLEAR_STYLE_TEXT);
 
-		toggleEditableAction = new Action() {
+		toggleEditableAction = new AbstractSelectedNoteAction(this) {
 			@Override
-			public void run() {
-				if (tabFolder.getItemCount() > 0) {
-					CTabItem tab = tabFolder.getSelection();
-					Note selectedNote = getNote(tabFolder.getSelectionIndex());
-					if (!selectedNote.getEditable()) {
-						tab.setText(tab.getText().substring(3));
-					} else {
-						tab.setText(LOCK_CHARACTER + " " + tab.getText());
-					}
-					selectedNote.toggleEditable();
+			protected void runSelectedNoteAction(Note selectedNote) {
+				CTabItem tab = tabFolder.getSelection();
+				if (!selectedNote.getEditable()) {
+					tab.setText(tab.getText().substring(LOCK_PREFIX.length()));
+				} else {
+					tab.setText(LOCK_PREFIX + tab.getText());
 				}
+				selectedNote.toggleEditable();
 			}
 		};
 		setTextAndImageToAction(toggleEditableAction, NotepadAction.TOGGLE_EDITABLE_NOTE);
 
-		exportNoteAction = new Action() {
+		exportNoteAction = new AbstractSelectedNoteAction(this) {
 			@Override
-			public void run() {
-				if (tabFolder.getItemCount() > 0) {
-					getNote(tabFolder.getSelectionIndex()).exportToFile(getSite());
-				}
+			protected void runSelectedNoteAction(Note selectedNote) {
+				selectedNote.exportToFile(getSite());
 			}
 		};
 		setTextAndImageToAction(exportNoteAction, NotepadAction.EXPORT_NOTE);
@@ -773,8 +701,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		// The URL matches an image in the plugin's icons folder.
 		URL url = FileLocator.find(Platform.getBundle(Notepad4e.PLUGIN_ID), new Path(notepadAction.getImagePath()),
 				null);
-		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(url);
-		action.setImageDescriptor(imageDescriptor);
+		action.setImageDescriptor(ImageDescriptor.createFromURL(url));
 	}
 
 	/**
@@ -806,7 +733,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * @param swappedIndex
 	 */
 	private void swapNoteTabs(int swappedIndex) {
-		Note selectedNote = getNote(tabFolder.getSelectionIndex());
+		Note selectedNote = getSelectedNote();
 		Note swappedNote = getNote(swappedIndex);
 		tabFolder.getItem(swappedIndex).setControl(selectedNote);
 		tabFolder.getSelection().setControl(swappedNote);

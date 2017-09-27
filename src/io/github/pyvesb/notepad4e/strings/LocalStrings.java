@@ -2,8 +2,17 @@ package io.github.pyvesb.notepad4e.strings;
 
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * Class used to translate the plugin's messages into different languages. Each translation must be contained in a
+ * localstring_XX.properties file, where XX represents the locale.
+ * 
+ * @author Pyves
+ *
+ */
 public class LocalStrings extends NLS {
+
 	private static final String BUNDLE_NAME = "io.github.pyvesb.notepad4e.strings.localstrings";
+
 	public static String dialogCloseLockedMsg;
 	public static String dialogCloseLockedTitle;
 	public static String dialogCloseMsg;
@@ -50,10 +59,14 @@ public class LocalStrings extends NLS {
 	public static String prefPasteClipboardInNewNotes;
 	public static String prefRight;
 	public static String prefWrap;
+
 	static {
-		// initialize resource bundle
+		// Initialise resource bundle.
 		NLS.initializeMessages(BUNDLE_NAME, LocalStrings.class);
 	}
 
-	private LocalStrings() {}
+	private LocalStrings() {
+		// Not called.
+	}
+
 }

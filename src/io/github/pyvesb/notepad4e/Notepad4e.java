@@ -1,6 +1,5 @@
 package io.github.pyvesb.notepad4e;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -15,26 +14,15 @@ public class Notepad4e extends AbstractUIPlugin {
 	// Plugin's ID.
 	public static final String PLUGIN_ID = "Notepad4e";
 
-	// Shared instance.
+	// Shared instance. Not ideal to use a static field here, but common practice to do this with AbstractUIPlugin.
 	private static Notepad4e plugin;
 
-	/**
-	 * Constructor.
-	 */
-	public Notepad4e() {}
-
-	/**
-	 * Starts the plugin.
-	 */
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
 	}
 
-	/**
-	 * Stops the plugin.
-	 */
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
@@ -42,13 +30,12 @@ public class Notepad4e extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Saves the DialogSettings (used to remeber the plugin's state).
-	 *
+	 * Saves the DialogSettings (used to remember the plugin's state between Eclipse sessions).
 	 */
 	public static void save() {
 		plugin.saveDialogSettings();
 	}
-	
+
 	/**
 	 * Returns the shared instance.
 	 *
@@ -56,15 +43,5 @@ public class Notepad4e extends AbstractUIPlugin {
 	 */
 	public static Notepad4e getDefault() {
 		return plugin;
-	}
-
-	/**
-	 * Returns an image descriptor for the image file at the given plug-in relative path.
-	 *
-	 * @param path
-	 * @return the image descriptor
-	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 }
