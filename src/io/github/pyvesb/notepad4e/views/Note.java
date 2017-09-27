@@ -181,14 +181,18 @@ public class Note extends StyledText {
 	 * Undos latest Note modification.
 	 */
 	public void undo() {
-		undoRedoManager.undo();
+		if (getEditable()) {
+			undoRedoManager.undo();
+		}
 	}
 
 	/**
 	 * Redos latest Note modification.
 	 */
 	public void redo() {
-		undoRedoManager.redo();
+		if (getEditable()) {
+			undoRedoManager.redo();
+		}
 	}
 
 	/**
