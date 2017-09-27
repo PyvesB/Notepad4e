@@ -6,7 +6,6 @@
 <img src ="http://images.jupload.fr/1492464956.png" />
 <br />
 <i><sub>A simple example of how the plugin can be used and customised. You have countless possibilities!</sub></i>
-
 </p>
 
 ___
@@ -34,7 +33,9 @@ ___
 
 You can download and install the plugin via the [Eclipse Marketplace](https://marketplace.eclipse.org/content/notepad4e), or simply drag the below button to your running Eclipse workspace:
 
+<p align="center">
 <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3108021" class="drag" title="Drag to your running Eclipse workspace to install Notepad4e"><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace to install Notepad4e" /></a>
+</p>
 
 Alternatively, head to the [update site](https://pyvesb.github.io/Notepad4e/) and follow the instructions listed there.
 
