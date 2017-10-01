@@ -1,4 +1,16 @@
-# Notepad4e [![GitHub issues](https://img.shields.io/github/issues/PyvesB/Notepad4e.svg)](https://github.com/PyvesB/Notepad4e/issues) [![Plugin version](https://img.shields.io/github/release/PyvesB/Notepad4e.svg)](https://github.com/PyvesB/Notepad4e/releases)
+# Notepad4e 
+<a href="https://github.com/PyvesB/Notepad4e/blob/master/LICENSE">
+<img src ="https://img.shields.io/github/license/PyvesB/Notepad4e.svg" />
+</a>
+  <a href="https://github.com/PyvesB/Notepad4e/releases">
+<img src ="https://img.shields.io/github/release/PyvesB/Notepad4e.svg" />
+</a>
+<a href="https://github.com/PyvesB/Notepad4e/issues">
+<img src ="https://img.shields.io/github/issues/PyvesB/Notepad4e.svg" />
+</a>
+<a href="https://github.com/PyvesB/Notepad4e/stargazers">
+<img src ="https://img.shields.io/github/stars/PyvesB/Notepad4e.svg" />
+</a>
 
 **Create highly customisable notes in Eclipse, and never lose track of your thoughts, ideas or code snippets!**
 
@@ -8,9 +20,7 @@
 <i><sub>A simple example of how the plugin can be used and customised. You have countless possibilities!</sub></i>
 </p>
 
-___
-
-### Main features
+# Features at a glance
 
 * Create as many notes as you like in a separate Eclipse view.
 * Modify the style of the text (font, colour, bold, italic, underlined, strikeout, etc.).
@@ -25,11 +35,11 @@ ___
 * Available in English and French.
 * More to discover and to come in future updates!
 
-Check out what's new in the [latest releases](https://github.com/PyvesB/Notepad4e/releases) or open an [issue](https://github.com/PyvesB/Notepad4e/issues) to request additional features!
+Check out what's new in the [latest releases](https://github.com/PyvesB/Notepad4e/releases)!
 
-___
+# Getting started
 
-### Installation
+#### :cd: Plugin installation
 
 You can download and install the plugin via the [Eclipse Marketplace](https://marketplace.eclipse.org/content/notepad4e), or simply drag the below button to your running Eclipse workspace:
 
@@ -39,26 +49,30 @@ You can download and install the plugin via the [Eclipse Marketplace](https://ma
 
 Alternatively, head to the [update site](https://pyvesb.github.io/Notepad4e/) and follow the instructions listed there.
 
-___
-
-### Contributing
-
-Contributions are happily accepted through **pull requests** on GitHub. Feel free to fork the project and share your code!
-
-You can also **star this repository** to support the open-source project!
-
-___
-
-### Setting your own working copy of the project
+#### :wrench: Setting your own working copy of the project
 
 * Ensure you have a working version of the [JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) (Java Development Kit).
 * Download the [RCP and RAP Developers](https://eclipse.org/downloads/eclipse-packages/) version of Eclipse.
 * Make a copy of the repository on your computer. You can also create your own fork by clicking on the *Fork* icon on the top right of this page.
-* In Eclipse, go to *File* -> *Import...* -> *Existing Projects into Workspace*.
-* In the *Select root directory* field, indicate the location where you downloaded the Notepad4e repository.
-* Tick the project that appears in the *Projects* field and click *Finish*.
-* You're ready to go! You can now either launch an instance of Eclipse running the plugin by right-clicking on the project and selecting *Run As* -> *Eclipse Application*, or you can export a plugin archive file by selecting *Export* -> *Deployable plug-ins and fragments*.
- 
-Please let me know if you encounter any problems by opening an Issue, I am happy to help!
+* In Eclipse, go to `File` -> `Import...` -> `Existing Projects into Workspace`.
+* In the `Select root directory` field, indicate the location where you downloaded the Notepad4e repository.
+* Tick the project that appears in the `Projects` field and click `Finish`.
+* You're ready to go! You can now either launch an instance of Eclipse running the plugin by right-clicking on the project and selecting `Run As` -> `Eclipse Application`, or you can export a plugin archive file by selecting `Export` -> `Deployable plug-ins and fragments`.
 
+# Contributing
 
+#### `$ code`
+
+Want to make Notepad4e better, faster, stronger? Contributions are more than welcome, open a **pull request** and share your code! Simply **fork** the repository by clicking on the icon on the top right of this page and you're ready to go!
+
+#### :speech_balloon: Support
+
+Thought of a cool idea? Found a problem or need some help? Simply open an [**issue**](https://github.com/PyvesB/Notepad4e/issues)!
+
+#### :star: Thanks
+
+Find the project useful, fun or interesting? **Star** the repository by clicking on the icon on the top right of this page!
+
+# License 
+
+GNU General Public License v3.0
