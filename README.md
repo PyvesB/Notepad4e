@@ -2,14 +2,17 @@
 <a href="https://github.com/PyvesB/Notepad4e/blob/master/LICENSE">
 <img src ="https://img.shields.io/github/license/PyvesB/Notepad4e.svg" />
 </a>
-  <a href="https://github.com/PyvesB/Notepad4e/releases">
-<img src ="https://img.shields.io/github/release/PyvesB/Notepad4e.svg" />
+  <a href="https://marketplace.eclipse.org/content/notepad4e">
+<img src ="https://img.shields.io/eclipse-marketplace/v/notepad4e.svg" />
 </a>
 <a href="https://github.com/PyvesB/Notepad4e/issues">
 <img src ="https://img.shields.io/github/issues/PyvesB/Notepad4e.svg" />
 </a>
 <a href="https://github.com/PyvesB/Notepad4e/stargazers">
 <img src ="https://img.shields.io/github/stars/PyvesB/Notepad4e.svg" />
+</a>
+<a href="https://marketplace.eclipse.org/content/notepad4e">
+<img src ="https://img.shields.io/eclipse-marketplace/favorites/notepad4e.svg" />
 </a>
 
 **Create highly customisable notes in Eclipse, and never lose track of your thoughts, ideas or code snippets!**
