@@ -36,6 +36,9 @@
    <feature url="features/io.github.pyvesb.notepad4e_1.3.2.201709271943.jar" id="io.github.pyvesb.notepad4e" version="1.3.2.201709271943">
       <category name="io.github.pyvesb.notepad4e"/>
    </feature>
+   <feature url="features/io.github.pyvesb.notepad4e_1.3.3.201801271338.jar" id="io.github.pyvesb.notepad4e" version="1.3.3.201801271338">
+      <category name="io.github.pyvesb.notepad4e"/>
+   </feature>
    <category-def name="io.github.pyvesb.notepad4e" label="Notepad4e">
       <description>
          The Notepad4e plugin.
