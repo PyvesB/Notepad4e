@@ -75,7 +75,6 @@ public class Note extends StyledText {
 	 * @param parent
 	 * @param text
 	 * @param editable
-	 * @param shortcutHandler
 	 */
 	public Note(Composite parent, String text, boolean editable) {
 		// Enable multiple lines and scroll bars.

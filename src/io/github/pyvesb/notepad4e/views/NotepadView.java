@@ -85,7 +85,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private static final String STORE_BULLETS_PREFIX_KEY = "TabBullets";
 
 	// Keyboard events listener.
-	private final ShortcutHandler shortcutHandler;
+	private final ShortcutHandler shortcutHandler = new ShortcutHandler(this);
 
 	// Actions corresponding to the different buttons in the view.
 	private Action addNewNoteAction;
@@ -107,13 +107,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private CTabFolder tabFolder;
 	// Current clipboard, used for the paste contents of clipboard in new notes feature.
 	private Clipboard clipboard;
-
-	/**
-	 * Constructor. Initialises the shortcut handler.
-	 */
-	public NotepadView() {
-		shortcutHandler = new ShortcutHandler(this);
-	}
 
 	/**
 	 * Allows to create the viewer and initialise it.
@@ -211,13 +204,12 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Adds a new note to the notepad.
 	 */
 	public void addNewNote() {
+		String noteTitle = getNewNoteTitle();
 		String noteText = "";
 		if (preferences.getBoolean(PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES,
 				PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES_DEFAULT)) {
 			noteText = (String) clipboard.getContents(TextTransfer.getInstance(), DND.CLIPBOARD);
 		}
-		String noteTitle = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
-				PreferenceConstants.PREF_NAME_PREFIX_DEFAULT) + " " + (tabFolder.getItemCount() + 1);
 		// Add a new note tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
 		addNewNoteTab(noteTitle, noteText, null, true, null);
 		CTabItem previousSelectedTab = tabFolder.getSelection();
@@ -255,6 +247,28 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	public Note getSelectedNote() {
 		return tabFolder.getSelectionIndex() >= 0 ? getNote(tabFolder.getSelectionIndex()) : null;
+	}
+
+	/**
+	 * Constructs the title of a new note. The title does not match the ones of extisting notes.
+	 * 
+	 * @return the note title, for instance "Note 2"
+	 */
+	private String getNewNoteTitle() {
+		int noteNumber = tabFolder.getItemCount() + 1;
+		String title = "";
+		while (true) {
+			title = preferences.get(PreferenceConstants.PREF_NAME_PREFIX, PreferenceConstants.PREF_NAME_PREFIX_DEFAULT)
+					+ " " + noteNumber;
+			for (int tabIndex = 0; tabIndex < tabFolder.getItemCount(); ++tabIndex) {
+				if (tabFolder.getItem(tabIndex).getText().contains(title)) {
+					break;
+				} else if (tabIndex == tabFolder.getItemCount() - 1) {
+					return title;
+				}
+			}
+			++noteNumber;
+		}
 	}
 
 	/**
@@ -495,7 +509,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * @param text
 	 * @param style
 	 * @param editable
-	 * @param noteBullets
+	 * @param bullets
 	 */
 	private void addNewNoteTab(String title, String text, String style, boolean editable, String bullets) {
 		CTabItem tab = new CTabItem(tabFolder, SWT.NONE);
@@ -685,14 +699,12 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Sets the image and the tool tip to an action button.
 	 * 
 	 * @param action
-	 * @param text
-	 * @param image
-	 * @param shortcut
+	 * @param notepadAction
 	 */
 	private void setTextAndImageToAction(Action action, NotepadAction notepadAction) {
 		if (notepadAction.getCommandID() != null) {
 			// Action appears in action bar with an associated shortcut.
-			action.setToolTipText(notepadAction.getText() + getShortcutDescription(notepadAction.getCommandID()));
+			action.setToolTipText(notepadAction.getText() + getKeyBindingDescription(notepadAction.getCommandID()));
 		} else {
 			// Action appears in drop down menu.
 			action.setText(notepadAction.getText());
@@ -705,12 +717,12 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	}
 
 	/**
-	 * Returns key binding as a String for a given ShortcutCommand.
+	 * Returns key binding as a String for a given command ID.
 	 * 
-	 * @param shortcut
-	 * @return
+	 * @param commandID
+	 * @return the key binding, for instance Ctrl + B
 	 */
-	private String getShortcutDescription(String commandID) {
+	private String getKeyBindingDescription(String commandID) {
 		Binding bestBinding = null;
 		for (Binding binding : getViewSite().getService(IBindingService.class).getBindings()) {
 			if (binding.getParameterizedCommand() != null
