@@ -256,10 +256,12 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	private String getNewNoteTitle() {
 		int noteNumber = tabFolder.getItemCount() + 1;
-		String title = "";
+		String title = preferences.get(PreferenceConstants.PREF_NAME_PREFIX, PreferenceConstants.PREF_NAME_PREFIX_DEFAULT)
+				+ " " + noteNumber;
+		if (tabFolder.getItemCount() == 0) {
+			return title;
+		}
 		while (true) {
-			title = preferences.get(PreferenceConstants.PREF_NAME_PREFIX, PreferenceConstants.PREF_NAME_PREFIX_DEFAULT)
-					+ " " + noteNumber;
 			for (int tabIndex = 0; tabIndex < tabFolder.getItemCount(); ++tabIndex) {
 				if (tabFolder.getItem(tabIndex).getText().contains(title)) {
 					break;
@@ -268,6 +270,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				}
 			}
 			++noteNumber;
+			title = preferences.get(PreferenceConstants.PREF_NAME_PREFIX, PreferenceConstants.PREF_NAME_PREFIX_DEFAULT)
+					+ " " + noteNumber;
 		}
 	}
 
