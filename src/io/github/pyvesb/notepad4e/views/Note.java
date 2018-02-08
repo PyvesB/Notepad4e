@@ -15,6 +15,8 @@ import org.eclipse.swt.custom.Bullet;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -82,7 +84,6 @@ public class Note extends StyledText {
 
 		preferences = InstanceScope.INSTANCE.getNode(Notepad4e.PLUGIN_ID);
 
-		undoRedoManager = new UndoRedoManager(this);
 		bulletStyle = new StyleRange();
 		bulletStyle.metrics = new GlyphMetrics(0, 0, 0);
 
@@ -91,6 +92,16 @@ public class Note extends StyledText {
 		setParametersFromPreferences();
 		setText(text);
 		initialiseMenu();
+		
+		undoRedoManager = new UndoRedoManager(this);
+		// Listen to text modifications.
+		addVerifyListener(new VerifyListener() {
+
+			@Override
+			public void verifyText(VerifyEvent event) {
+				undoRedoManager.saveNoteState();
+			}
+		});
 
 		if (!editable) {
 			toggleEditable();
@@ -238,19 +249,21 @@ public class Note extends StyledText {
 		if (!getEditable()) {
 			return;
 		}
+		// Save bullet state prior to modification for undo actions.
+		undoRedoManager.saveNoteState();
 
 		String textBeforeSelection = getText().substring(0, getSelection().x);
 		int selectionStartLine = getTextLineCount(textBeforeSelection) - 1;
 		int selectionLineCount = getTextLineCount(getSelectionText());
-		int selectionCurrentBullets = 0;
+		int selectionBullets = 0;
 		// Count number of lines that currently have a bullet.
 		for (int line = selectionStartLine; line < selectionStartLine + selectionLineCount; ++line) {
 			if (getLineBullet(line) != null) {
-				++selectionCurrentBullets;
+				++selectionBullets;
 			}
 		}
 
-		if (selectionCurrentBullets == selectionLineCount) {
+		if (selectionBullets == selectionLineCount) {
 			// All lines have bullets, remove them all.
 			setLineBullet(selectionStartLine, selectionLineCount, null);
 			return;
@@ -267,8 +280,8 @@ public class Note extends StyledText {
 		if (!getEditable()) {
 			return;
 		}
-		// Record style modification for undo actions.
-		undoRedoManager.recordNoteModification(null, getStyleRanges());
+		// Save style state prior to modification for undo actions.
+		undoRedoManager.saveNoteState();
 
 		Point selectionRange = getSelectionRange();
 		// No colors are specified as they are defined by the plugin's preferences.
@@ -321,9 +334,9 @@ public class Note extends StyledText {
 	 * @return CSV string containing a serialised representation of the bullets
 	 */
 	public String serialiseBullets() {
-		int totalLines = getTextLineCount(getText());
+		Bullet[] bullets = getBullets();
 		StringBuilder bulletLines = new StringBuilder();
-		for (int line = 0; line < totalLines; ++line) {
+		for (int line = 0; line < bullets.length; ++line) {
 			if (getLineBullet(line) != null) {
 				// Bullet found: add line number with separator.
 				bulletLines.append(line);
@@ -405,6 +418,20 @@ public class Note extends StyledText {
 	}
 
 	/**
+	 * Constructs an array containing the bullets for the note.
+	 * 
+	 * @return array of bullets indexed by line number; null value if no bullet on the line
+	 */
+	public Bullet[] getBullets() {
+		int lineCount = getLineCount();
+		Bullet[] bullets = new Bullet[lineCount];
+		for (int line = 0; line < lineCount; ++line) {
+			bullets[line] = getLineBullet(line);
+		}
+		return bullets;
+	}
+
+	/**
 	 * Initialises the menu triggered by a right-click inside the note.
 	 */
 	private void initialiseMenu() {
@@ -471,8 +498,8 @@ public class Note extends StyledText {
 		if (!getEditable()) {
 			return;
 		}
-		// Record style modification for undo actions.
-		undoRedoManager.recordNoteModification(null, getStyleRanges());
+		// Save style state prior to modification for undo actions.
+		undoRedoManager.saveNoteState();
 
 		Point selectionRange = getSelectionRange();
 		// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
