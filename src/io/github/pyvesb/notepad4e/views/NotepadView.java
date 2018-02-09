@@ -130,20 +130,21 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 		long saveIntervalMillis = TimeUnit.SECONDS
 				.toMillis(preferences.getInt(Preferences.SAVE_INTERVAL, Preferences.SAVE_INTERVAL_DEFAULT));
-		Job autosaveJob = new Job("ScheduledAutosave") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						savePluginState();
-					}
-				});
-				schedule(saveIntervalMillis);
-				return Status.OK_STATUS;
-			}
-		};
-		autosaveJob.schedule(saveIntervalMillis);
+		if (saveIntervalMillis >= 0) {
+			new Job("ScheduledAutosave") {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							savePluginState();
+						}
+					});
+					schedule(saveIntervalMillis);
+					return Status.OK_STATUS;
+				}
+			}.schedule(saveIntervalMillis);
+		}
 
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(tabFolder, "Notepad4e.viewer");
 
