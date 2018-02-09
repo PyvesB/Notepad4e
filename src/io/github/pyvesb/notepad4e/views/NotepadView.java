@@ -106,6 +106,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	private CTabFolder tabFolder;
 	// Current clipboard, used for the paste contents of clipboard in new notes feature.
 	private Clipboard clipboard;
+	// Note autosave interval.
+	private long saveIntervalMillis;
 
 	/**
 	 * Allows to create the viewer and initialise it.
@@ -128,7 +130,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 		restoreViewFromPreviousSession();
 
-		long saveIntervalMillis = TimeUnit.SECONDS
+		saveIntervalMillis = TimeUnit.SECONDS
 				.toMillis(preferences.getInt(Preferences.SAVE_INTERVAL, Preferences.SAVE_INTERVAL_DEFAULT));
 		if (saveIntervalMillis >= 0) {
 			new Job("ScheduledAutosave") {
@@ -185,6 +187,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		for (int tabIndex = 0; tabIndex < tabFolder.getItemCount(); ++tabIndex) {
 			getNote(tabIndex).setParametersFromPreferences();
 		}
+		saveIntervalMillis = TimeUnit.SECONDS
+				.toMillis(preferences.getInt(Preferences.SAVE_INTERVAL, Preferences.SAVE_INTERVAL_DEFAULT));
 	}
 
 	/**
