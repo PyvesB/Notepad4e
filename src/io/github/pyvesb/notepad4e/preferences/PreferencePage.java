@@ -51,6 +51,8 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 		addField(new ColorFieldEditor(PreferenceConstants.PREF_BACKGROUND_COLOR, LocalStrings.prefBackgroundColor,
 				getFieldEditorParent()));
 		addField(new FontFieldEditor(PreferenceConstants.PREF_FONT, LocalStrings.prefFont, getFieldEditorParent()));
+		addField(new IntegerFieldEditor(PreferenceConstants.PREF_SAVE_INTERVAL, LocalStrings.prefSaveInterval,
+				getFieldEditorParent()));
 	}
 
 	/**

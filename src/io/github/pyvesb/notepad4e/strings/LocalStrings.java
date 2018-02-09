@@ -59,6 +59,7 @@ public class LocalStrings extends NLS {
 	public static String prefPasteClipboardInNewNotes;
 	public static String prefRight;
 	public static String prefWrap;
+	public static String prefSaveInterval;
 
 	static {
 		// Initialise resource bundle.

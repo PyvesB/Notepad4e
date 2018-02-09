@@ -1,6 +1,7 @@
 package io.github.pyvesb.notepad4e.views;
 
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -71,9 +72,7 @@ import io.github.pyvesb.notepad4e.utils.ShortcutHandler;
  */
 public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
-	// Various constants.
 	private static final String LOCK_PREFIX = "\uD83D\uDD12 ";
-	private static final int SAVE_INTERVAL_MILLIS = 120000;
 	// The ID of the view as specified by the extension.
 	public static final String ID = "notepad4e.views.NotepadView";
 	// Keys used to store and retrieve the plugin's view between Eclipse sessions.
@@ -129,6 +128,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 		restoreViewFromPreviousSession();
 
+		long saveIntervalMillis = TimeUnit.SECONDS.toMillis(
+				preferences.getInt(PreferenceConstants.PREF_SAVE_INTERVAL, PreferenceConstants.PREF_SAVE_INTERVAL_DEFAULT));
 		Job autosaveJob = new Job("ScheduledAutosave") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -138,11 +139,11 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 						savePluginState();
 					}
 				});
-				schedule(SAVE_INTERVAL_MILLIS);
+				schedule(saveIntervalMillis);
 				return Status.OK_STATUS;
 			}
 		};
-		autosaveJob.schedule(SAVE_INTERVAL_MILLIS);
+		autosaveJob.schedule(saveIntervalMillis);
 
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(tabFolder, "Notepad4e.viewer");
 

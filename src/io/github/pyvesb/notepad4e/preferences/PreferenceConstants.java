@@ -20,6 +20,7 @@ public class PreferenceConstants {
 	public static final String PREF_CLOSE_CONFIRMATION = "CloseConfirmation";
 	public static final String PREF_PASTE_CLIPBOARD_IN_NEW_NOTES = "PasteClipboardInNewNotes";
 	public static final String PREF_BULLET_SPACING = "BulletSpacing";
+	public static final String PREF_SAVE_INTERVAL = "SaveInterval";
 
 	// Default values of preferences.
 	public static final boolean PREF_WRAP_DEFAULT = true;
@@ -33,6 +34,7 @@ public class PreferenceConstants {
 	public static final boolean PREF_CLOSE_CONFIRMATION_DEFAULT = true;
 	public static final boolean PREF_PASTE_CLIPBOARD_IN_NEW_NOTES_DEFAULT = false;
 	public static final int PREF_BULLET_SPACING_DEFAULT = 15;
+	public static final int PREF_SAVE_INTERVAL_DEFAULT = 120;
 
 	private PreferenceConstants() {
 		// Not called.
