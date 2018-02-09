@@ -19,17 +19,17 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Notepad4e.getDefault().getPreferenceStore();
-		store.setDefault(PreferenceConstants.PREF_WRAP, PreferenceConstants.PREF_WRAP_DEFAULT);
-		store.setDefault(PreferenceConstants.PREF_JUSTIFY, PreferenceConstants.PREF_JUSTIFY_DEFAULT);
-		store.setDefault(PreferenceConstants.PREF_ALIGNMENT, PreferenceConstants.PREF_ALIGNMENT_DEFAULT);
-		store.setDefault(PreferenceConstants.PREF_FONT, PreferenceConstants.PREF_FONT_DEFAULT);
-		store.setDefault(PreferenceConstants.PREF_FONT_COLOR, PreferenceConstants.PREF_FONT_COLOR_DEFAULT);
-		store.setDefault(PreferenceConstants.PREF_BACKGROUND_COLOR, PreferenceConstants.PREF_BACKGROUND_COLOR_DEFAULT);
-		store.setDefault(PreferenceConstants.PREF_LINE_SPACING, PreferenceConstants.PREF_LINE_SPACING_DEFAULT);
-		store.setDefault(PreferenceConstants.PREF_NAME_PREFIX, PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
-		store.setDefault(PreferenceConstants.PREF_CLOSE_CONFIRMATION, PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT);
-		store.setDefault(PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES, PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES_DEFAULT);
-		store.setDefault(PreferenceConstants.PREF_BULLET_SPACING, PreferenceConstants.PREF_BULLET_SPACING_DEFAULT);
-		store.setDefault(PreferenceConstants.PREF_SAVE_INTERVAL, PreferenceConstants.PREF_SAVE_INTERVAL_DEFAULT);
+		store.setDefault(Preferences.WRAP, Preferences.WRAP_DEFAULT);
+		store.setDefault(Preferences.JUSTIFY, Preferences.JUSTIFY_DEFAULT);
+		store.setDefault(Preferences.ALIGNMENT, Preferences.ALIGNMENT_DEFAULT);
+		store.setDefault(Preferences.FONT, Preferences.FONT_DEFAULT);
+		store.setDefault(Preferences.FONT_COLOR, Preferences.FONT_COLOR_DEFAULT);
+		store.setDefault(Preferences.BACKGROUND_COLOR, Preferences.BACKGROUND_COLOR_DEFAULT);
+		store.setDefault(Preferences.LINE_SPACING, Preferences.LINE_SPACING_DEFAULT);
+		store.setDefault(Preferences.NAME_PREFIX, Preferences.NAME_PREFIX_DEFAULT);
+		store.setDefault(Preferences.CLOSE_CONFIRMATION, Preferences.CLOSE_CONFIRMATION_DEFAULT);
+		store.setDefault(Preferences.PASTE_CLIPBOARD_IN_NEW_NOTES, Preferences.PASTE_CLIPBOARD_IN_NEW_NOTES_DEFAULT);
+		store.setDefault(Preferences.BULLET_SPACING, Preferences.BULLET_SPACING_DEFAULT);
+		store.setDefault(Preferences.SAVE_INTERVAL, Preferences.SAVE_INTERVAL_DEFAULT);
 	}
 }

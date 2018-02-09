@@ -30,29 +30,23 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 	 */
 	@Override
 	public void createFieldEditors() {
-		addField(new RadioGroupFieldEditor(PreferenceConstants.PREF_ALIGNMENT, LocalStrings.prefAlignment, 2,
+		addField(new RadioGroupFieldEditor(Preferences.ALIGNMENT, LocalStrings.prefAlignment, 2,
 				new String[][] { { LocalStrings.prefLeft, "left" }, { LocalStrings.prefRight, "right" } },
 				getFieldEditorParent(), true));
-		addField(new BooleanFieldEditor(PreferenceConstants.PREF_CLOSE_CONFIRMATION, LocalStrings.prefCloseConfirmation,
+		addField(new BooleanFieldEditor(Preferences.CLOSE_CONFIRMATION, LocalStrings.prefCloseConfirmation,
 				getFieldEditorParent()));
-		addField(new BooleanFieldEditor(PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES,
-				LocalStrings.prefPasteClipboardInNewNotes, getFieldEditorParent()));
-		addField(new BooleanFieldEditor(PreferenceConstants.PREF_WRAP, LocalStrings.prefWrap, getFieldEditorParent()));
-		addField(new BooleanFieldEditor(PreferenceConstants.PREF_JUSTIFY, LocalStrings.prefJustify,
+		addField(new BooleanFieldEditor(Preferences.PASTE_CLIPBOARD_IN_NEW_NOTES, LocalStrings.prefPasteClipboardInNewNotes,
 				getFieldEditorParent()));
-		addField(new IntegerFieldEditor(PreferenceConstants.PREF_LINE_SPACING, LocalStrings.prefLineSpacing,
+		addField(new BooleanFieldEditor(Preferences.WRAP, LocalStrings.prefWrap, getFieldEditorParent()));
+		addField(new BooleanFieldEditor(Preferences.JUSTIFY, LocalStrings.prefJustify, getFieldEditorParent()));
+		addField(new IntegerFieldEditor(Preferences.LINE_SPACING, LocalStrings.prefLineSpacing, getFieldEditorParent()));
+		addField(new IntegerFieldEditor(Preferences.BULLET_SPACING, LocalStrings.prefBulletSpacing, getFieldEditorParent()));
+		addField(new StringFieldEditor(Preferences.NAME_PREFIX, LocalStrings.prefNamePrefix, getFieldEditorParent()));
+		addField(new ColorFieldEditor(Preferences.FONT_COLOR, LocalStrings.prefFontColor, getFieldEditorParent()));
+		addField(new ColorFieldEditor(Preferences.BACKGROUND_COLOR, LocalStrings.prefBackgroundColor,
 				getFieldEditorParent()));
-		addField(new IntegerFieldEditor(PreferenceConstants.PREF_BULLET_SPACING, LocalStrings.prefBulletSpacing,
-				getFieldEditorParent()));
-		addField(new StringFieldEditor(PreferenceConstants.PREF_NAME_PREFIX, LocalStrings.prefNamePrefix,
-				getFieldEditorParent()));
-		addField(new ColorFieldEditor(PreferenceConstants.PREF_FONT_COLOR, LocalStrings.prefFontColor,
-				getFieldEditorParent()));
-		addField(new ColorFieldEditor(PreferenceConstants.PREF_BACKGROUND_COLOR, LocalStrings.prefBackgroundColor,
-				getFieldEditorParent()));
-		addField(new FontFieldEditor(PreferenceConstants.PREF_FONT, LocalStrings.prefFont, getFieldEditorParent()));
-		addField(new IntegerFieldEditor(PreferenceConstants.PREF_SAVE_INTERVAL, LocalStrings.prefSaveInterval,
-				getFieldEditorParent()));
+		addField(new FontFieldEditor(Preferences.FONT, LocalStrings.prefFont, getFieldEditorParent()));
+		addField(new IntegerFieldEditor(Preferences.SAVE_INTERVAL, LocalStrings.prefSaveInterval, getFieldEditorParent()));
 	}
 
 	/**

@@ -58,7 +58,7 @@ import org.eclipse.ui.keys.IBindingService;
 import org.eclipse.ui.part.ViewPart;
 
 import io.github.pyvesb.notepad4e.Notepad4e;
-import io.github.pyvesb.notepad4e.preferences.PreferenceConstants;
+import io.github.pyvesb.notepad4e.preferences.Preferences;
 import io.github.pyvesb.notepad4e.strings.LocalStrings;
 import io.github.pyvesb.notepad4e.utils.AbstractSelectedNoteAction;
 import io.github.pyvesb.notepad4e.utils.NotepadAction;
@@ -128,8 +128,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 		restoreViewFromPreviousSession();
 
-		long saveIntervalMillis = TimeUnit.SECONDS.toMillis(
-				preferences.getInt(PreferenceConstants.PREF_SAVE_INTERVAL, PreferenceConstants.PREF_SAVE_INTERVAL_DEFAULT));
+		long saveIntervalMillis = TimeUnit.SECONDS
+				.toMillis(preferences.getInt(Preferences.SAVE_INTERVAL, Preferences.SAVE_INTERVAL_DEFAULT));
 		Job autosaveJob = new Job("ScheduledAutosave") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -207,8 +207,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	public void addNewNote() {
 		String noteTitle = getNewNoteTitle();
 		String noteText = "";
-		if (preferences.getBoolean(PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES,
-				PreferenceConstants.PREF_PASTE_CLIPBOARD_IN_NEW_NOTES_DEFAULT)) {
+		if (preferences.getBoolean(Preferences.PASTE_CLIPBOARD_IN_NEW_NOTES,
+				Preferences.PASTE_CLIPBOARD_IN_NEW_NOTES_DEFAULT)) {
 			noteText = (String) clipboard.getContents(TextTransfer.getInstance(), DND.CLIPBOARD);
 		}
 		// Add a new note tab with a number appended to its name (Note 1, Note 2, Note 3, etc.).
@@ -232,8 +232,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 						LocalStrings.dialogCloseLockedMsg)) {
 					tabFolder.getSelection().dispose();
 				}
-			} else if (!preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
-					PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)
+			} else if (!preferences.getBoolean(Preferences.CLOSE_CONFIRMATION, Preferences.CLOSE_CONFIRMATION_DEFAULT)
 					|| MessageDialog.openQuestion(getSite().getShell(), LocalStrings.dialogCloseTitle,
 							LocalStrings.dialogCloseMsg)) {
 				tabFolder.getSelection().dispose();
@@ -257,8 +256,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	private String getNewNoteTitle() {
 		int noteNumber = tabFolder.getItemCount() + 1;
-		String title = preferences.get(PreferenceConstants.PREF_NAME_PREFIX, PreferenceConstants.PREF_NAME_PREFIX_DEFAULT)
-				+ " " + noteNumber;
+		String title = preferences.get(Preferences.NAME_PREFIX, Preferences.NAME_PREFIX_DEFAULT) + " " + noteNumber;
 		if (tabFolder.getItemCount() == 0) {
 			return title;
 		}
@@ -271,8 +269,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				}
 			}
 			++noteNumber;
-			title = preferences.get(PreferenceConstants.PREF_NAME_PREFIX, PreferenceConstants.PREF_NAME_PREFIX_DEFAULT)
-					+ " " + noteNumber;
+			title = preferences.get(Preferences.NAME_PREFIX, Preferences.NAME_PREFIX_DEFAULT) + " " + noteNumber;
 		}
 	}
 
@@ -336,8 +333,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				if (!getNote(tabFolder.indexOf((CTabItem) event.item)).getEditable()) {
 					event.doit = MessageDialog.openQuestion(getSite().getShell(), LocalStrings.dialogCloseLockedTitle,
 							LocalStrings.dialogCloseLockedMsg);
-				} else if (preferences.getBoolean(PreferenceConstants.PREF_CLOSE_CONFIRMATION,
-						PreferenceConstants.PREF_CLOSE_CONFIRMATION_DEFAULT)) {
+				} else if (preferences.getBoolean(Preferences.CLOSE_CONFIRMATION, Preferences.CLOSE_CONFIRMATION_DEFAULT)) {
 					event.doit = MessageDialog.openQuestion(getSite().getShell(), LocalStrings.dialogCloseTitle,
 							LocalStrings.dialogCloseMsg);
 				}
@@ -481,8 +477,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 
 		if (numOfTabs == 0) {
 			// No notes were previously opened: create new one.
-			String prefixName = preferences.get(PreferenceConstants.PREF_NAME_PREFIX,
-					PreferenceConstants.PREF_NAME_PREFIX_DEFAULT);
+			String prefixName = preferences.get(Preferences.NAME_PREFIX, Preferences.NAME_PREFIX_DEFAULT);
 			addNewNoteTab(prefixName + " 1", "", null, true, null);
 			// Set selection on this tab.
 			tabFolder.setSelection(0);

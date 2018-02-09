@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 import io.github.pyvesb.notepad4e.Notepad4e;
-import io.github.pyvesb.notepad4e.preferences.PreferenceConstants;
+import io.github.pyvesb.notepad4e.preferences.Preferences;
 import io.github.pyvesb.notepad4e.strings.LocalStrings;
 import io.github.pyvesb.notepad4e.utils.AbstractMenuItemSelectionListener;
 import io.github.pyvesb.notepad4e.utils.UndoRedoManager;
@@ -134,22 +134,19 @@ public class Note extends StyledText {
 	 */
 	public void setParametersFromPreferences() {
 		// Line spacing parameter.
-		setLineSpacing(preferences.getInt(PreferenceConstants.PREF_LINE_SPACING,
-				PreferenceConstants.PREF_LINE_SPACING_DEFAULT));
+		setLineSpacing(preferences.getInt(Preferences.LINE_SPACING, Preferences.LINE_SPACING_DEFAULT));
 
 		// Set bullet indentation spacing (width of GlyphMetrics) parameter.
-		bulletStyle.metrics.width = preferences.getInt(PreferenceConstants.PREF_BULLET_SPACING,
-				PreferenceConstants.PREF_BULLET_SPACING_DEFAULT);
+		bulletStyle.metrics.width = preferences.getInt(Preferences.BULLET_SPACING, Preferences.BULLET_SPACING_DEFAULT);
 
 		// Line wrap parameter.
-		setWordWrap(preferences.getBoolean(PreferenceConstants.PREF_WRAP, PreferenceConstants.PREF_WRAP_DEFAULT));
+		setWordWrap(preferences.getBoolean(Preferences.WRAP, Preferences.WRAP_DEFAULT));
 
 		// Text justify parameter.
-		setJustify(preferences.getBoolean(PreferenceConstants.PREF_JUSTIFY, PreferenceConstants.PREF_JUSTIFY_DEFAULT));
+		setJustify(preferences.getBoolean(Preferences.JUSTIFY, Preferences.JUSTIFY_DEFAULT));
 
 		// Alignment parameter (left or right).
-		if ("right".equals(
-				preferences.get(PreferenceConstants.PREF_ALIGNMENT, PreferenceConstants.PREF_ALIGNMENT_DEFAULT))) {
+		if ("right".equals(preferences.get(Preferences.ALIGNMENT, Preferences.ALIGNMENT_DEFAULT))) {
 			setAlignment(SWT.RIGHT);
 			// Word wrapping must be enabled for right alignment to be effective.
 			setWordWrap(true);
@@ -159,7 +156,7 @@ public class Note extends StyledText {
 
 		// Font color parameter.
 		String[] fontColorRGBStrings = preferences
-				.get(PreferenceConstants.PREF_FONT_COLOR, PreferenceConstants.PREF_FONT_COLOR_DEFAULT)
+				.get(Preferences.FONT_COLOR, Preferences.FONT_COLOR_DEFAULT)
 				.split(STRING_SEPARATOR);
 		// The strings in the above array correspond to the red, green and blue colors.
 		fontColor = new Color(Display.getCurrent(), Integer.parseInt(fontColorRGBStrings[0]),
@@ -168,7 +165,7 @@ public class Note extends StyledText {
 
 		// Background color parameter.
 		String[] backgroundColorRGBStrings = preferences
-				.get(PreferenceConstants.PREF_BACKGROUND_COLOR, PreferenceConstants.PREF_BACKGROUND_COLOR_DEFAULT)
+				.get(Preferences.BACKGROUND_COLOR, Preferences.BACKGROUND_COLOR_DEFAULT)
 				.split(STRING_SEPARATOR);
 		// The strings in the above array correspond to the red, green and blue colors.
 		backgroundColor = new Color(Display.getCurrent(), Integer.parseInt(backgroundColorRGBStrings[0]),
@@ -177,8 +174,7 @@ public class Note extends StyledText {
 
 		// Font parameter; a semicolon is appended by the Eclipse API when retrieving it from the plugin's preference
 		// page, it must be deleted.
-		String fontString = preferences.get(PreferenceConstants.PREF_FONT, PreferenceConstants.PREF_FONT_DEFAULT)
-				.replace(";", "");
+		String fontString = preferences.get(Preferences.FONT, Preferences.FONT_DEFAULT).replace(";", "");
 		// An empty string is returned when the user has not set the font in the preferences; do not set the font so the
 		// plugin will display the default font of the StyledText component instead.
 		if (!fontString.isEmpty()) {
