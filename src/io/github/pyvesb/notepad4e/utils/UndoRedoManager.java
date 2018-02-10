@@ -16,7 +16,7 @@ import io.github.pyvesb.notepad4e.views.Note;
 public class UndoRedoManager {
 
 	// Used to prevent the size of undo and deques queues from growing indefinitely.
-	private static final int MAX_DEQUE_SIZES = 250;
+	private static final int MAX_DEQUE_SIZES = 200;
 
 	// Reference to the note this manager is handling.
 	private final Note note;
@@ -68,10 +68,14 @@ public class UndoRedoManager {
 	 * Performs a redo action.
 	 */
 	public void redo() {
-		if (redoDeque.size() > 1) { // Something to redo.
-			NoteState noteState = redoDeque.removeFirst();
-			restoreState(redoDeque.peekFirst());
-			undoDeque.push(noteState);
+		if (!redoDeque.isEmpty()) { // Something to redo.
+			undoDeque.push(redoDeque.pollFirst());
+			if (redoDeque.size() == 1) {
+				// Last possible redo operation, clear deque.
+				restoreState(redoDeque.pollFirst());
+			} else {
+				restoreState(redoDeque.peekFirst());
+			}
 		}
 	}
 

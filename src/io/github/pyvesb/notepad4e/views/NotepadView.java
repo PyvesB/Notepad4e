@@ -527,15 +527,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 				((Note) itemToDispose.getControl()).dispose();
 			}
 		});
-		Note note = new Note(tabFolder, text, editable);
-		// Style can be null if new note.
-		if (style != null && !style.isEmpty()) {
-			note.deserialiseStyle(style);
-		}
-		// Bullets can be null if new note or upgrading from old plugin version.
-		if (bullets != null && !bullets.isEmpty()) {
-			note.deserialiseBullets(bullets);
-		}
+		Note note = new Note(tabFolder, text, style, bullets, editable);
 		tab.setControl(note);
 	}
 

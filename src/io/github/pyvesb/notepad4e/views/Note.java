@@ -76,9 +76,11 @@ public class Note extends StyledText {
 	 * 
 	 * @param parent
 	 * @param text
+	 * @param bullets 
+	 * @param style 
 	 * @param editable
 	 */
-	public Note(Composite parent, String text, boolean editable) {
+	public Note(Composite parent, String text, String style, String bullets, boolean editable) {
 		// Enable multiple lines and scroll bars.
 		super(parent, SWT.V_SCROLL | SWT.H_SCROLL);
 
@@ -92,15 +94,21 @@ public class Note extends StyledText {
 		setAlwaysShowScrollBars(false);
 		setParametersFromPreferences();
 		setText(text);
+		deserialiseStyle(style);
+		deserialiseBullets(bullets);
 		initialiseMenu();
 		
 		undoRedoManager = new UndoRedoManager(this);
+		// Save the initial state of the note.
+		undoRedoManager.saveNoteState();
 		// Listen to text modifications.
 		addVerifyListener(new VerifyListener() {
-
 			@Override
 			public void verifyText(VerifyEvent event) {
-				undoRedoManager.saveNoteState();
+				// Save state if starting new word OR pasting several characters OR overwriting/deleting existing text.
+				if (event.text.equals(" ") || event.text.length() > 1 || event.end - event.start > 0) {
+					undoRedoManager.saveNoteState();
+				}
 			}
 		});
 
@@ -343,40 +351,6 @@ public class Note extends StyledText {
 	}
 
 	/**
-	 * Applies styles to the current note based on a styles' serialisation string.
-	 * 
-	 * @param serialisation
-	 */
-	public void deserialiseStyle(String serialisation) {
-		String[] integers = serialisation.split(STRING_SEPARATOR);
-		StyleRange[] styles = new StyleRange[integers.length / 5];
-		// Do the parsing.
-		for (int styleIndex = 0; styleIndex < styles.length; ++styleIndex) {
-			// Each StyleRange object has 5 corresponding integers in the CSV string.
-			int integerIndex = 5 * styleIndex;
-			styles[styleIndex] = new StyleRange();
-			styles[styleIndex].start = Integer.parseInt(integers[integerIndex]);
-			styles[styleIndex].length = Integer.parseInt(integers[integerIndex + 1]);
-			styles[styleIndex].fontStyle = Integer.parseInt(integers[integerIndex + 2]);
-			styles[styleIndex].underline = (Integer.parseInt(integers[integerIndex + 3]) == 1) ? true : false;
-			styles[styleIndex].strikeout = (Integer.parseInt(integers[integerIndex + 4]) == 1) ? true : false;
-		}
-		// Apply the parsed styles.
-		setStyleRanges(styles);
-	}
-
-	/**
-	 * Adds bullets to the current note based on a bullets' serialisation string (for instance "0,1,4").
-	 * 
-	 * @param serialisation
-	 */
-	public void deserialiseBullets(String serialisation) {
-		for (String lineNumber : serialisation.split(STRING_SEPARATOR)) {
-			setLineBullet(Integer.parseInt(lineNumber), 1, bullet);
-		}
-	}
-
-	/**
 	 * Exports the brute text in the current note as a text file.
 	 * 
 	 * @param iWorkbenchPartSite
@@ -420,6 +394,47 @@ public class Note extends StyledText {
 	public void setLineBullet(int line, boolean isPresent) {
 		setLineBullet(line, 1, isPresent ? bullet : null);
 	}
+	
+	/**
+	 * Applies styles to the current note based on a styles' serialisation string.
+	 * 
+	 * @param serialisation
+	 */
+	private void deserialiseStyle(String serialisation) {
+		// Style can be null if new note.
+		if (serialisation != null && !serialisation.isEmpty()) {
+			String[] integers = serialisation.split(STRING_SEPARATOR);
+			StyleRange[] styles = new StyleRange[integers.length / 5];
+			// Do the parsing.
+			for (int styleIndex = 0; styleIndex < styles.length; ++styleIndex) {
+				// Each StyleRange object has 5 corresponding integers in the CSV string.
+				int integerIndex = 5 * styleIndex;
+				styles[styleIndex] = new StyleRange();
+				styles[styleIndex].start = Integer.parseInt(integers[integerIndex]);
+				styles[styleIndex].length = Integer.parseInt(integers[integerIndex + 1]);
+				styles[styleIndex].fontStyle = Integer.parseInt(integers[integerIndex + 2]);
+				styles[styleIndex].underline = (Integer.parseInt(integers[integerIndex + 3]) == 1) ? true : false;
+				styles[styleIndex].strikeout = (Integer.parseInt(integers[integerIndex + 4]) == 1) ? true : false;
+			}
+			// Apply the parsed styles.
+			setStyleRanges(styles);
+		}
+	}
+
+	/**
+	 * Adds bullets to the current note based on a bullets' serialisation string (for instance "0,1,4").
+	 * 
+	 * @param serialisation
+	 */
+	private void deserialiseBullets(String serialisation) {
+		// Bullets can be null if new note or upgrading from old plugin version.
+		if (serialisation != null && !serialisation.isEmpty()) {
+			for (String lineNumber : serialisation.split(STRING_SEPARATOR)) {
+				setLineBullet(Integer.parseInt(lineNumber), 1, bullet);
+			}
+		}
+	}
+
 	
 	/**
 	 * Initialises the menu triggered by a right-click inside the note.
