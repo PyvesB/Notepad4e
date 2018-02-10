@@ -3,7 +3,6 @@ package io.github.pyvesb.notepad4e.utils;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import org.eclipse.swt.custom.Bullet;
 import org.eclipse.swt.custom.StyleRange;
 
 import io.github.pyvesb.notepad4e.views.Note;
@@ -16,8 +15,8 @@ import io.github.pyvesb.notepad4e.views.Note;
  */
 public class UndoRedoManager {
 
-	// Used to prevent the size of undo and dques queues from growing indefinitely.
-	private static final int MAX_DEQUE_SIZES = 500;
+	// Used to prevent the size of undo and deques queues from growing indefinitely.
+	private static final int MAX_DEQUE_SIZES = 250;
 
 	// Reference to the note this manager is handling.
 	private final Note note;
@@ -41,7 +40,7 @@ public class UndoRedoManager {
 		// Empty redo deque.
 		redoDeque.clear();
 
-		undoDeque.push(new NoteState(note.getText(), note.getCaretOffset(), note.getStyleRanges(), note.getBullets()));
+		undoDeque.push(new NoteState(note.getText(), note.getCaretOffset(), note.getStyleRanges(), getBulletLineMapping()));
 
 		// Limit maximum size of deque by clearing oldest states.
 		if (undoDeque.size() > MAX_DEQUE_SIZES) {
@@ -57,8 +56,8 @@ public class UndoRedoManager {
 		if (noteState != null) { // Something to undo.
 			if (redoDeque.isEmpty()) {
 				// Pushes the current state of the note before a sequence of undo operations is performed.
-				redoDeque.push(
-						new NoteState(note.getText(), note.getCaretOffset(), note.getStyleRanges(), note.getBullets()));
+				redoDeque.push(new NoteState(note.getText(), note.getCaretOffset(), note.getStyleRanges(),
+						getBulletLineMapping()));
 			}
 			restoreState(noteState);
 			redoDeque.push(noteState);
@@ -90,9 +89,22 @@ public class UndoRedoManager {
 
 		note.setStyleRanges(noteState.getStyles());
 
-		for (int line = 0; line < noteState.getBullets().length; ++line) {
-			note.setLineBullet(line, 1, noteState.getBullets()[line]);
+		for (int line = 0; line < noteState.getBulletLineMapping().length; ++line) {
+			note.setLineBullet(line, noteState.getBulletLineMapping()[line]);
 		}
+	}
+	
+	/**
+	 * Constructs an array containing the bullets for the note.
+	 * 
+	 * @return array of bullets indexed by line number; null value if no bullet on the line
+	 */
+	private boolean[] getBulletLineMapping() {
+		boolean[] bullets = new boolean[note.getLineCount()];
+		for (int line = 0; line < bullets.length; ++line) {
+			bullets[line] = (note.getLineBullet(line) != null);
+		}
+		return bullets;
 	}
 
 	/**
@@ -109,14 +121,14 @@ public class UndoRedoManager {
 		final int caretOffset;
 		// Styles of the text, e.g. bold, italic, etc.
 		final StyleRange[] styles;
-		// Bullets for each text line.
-		final Bullet[] bullets;
+		// Indicates whether a bullet is present at the beginning of each text line.
+		final boolean[] bulletLineMapping;
 
-		NoteState(String text, int caretOffset, StyleRange[] styles, Bullet[] bullets) {
+		NoteState(String text, int caretOffset, StyleRange[] styles, boolean[] bulletLineMapping) {
 			this.text = text;
 			this.caretOffset = caretOffset;
 			this.styles = styles;
-			this.bullets = bullets;
+			this.bulletLineMapping = bulletLineMapping;
 		}
 
 		String getText() {
@@ -131,8 +143,8 @@ public class UndoRedoManager {
 			return styles;
 		}
 
-		Bullet[] getBullets() {
-			return bullets;
+		boolean[] getBulletLineMapping() {
+			return bulletLineMapping;
 		}
 	}
 }

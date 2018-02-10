@@ -50,8 +50,8 @@ public class Note extends StyledText {
 	private final UndoRedoManager undoRedoManager;
 	// User defined preferences.
 	private final IEclipsePreferences preferences;
-	// Used to set the style of bullet lists.
-	private final StyleRange bulletStyle;
+	// Used at the beginning of each line in lists.
+	private final Bullet bullet;
 
 	// Appearance parameters of the note.
 	private Color fontColor;
@@ -84,8 +84,9 @@ public class Note extends StyledText {
 
 		preferences = InstanceScope.INSTANCE.getNode(Notepad4e.PLUGIN_ID);
 
-		bulletStyle = new StyleRange();
+		StyleRange bulletStyle = new StyleRange();
 		bulletStyle.metrics = new GlyphMetrics(0, 0, 0);
+		bullet = new Bullet(ST.BULLET_DOT, bulletStyle);
 
 		// Scroll bars only appear when the text extends beyond the note window.
 		setAlwaysShowScrollBars(false);
@@ -137,7 +138,7 @@ public class Note extends StyledText {
 		setLineSpacing(preferences.getInt(Preferences.LINE_SPACING, Preferences.LINE_SPACING_DEFAULT));
 
 		// Set bullet indentation spacing (width of GlyphMetrics) parameter.
-		bulletStyle.metrics.width = preferences.getInt(Preferences.BULLET_SPACING, Preferences.BULLET_SPACING_DEFAULT);
+		bullet.style.metrics.width = preferences.getInt(Preferences.BULLET_SPACING, Preferences.BULLET_SPACING_DEFAULT);
 
 		// Line wrap parameter.
 		setWordWrap(preferences.getBoolean(Preferences.WRAP, Preferences.WRAP_DEFAULT));
@@ -265,7 +266,6 @@ public class Note extends StyledText {
 			return;
 		}
 
-		Bullet bullet = new Bullet(ST.BULLET_DOT, bulletStyle);
 		setLineBullet(selectionStartLine, selectionLineCount, bullet);
 	}
 
@@ -330,9 +330,8 @@ public class Note extends StyledText {
 	 * @return CSV string containing a serialised representation of the bullets
 	 */
 	public String serialiseBullets() {
-		Bullet[] bullets = getBullets();
 		StringBuilder bulletLines = new StringBuilder();
-		for (int line = 0; line < bullets.length; ++line) {
+		for (int line = 0; line < getLineCount(); ++line) {
 			if (getLineBullet(line) != null) {
 				// Bullet found: add line number with separator.
 				bulletLines.append(line);
@@ -372,7 +371,6 @@ public class Note extends StyledText {
 	 * @param serialisation
 	 */
 	public void deserialiseBullets(String serialisation) {
-		Bullet bullet = new Bullet(ST.BULLET_DOT, bulletStyle);
 		for (String lineNumber : serialisation.split(STRING_SEPARATOR)) {
 			setLineBullet(Integer.parseInt(lineNumber), 1, bullet);
 		}
@@ -414,19 +412,15 @@ public class Note extends StyledText {
 	}
 
 	/**
-	 * Constructs an array containing the bullets for the note.
+	 * Adds or removes a bullet at the start of the specified line.
 	 * 
-	 * @return array of bullets indexed by line number; null value if no bullet on the line
+	 * @param line
+	 * @param isPresent 
 	 */
-	public Bullet[] getBullets() {
-		int lineCount = getLineCount();
-		Bullet[] bullets = new Bullet[lineCount];
-		for (int line = 0; line < lineCount; ++line) {
-			bullets[line] = getLineBullet(line);
-		}
-		return bullets;
+	public void setLineBullet(int line, boolean isPresent) {
+		setLineBullet(line, 1, isPresent ? bullet : null);
 	}
-
+	
 	/**
 	 * Initialises the menu triggered by a right-click inside the note.
 	 */
