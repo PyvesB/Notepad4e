@@ -503,10 +503,16 @@ public class Note extends StyledText {
 		if (!getEditable()) {
 			return;
 		}
-		// Save style state prior to modification for undo actions.
-		undoRedoManager.saveNoteState();
 
 		Point selectionRange = getSelectionRange();
+		if (selectionRange.x == selectionRange.y) {
+			// Attempting to apply styles without any selected text.
+			return;
+		}
+		
+		// Save style state prior to modification for undo actions.
+		undoRedoManager.saveNoteState();
+		
 		// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
 		// there are no corresponding entries in the following array.
 		StyleRange[] currentStyles = getStyleRanges(selectionRange.x, selectionRange.y);
