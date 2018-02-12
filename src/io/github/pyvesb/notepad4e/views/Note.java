@@ -257,24 +257,24 @@ public class Note extends StyledText {
 		// Save bullet state prior to modification for undo actions.
 		undoRedoManager.saveNoteState();
 
-		String textBeforeSelection = getText().substring(0, getSelection().x);
-		int selectionStartLine = getTextLineCount(textBeforeSelection) - 1;
-		int selectionLineCount = getTextLineCount(getSelectionText());
-		int selectionBullets = 0;
+		Point selection = getSelectionRange();
+		int selectionStartLine = getLineAtOffset(selection.x);
+		int selectionEndLine = getLineAtOffset(selection.x + selection.y);
+		int bulletsInSelection = 0;
 		// Count number of lines that currently have a bullet.
-		for (int line = selectionStartLine; line < selectionStartLine + selectionLineCount; ++line) {
+		for (int line = selectionStartLine; line <= selectionEndLine; ++line) {
 			if (getLineBullet(line) != null) {
-				++selectionBullets;
+				++bulletsInSelection;
 			}
 		}
 
-		if (selectionBullets == selectionLineCount) {
+		int selectedLines = selectionEndLine - selectionStartLine + 1;
+		if (bulletsInSelection == selectedLines) {
 			// All lines have bullets, remove them all.
-			setLineBullet(selectionStartLine, selectionLineCount, null);
-			return;
+			setLineBullet(selectionStartLine, selectedLines, null);
+		} else {
+			setLineBullet(selectionStartLine, selectedLines, bullet);
 		}
-
-		setLineBullet(selectionStartLine, selectionLineCount, bullet);
 	}
 
 	/**
@@ -559,21 +559,5 @@ public class Note extends StyledText {
 			}
 			setStyleRange(currentStyles[styleIndex]);
 		}
-	}
-
-	/**
-	 * Computes the number of lines in the input string.
-	 * 
-	 * @param text
-	 * @return number of lines in the input string
-	 */
-	private int getTextLineCount(String text) {
-		int previousLineCount = 1;
-		for (int c = 0; c < text.length(); ++c) {
-			if (text.charAt(c) == '\n') {
-				++previousLineCount;
-			}
-		}
-		return previousLineCount;
 	}
 }
