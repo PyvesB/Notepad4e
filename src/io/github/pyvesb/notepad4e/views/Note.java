@@ -267,12 +267,8 @@ public class Note extends StyledText {
 			}
 
 			int selectedLines = selectionEndLine - selectionStartLine + 1;
-			if (bulletsInSelection == selectedLines) {
-				// All lines have bullets, remove them all.
-				setLineBullet(selectionStartLine, selectedLines, null);
-			} else {
-				setLineBullet(selectionStartLine, selectedLines, bullet);
-			}
+			// If all lines already have bullets, remove them all, otherwise add them.
+			setLineBullet(selectionStartLine, selectedLines, bulletsInSelection != selectedLines);
 		}
 	}
 
@@ -379,10 +375,11 @@ public class Note extends StyledText {
 	 * Adds or removes a bullet at the start of the specified line.
 	 * 
 	 * @param line
+	 * @param count 
 	 * @param isPresent
 	 */
-	public void setLineBullet(int line, boolean isPresent) {
-		setLineBullet(line, 1, isPresent ? bullet : null);
+	public void setLineBullet(int line, int count, boolean isPresent) {
+		setLineBullet(line, count, isPresent ? bullet : null);
 	}
 
 	/**

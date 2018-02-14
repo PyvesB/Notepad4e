@@ -93,9 +93,7 @@ public class UndoRedoManager {
 
 		note.setStyleRanges(noteState.getStyles());
 
-		for (int line = 0; line < noteState.getBulletLineMapping().length; ++line) {
-			note.setLineBullet(line, noteState.getBulletLineMapping()[line]);
-		}
+		setBulletLineMapping(noteState.getBulletLineMapping());
 	}
 	
 	/**
@@ -109,6 +107,28 @@ public class UndoRedoManager {
 			bullets[line] = (note.getLineBullet(line) != null);
 		}
 		return bullets;
+	}
+
+	/**
+	 * Sets bullets in the note given a bullet line mapping array.
+	 * 
+	 * @param bulletLineMapping
+	 */
+	private void setBulletLineMapping(boolean[] bulletLineMapping) {
+		if (bulletLineMapping.length > 0) {
+			// It's more efficient to set several bullets at the same time, we therefore look for the longest sequence
+			// where all the bullets have the same state (i.e. they exist or don't).
+			boolean currentSequenceState = bulletLineMapping[0];
+			int sequenceLineStart = 0;
+			for (int line = 1; line < bulletLineMapping.length; ++line) {
+				if (currentSequenceState != bulletLineMapping[line]) {
+					note.setLineBullet(sequenceLineStart, line - sequenceLineStart, currentSequenceState);
+					sequenceLineStart = line;
+					currentSequenceState = !currentSequenceState;
+				}
+			}
+			note.setLineBullet(sequenceLineStart, bulletLineMapping.length - sequenceLineStart, currentSequenceState);
+		}
 	}
 
 	/**
