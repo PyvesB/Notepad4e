@@ -44,7 +44,7 @@ import io.github.pyvesb.notepad4e.utils.UndoRedoManager;
 public class Note extends StyledText {
 
 	// Used to parse strings.
-	private static final String STRING_SEPARATOR = ",";
+	private static final String SERIALISATION_DELIMITER = ",";
 
 	// Used to enable undo and redo actions.
 	private final UndoRedoManager undoRedoManager;
@@ -76,8 +76,8 @@ public class Note extends StyledText {
 	 * 
 	 * @param parent
 	 * @param text
-	 * @param bullets 
-	 * @param style 
+	 * @param bullets
+	 * @param style
 	 * @param editable
 	 */
 	public Note(Composite parent, String text, String style, String bullets, boolean editable) {
@@ -97,7 +97,7 @@ public class Note extends StyledText {
 		deserialiseStyle(style);
 		deserialiseBullets(bullets);
 		initialiseMenu();
-		
+
 		undoRedoManager = new UndoRedoManager(this);
 		// Save the initial state of the note.
 		undoRedoManager.saveNoteState();
@@ -105,8 +105,8 @@ public class Note extends StyledText {
 		addVerifyListener(new VerifyListener() {
 			@Override
 			public void verifyText(VerifyEvent event) {
-				// Save state if starting new word OR pasting several characters OR overwriting/deleting existing text.
-				if (event.text.equals(" ") || event.text.length() > 1 || event.end - event.start > 0) {
+				// Save state if starting new word OR overwriting/deleting existing text OR pasting several characters.
+				if (" ".equals(event.text) || event.end - event.start > 0 || event.text.length() > 1) {
 					undoRedoManager.saveNoteState();
 				}
 			}
@@ -166,7 +166,7 @@ public class Note extends StyledText {
 		// Font color parameter.
 		String[] fontColorRGBStrings = preferences
 				.get(Preferences.FONT_COLOR, Preferences.FONT_COLOR_DEFAULT)
-				.split(STRING_SEPARATOR);
+				.split(SERIALISATION_DELIMITER);
 		// The strings in the above array correspond to the red, green and blue colors.
 		fontColor = new Color(Display.getCurrent(), Integer.parseInt(fontColorRGBStrings[0]),
 				Integer.parseInt(fontColorRGBStrings[1]), Integer.parseInt(fontColorRGBStrings[2]));
@@ -175,7 +175,7 @@ public class Note extends StyledText {
 		// Background color parameter.
 		String[] backgroundColorRGBStrings = preferences
 				.get(Preferences.BACKGROUND_COLOR, Preferences.BACKGROUND_COLOR_DEFAULT)
-				.split(STRING_SEPARATOR);
+				.split(SERIALISATION_DELIMITER);
 		// The strings in the above array correspond to the red, green and blue colors.
 		backgroundColor = new Color(Display.getCurrent(), Integer.parseInt(backgroundColorRGBStrings[0]),
 				Integer.parseInt(backgroundColorRGBStrings[1]), Integer.parseInt(backgroundColorRGBStrings[2]));
@@ -251,29 +251,28 @@ public class Note extends StyledText {
 	 * Applies a bullet list style to the currently selected lines.
 	 */
 	public void bulletListSelection() {
-		if (!getEditable()) {
-			return;
-		}
-		// Save bullet state prior to modification for undo actions.
-		undoRedoManager.saveNoteState();
+		if (getEditable()) {
+			// Save bullet state prior to modification for undo actions.
+			undoRedoManager.saveNoteState();
 
-		Point selection = getSelectionRange();
-		int selectionStartLine = getLineAtOffset(selection.x);
-		int selectionEndLine = getLineAtOffset(selection.x + selection.y);
-		int bulletsInSelection = 0;
-		// Count number of lines that currently have a bullet.
-		for (int line = selectionStartLine; line <= selectionEndLine; ++line) {
-			if (getLineBullet(line) != null) {
-				++bulletsInSelection;
+			Point selection = getSelectionRange();
+			int selectionStartLine = getLineAtOffset(selection.x);
+			int selectionEndLine = getLineAtOffset(selection.x + selection.y);
+			int bulletsInSelection = 0;
+			// Count number of lines that currently have a bullet.
+			for (int line = selectionStartLine; line <= selectionEndLine; ++line) {
+				if (getLineBullet(line) != null) {
+					++bulletsInSelection;
+				}
 			}
-		}
 
-		int selectedLines = selectionEndLine - selectionStartLine + 1;
-		if (bulletsInSelection == selectedLines) {
-			// All lines have bullets, remove them all.
-			setLineBullet(selectionStartLine, selectedLines, null);
-		} else {
-			setLineBullet(selectionStartLine, selectedLines, bullet);
+			int selectedLines = selectionEndLine - selectionStartLine + 1;
+			if (bulletsInSelection == selectedLines) {
+				// All lines have bullets, remove them all.
+				setLineBullet(selectionStartLine, selectedLines, null);
+			} else {
+				setLineBullet(selectionStartLine, selectedLines, bullet);
+			}
 		}
 	}
 
@@ -281,16 +280,15 @@ public class Note extends StyledText {
 	 * Removes all styles from the current selection.
 	 */
 	public void clearSelectionStyles() {
-		if (!getEditable()) {
-			return;
-		}
-		// Save style state prior to modification for undo actions.
-		undoRedoManager.saveNoteState();
+		if (getEditable()) {
+			// Save style state prior to modification for undo actions.
+			undoRedoManager.saveNoteState();
 
-		Point selectionRange = getSelectionRange();
-		// No colors are specified as they are defined by the plugin's preferences.
-		StyleRange styleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null, SWT.NORMAL);
-		setStyleRange(styleRange);
+			Point selectionRange = getSelectionRange();
+			// No colors are specified as they are defined by the plugin's preferences.
+			StyleRange styleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null, SWT.NORMAL);
+			setStyleRange(styleRange);
+		}
 	}
 
 	/**
@@ -316,18 +314,13 @@ public class Note extends StyledText {
 		// Append integers corresponding to various information of each style range object, separated by
 		// STRING_SEPARATOR.
 		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
-			styleSerialisation.append(currentStyles[styleIndex].start);
-			styleSerialisation.append(STRING_SEPARATOR);
-			styleSerialisation.append(currentStyles[styleIndex].length);
-			styleSerialisation.append(STRING_SEPARATOR);
-			styleSerialisation.append(currentStyles[styleIndex].fontStyle);
-			styleSerialisation.append(STRING_SEPARATOR);
+			styleSerialisation.append(currentStyles[styleIndex].start).append(SERIALISATION_DELIMITER);
+			styleSerialisation.append(currentStyles[styleIndex].length).append(SERIALISATION_DELIMITER);
+			styleSerialisation.append(currentStyles[styleIndex].fontStyle).append(SERIALISATION_DELIMITER);
 			// If underlined, 1, else 0.
-			styleSerialisation.append(currentStyles[styleIndex].underline ? 1 : 0);
-			styleSerialisation.append(STRING_SEPARATOR);
+			styleSerialisation.append(currentStyles[styleIndex].underline ? 1 : 0).append(SERIALISATION_DELIMITER);
 			// If strikeout, 1, else 0.
-			styleSerialisation.append(currentStyles[styleIndex].strikeout ? 1 : 0);
-			styleSerialisation.append(STRING_SEPARATOR);
+			styleSerialisation.append(currentStyles[styleIndex].strikeout ? 1 : 0).append(SERIALISATION_DELIMITER);
 		}
 		return styleSerialisation.toString();
 	}
@@ -342,8 +335,7 @@ public class Note extends StyledText {
 		for (int line = 0; line < getLineCount(); ++line) {
 			if (getLineBullet(line) != null) {
 				// Bullet found: add line number with separator.
-				bulletLines.append(line);
-				bulletLines.append(STRING_SEPARATOR);
+				bulletLines.append(line).append(SERIALISATION_DELIMITER);
 			}
 		}
 		// Remove trailing separator.
@@ -366,22 +358,20 @@ public class Note extends StyledText {
 		}
 
 		File file = new File(fileName);
-		if (file.exists() && !MessageDialog.openQuestion(iWorkbenchPartSite.getShell(),
+		if (!file.exists() || MessageDialog.openQuestion(iWorkbenchPartSite.getShell(),
 				LocalStrings.dialogOverwriteTitle, LocalStrings.dialogOverwriteMsg)) {
-			return;
-		}
-
-		// Write the current note's text to the file, with handling of IO exceptions.
-		try (FileOutputStream outStream = new FileOutputStream(file);
-				PrintWriter printStream = new PrintWriter(outStream)) {
-			printStream.print(getText());
-			printStream.flush();
-			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), LocalStrings.dialogExportedTitle,
-					LocalStrings.dialogExportedMsg);
-		} catch (IOException e) {
-			MessageDialog.openInformation(iWorkbenchPartSite.getShell(), LocalStrings.dialogErrorTitle,
-					LocalStrings.dialogErrorMsg);
-			Notepad4e.getDefault().getLog().log(new Status(IStatus.ERROR, LocalStrings.dialogErrorMsg, e.toString()));
+			// Write the current note's text to the file, with handling of IO exceptions.
+			try (FileOutputStream outStream = new FileOutputStream(file);
+					PrintWriter printStream = new PrintWriter(outStream)) {
+				printStream.print(getText());
+				printStream.flush();
+				MessageDialog.openInformation(iWorkbenchPartSite.getShell(), LocalStrings.dialogExportedTitle,
+						LocalStrings.dialogExportedMsg);
+			} catch (IOException e) {
+				MessageDialog.openInformation(iWorkbenchPartSite.getShell(), LocalStrings.dialogErrorTitle,
+						LocalStrings.dialogErrorMsg);
+				Notepad4e.getDefault().getLog().log(new Status(IStatus.ERROR, LocalStrings.dialogErrorMsg, e.toString()));
+			}
 		}
 	}
 
@@ -389,12 +379,12 @@ public class Note extends StyledText {
 	 * Adds or removes a bullet at the start of the specified line.
 	 * 
 	 * @param line
-	 * @param isPresent 
+	 * @param isPresent
 	 */
 	public void setLineBullet(int line, boolean isPresent) {
 		setLineBullet(line, 1, isPresent ? bullet : null);
 	}
-	
+
 	/**
 	 * Applies styles to the current note based on a styles' serialisation string.
 	 * 
@@ -403,7 +393,7 @@ public class Note extends StyledText {
 	private void deserialiseStyle(String serialisation) {
 		// Style can be null if new note.
 		if (serialisation != null && !serialisation.isEmpty()) {
-			String[] integers = serialisation.split(STRING_SEPARATOR);
+			String[] integers = serialisation.split(SERIALISATION_DELIMITER);
 			StyleRange[] styles = new StyleRange[integers.length / 5];
 			// Do the parsing.
 			for (int styleIndex = 0; styleIndex < styles.length; ++styleIndex) {
@@ -429,13 +419,12 @@ public class Note extends StyledText {
 	private void deserialiseBullets(String serialisation) {
 		// Bullets can be null if new note or upgrading from old plugin version.
 		if (serialisation != null && !serialisation.isEmpty()) {
-			for (String lineNumber : serialisation.split(STRING_SEPARATOR)) {
+			for (String lineNumber : serialisation.split(SERIALISATION_DELIMITER)) {
 				setLineBullet(Integer.parseInt(lineNumber), 1, bullet);
 			}
 		}
 	}
 
-	
 	/**
 	 * Initialises the menu triggered by a right-click inside the note.
 	 */
@@ -500,64 +489,53 @@ public class Note extends StyledText {
 	 * @param newStyle
 	 */
 	private void addStyleToSelection(TextStyle newStyle) {
-		if (!getEditable()) {
-			return;
-		}
-
 		Point selectionRange = getSelectionRange();
-		if (selectionRange.x == selectionRange.y) {
-			// Attempting to apply styles without any selected text.
-			return;
-		}
-		
-		// Save style state prior to modification for undo actions.
-		undoRedoManager.saveNoteState();
-		
-		// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
-		// there are no corresponding entries in the following array.
-		StyleRange[] currentStyles = getStyleRanges(selectionRange.x, selectionRange.y);
+		// Only attempt to apply styles if text is selected and note editable.
+		if (getEditable() && selectionRange.x != selectionRange.y) {
+			// Save style state prior to modification for undo actions.
+			undoRedoManager.saveNoteState();
 
-		StyleRange selectionStyleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null);
+			// Retrieve the current styles in the selection. If the selection (or parts of it) does not have any style,
+			// there are no corresponding entries in the following array.
+			StyleRange[] currentStyles = getStyleRanges(selectionRange.x, selectionRange.y);
+
+			StyleRange selectionStyleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null);
+			addStyleToStyleRange(newStyle, selectionStyleRange);
+			// Apply the style to the whole selection range; ranges that previously had no style and that are are not
+			// accounted for in currentStyles now have the wanted style.
+			setStyleRange(selectionStyleRange);
+
+			// The above call overwrote the previous styles; the previous styles are re-applied with the additional
+			// new one.
+			for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
+				addStyleToStyleRange(newStyle, currentStyles[styleIndex]);
+				setStyleRange(currentStyles[styleIndex]);
+			}
+		}
+	}
+
+	/**
+	 * Adds a new style to the StyleRange object.
+	 * 
+	 * @param newStyle
+	 * @param styleRange
+	 */
+	private void addStyleToStyleRange(TextStyle newStyle, StyleRange styleRange) {
 		switch (newStyle) {
 			case BOLD:
-				selectionStyleRange.fontStyle = SWT.BOLD;
+				styleRange.fontStyle |= SWT.BOLD;
 				break;
 			case ITALIC:
-				selectionStyleRange.fontStyle = SWT.ITALIC;
+				styleRange.fontStyle |= SWT.ITALIC;
 				break;
 			case UNDERLINE:
-				selectionStyleRange.underline = true;
+				styleRange.underline = true;
 				break;
 			case STRIKEOUT:
-				selectionStyleRange.strikeout = true;
+				styleRange.strikeout = true;
 				break;
 			default:
-				return;
-		}
-		// Apply the style to the whole selection range; ranges that previously had no style and that are are not
-		// accounted for in currentStyles now have the wanted style.
-		setStyleRange(selectionStyleRange);
-
-		// The above call overwrote the previous styles; the previous styles are re-applied with the additional
-		// new one.
-		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
-			switch (newStyle) {
-				case BOLD:
-					currentStyles[styleIndex].fontStyle |= SWT.BOLD;
-					break;
-				case ITALIC:
-					currentStyles[styleIndex].fontStyle |= SWT.ITALIC;
-					break;
-				case UNDERLINE:
-					currentStyles[styleIndex].underline = true;
-					break;
-				case STRIKEOUT:
-					currentStyles[styleIndex].strikeout = true;
-					break;
-				default:
-					return;
-			}
-			setStyleRange(currentStyles[styleIndex]);
+				break;
 		}
 	}
 }
