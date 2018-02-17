@@ -99,14 +99,13 @@ public class Note extends StyledText {
 		initialiseMenu();
 
 		undoRedoManager = new UndoRedoManager(this);
-		// Save the initial state of the note.
-		undoRedoManager.saveNoteState();
 		// Listen to text modifications.
 		addVerifyListener(new VerifyListener() {
 			@Override
 			public void verifyText(VerifyEvent event) {
-				// Save state if starting new word OR overwriting/deleting existing text OR pasting several characters.
-				if (" ".equals(event.text) || event.end - event.start > 0 || event.text.length() > 1) {
+				// Save state if new word OR no previously state OR overwriting existing text OR pasting several chars.
+				if (" ".equals(event.text) || undoRedoManager.isNoteStateEmpty() || event.end - event.start > 0
+						|| event.text.length() > 1) {
 					undoRedoManager.saveNoteState();
 				}
 			}

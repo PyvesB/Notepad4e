@@ -32,7 +32,7 @@ public class UndoRedoManager {
 	public UndoRedoManager(Note note) {
 		this.note = note;
 	}
-
+	
 	/**
 	 * Saves a note's state to allow undo and redo operations to be performed.
 	 */
@@ -46,6 +46,15 @@ public class UndoRedoManager {
 		if (undoDeque.size() > MAX_DEQUE_SIZES) {
 			undoDeque.pollLast();
 		}
+	}
+	
+	/**
+	 * Indicates whether the manager has no currently saved state.
+	 * 
+	 * @return true if undoDeque is empty, false otherwise
+	 */
+	public boolean isNoteStateEmpty() {
+		return undoDeque.isEmpty();
 	}
 
 	/**
