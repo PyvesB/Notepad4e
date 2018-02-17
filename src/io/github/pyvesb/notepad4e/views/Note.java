@@ -276,11 +276,11 @@ public class Note extends StyledText {
 	 * Removes all styles from the current selection.
 	 */
 	public void clearSelectionStyles() {
-		if (getEditable()) {
+		Point selectionRange = getSelectionRange();
+		if (getEditable() && selectionRange.y != 0) {
 			// Save style state prior to modification for undo actions.
 			undoRedoManager.saveNoteState();
 
-			Point selectionRange = getSelectionRange();
 			// No colors are specified as they are defined by the plugin's preferences.
 			StyleRange styleRange = new StyleRange(selectionRange.x, selectionRange.y, null, null, SWT.NORMAL);
 			setStyleRange(styleRange);
@@ -488,7 +488,7 @@ public class Note extends StyledText {
 	private void addStyleToSelection(TextStyle newStyle) {
 		Point selectionRange = getSelectionRange();
 		// Only attempt to apply styles if text is selected and note editable.
-		if (getEditable() && selectionRange.x != selectionRange.y) {
+		if (getEditable() && selectionRange.y != 0) {
 			// Save style state prior to modification for undo actions.
 			undoRedoManager.saveNoteState();
 
