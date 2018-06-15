@@ -60,6 +60,8 @@ public class LocalStrings extends NLS {
 	public static String prefRight;
 	public static String prefWrap;
 	public static String prefSaveInterval;
+	public static String prefSaveLocation;
+	public static String getDialogSettingsErrorMsg;
 
 	static {
 		// Initialise resource bundle.

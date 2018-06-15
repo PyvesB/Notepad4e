@@ -47,6 +47,7 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 				getFieldEditorParent()));
 		addField(new FontFieldEditor(Preferences.FONT, LocalStrings.prefFont, getFieldEditorParent()));
 		addField(new IntegerFieldEditor(Preferences.SAVE_INTERVAL, LocalStrings.prefSaveInterval, getFieldEditorParent()));
+		addField(new DirectoryFieldEditor(Preferences.SAVE_LOCATION, LocalStrings.prefSaveLocation, getFieldEditorParent()));
 	}
 
 	/**

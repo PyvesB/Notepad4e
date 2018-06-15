@@ -323,7 +323,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 					section.put(STORE_BULLETS_PREFIX_KEY + tabIndex, note.serialiseBullets());
 				}
 			}
-			Notepad4e.save();
+			Notepad4e.getDefault().saveDialogSettings();
 		}
 	}
 

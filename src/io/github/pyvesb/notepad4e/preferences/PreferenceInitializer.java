@@ -31,5 +31,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(Preferences.PASTE_CLIPBOARD_IN_NEW_NOTES, Preferences.PASTE_CLIPBOARD_IN_NEW_NOTES_DEFAULT);
 		store.setDefault(Preferences.BULLET_SPACING, Preferences.BULLET_SPACING_DEFAULT);
 		store.setDefault(Preferences.SAVE_INTERVAL, Preferences.SAVE_INTERVAL_DEFAULT);
+		store.setDefault(Preferences.SAVE_LOCATION, Preferences.SAVE_LOCATION_DEFAULT);
 	}
 }

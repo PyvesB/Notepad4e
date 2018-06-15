@@ -21,6 +21,7 @@ public class Preferences {
 	public static final String PASTE_CLIPBOARD_IN_NEW_NOTES = "PasteClipboardInNewNotes";
 	public static final String BULLET_SPACING = "BulletSpacing";
 	public static final String SAVE_INTERVAL = "SaveInterval";
+	public static final String SAVE_LOCATION = "SaveLocation";
 
 	// Default values of preferences.
 	public static final boolean WRAP_DEFAULT = true;
@@ -35,6 +36,7 @@ public class Preferences {
 	public static final boolean PASTE_CLIPBOARD_IN_NEW_NOTES_DEFAULT = false;
 	public static final int BULLET_SPACING_DEFAULT = 15;
 	public static final int SAVE_INTERVAL_DEFAULT = 120;
+	public static final String SAVE_LOCATION_DEFAULT = "";
 
 	private Preferences() {
 		// Not called.
