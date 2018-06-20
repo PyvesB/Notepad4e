@@ -47,9 +47,33 @@ public class Notepad4e extends AbstractUIPlugin {
 
 	@Override
 	public IDialogSettings getDialogSettings() {
-		if (dialogSettings != null) {
-			return dialogSettings;
+		if (dialogSettings == null) {
+			restoreDialogSettings();
 		}
+		return dialogSettings;
+	}
+
+	@Override
+	public void saveDialogSettings() {
+		String directory = getDialogSettingsDirectory();
+		saveDialogSettings(directory);
+	}
+
+	public void saveDialogSettings(String directory) {
+		String settingsPath;
+		if (directory == null || directory.isEmpty()) {
+			settingsPath = getStateLocation().append(FN_DIALOG_SETTINGS).toOSString();
+		} else {
+			settingsPath = directory + File.separator + FN_DIALOG_SETTINGS_CUSTOM;
+		}
+		try {
+			dialogSettings.save(settingsPath);
+		} catch (IOException | IllegalStateException e) {
+			// Ignore problems as in super.saveDialogSettings().
+		}
+	}
+
+	public void restoreDialogSettings() {
 		String directory = getDialogSettingsDirectory();
 		if (directory == null || directory.isEmpty()) {
 			dialogSettings = super.getDialogSettings();
@@ -64,27 +88,6 @@ public class Notepad4e extends AbstractUIPlugin {
 					getLog().log(new Status(IStatus.ERROR, LocalStrings.getDialogSettingsErrorMsg, e.toString()));
 					dialogSettings = super.getDialogSettings();
 				}
-			}
-		}
-		return dialogSettings;
-	}
-
-	@Override
-	public void saveDialogSettings() {
-		if (dialogSettings == null) {
-			super.saveDialogSettings();
-		} else {
-			String settingsPath;
-			String directory = getDialogSettingsDirectory();
-			if (directory == null || directory.isEmpty()) {
-				settingsPath = getStateLocation().append(FN_DIALOG_SETTINGS).toOSString();
-			} else {
-				settingsPath = directory + File.separator + FN_DIALOG_SETTINGS_CUSTOM;
-			}
-			try {
-				dialogSettings.save(settingsPath);
-			} catch (IOException | IllegalStateException e) {
-				// Ignore problems as in super.saveDialogSettings().
 			}
 		}
 	}

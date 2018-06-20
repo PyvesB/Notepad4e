@@ -139,7 +139,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 					Display.getDefault().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							savePluginState();
+							savePluginState(preferences.get(Preferences.SAVE_LOCATION, Preferences.SAVE_LOCATION_DEFAULT));
 						}
 					});
 					schedule(saveIntervalMillis);
@@ -184,6 +184,13 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 */
 	@Override
 	public void preferenceChange(PreferenceChangeEvent event) {
+		if (Preferences.SAVE_LOCATION.equals(event.getKey())) {
+			savePluginState((String) event.getOldValue());
+			// Load dialog settings using new location.
+			Notepad4e.getDefault().restoreDialogSettings();
+			// This will merge newly restored dialog settings with current state of notes.
+			restoreViewFromPreviousSession();
+		}
 		for (int tabIndex = 0; tabIndex < tabFolder.getItemCount(); ++tabIndex) {
 			getNote(tabIndex).setParametersFromPreferences();
 		}
@@ -295,15 +302,17 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		tabFolder.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
-				savePluginState();
+				savePluginState(preferences.get(Preferences.SAVE_LOCATION, Preferences.SAVE_LOCATION_DEFAULT));
 			}
 		});
 	}
 
 	/**
 	 * Saves plugin state for next Eclipse session or when reopening the view.
+	 * 
+	 * @param directory
 	 */
-	private void savePluginState() {
+	private void savePluginState(String directory) {
 		if (!tabFolder.isDisposed()) {
 			IDialogSettings section = Notepad4e.getDefault().getDialogSettings().getSection(ID);
 			section.put(STORE_COUNT_KEY, tabFolder.getItemCount());
@@ -323,7 +332,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 					section.put(STORE_BULLETS_PREFIX_KEY + tabIndex, note.serialiseBullets());
 				}
 			}
-			Notepad4e.getDefault().saveDialogSettings();
+			Notepad4e.getDefault().saveDialogSettings(directory);
 		}
 	}
 
@@ -480,7 +489,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			numOfTabs = Integer.parseInt(numOfTabsString);
 		}
 
-		if (numOfTabs == 0) {
+		if (numOfTabs == 0 && tabFolder.getItemCount() == 0) {
 			// No notes were previously opened: create new one.
 			String prefixName = preferences.get(Preferences.NAME_PREFIX, Preferences.NAME_PREFIX_DEFAULT);
 			addNewNoteTab(prefixName + " 1", "", null, true, null);
