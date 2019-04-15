@@ -17,15 +17,6 @@ import org.eclipse.ui.IWorkbench;
 public class PreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	/**
-	 * Constructor. Initialises the preference page.
-	 */
-	public PreferencePage() {
-		super(GRID);
-		setPreferenceStore(Notepad4e.getDefault().getPreferenceStore());
-		setDescription(LocalStrings.prefDesc);
-	}
-
-	/**
 	 * Creates the field editors corresponding to the different preferences.
 	 */
 	@Override
@@ -54,6 +45,8 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 	 * Initialises the preference page.
 	 */
 	@Override
-	public void init(IWorkbench workbench) {}
-
+	public void init(IWorkbench workbench) {
+		setPreferenceStore(Notepad4e.getDefault().getPreferenceStore());
+		setDescription(LocalStrings.prefDesc);
+	}
 }
