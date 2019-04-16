@@ -27,7 +27,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.Geometry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabFolder2Listener;
+import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.dnd.Clipboard;
@@ -37,10 +37,10 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.DragDetectEvent;
 import org.eclipse.swt.events.DragDetectListener;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.program.Program;
@@ -340,7 +340,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Displays a confirmation dialog when closing a note tab, if enabled in preferences.
 	 */
 	private void addCloseTabListener() {
-		tabFolder.addCTabFolder2Listener(new CTabFolder2Listener() {
+		tabFolder.addCTabFolder2Listener(new CTabFolder2Adapter() {
 			@Override
 			public void close(CTabFolderEvent event) {
 				// Selected tab may not be the one being closed, the one provided by the event must be used.
@@ -352,18 +352,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 							LocalStrings.dialogCloseMsg);
 				}
 			}
-
-			@Override
-			public void minimize(CTabFolderEvent event) {}
-
-			@Override
-			public void maximize(CTabFolderEvent event) {}
-
-			@Override
-			public void restore(CTabFolderEvent event) {}
-
-			@Override
-			public void showList(CTabFolderEvent event) {}
 		});
 	}
 
@@ -371,7 +359,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Allows to rename a tab when user double clicks on its title.
 	 */
 	private void addRenameTabListener() {
-		tabFolder.addMouseListener(new MouseListener() {
+		tabFolder.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent event) {
 				CTabItem clickedTab = tabFolder.getItem(new Point(event.x, event.y));
@@ -397,12 +385,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 					}
 				}
 			}
-
-			@Override
-			public void mouseUp(MouseEvent event) {}
-
-			@Override
-			public void mouseDown(MouseEvent event) {}
 		});
 	}
 
@@ -450,7 +432,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Listens for tab selections and displays or removes lock symbol when a locked tab is selected.
 	 */
 	private void addTabSelectionListener() {
-		tabFolder.addSelectionListener(new SelectionListener() {
+		tabFolder.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				// Remove lock symbols from all tabs.
@@ -466,9 +448,6 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 					selectedTab.setText(LOCK_PREFIX + selectedTab.getText());
 				}
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {}
 		});
 	}
 

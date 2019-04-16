@@ -15,6 +15,8 @@ import org.eclipse.swt.custom.Bullet;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Color;
@@ -32,7 +34,6 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import io.github.pyvesb.notepad4e.Notepad4e;
 import io.github.pyvesb.notepad4e.preferences.Preferences;
 import io.github.pyvesb.notepad4e.strings.LocalStrings;
-import io.github.pyvesb.notepad4e.utils.AbstractMenuItemSelectionListener;
 import io.github.pyvesb.notepad4e.utils.UndoRedoManager;
 
 /**
@@ -428,51 +429,51 @@ public class Note extends StyledText {
 		Menu menu = new Menu(getShell(), SWT.POP_UP);
 		menuItemUndo = new MenuItem(menu, SWT.NONE);
 		menuItemUndo.setText(LocalStrings.menuUndo);
-		menuItemUndo.addSelectionListener(new AbstractMenuItemSelectionListener() {
+		menuItemUndo.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void onNoteMenuItemSelected() {
+			public void widgetSelected(SelectionEvent event) {
 				undo();
 			}
 		});
 		menuItemRedo = new MenuItem(menu, SWT.NONE);
 		menuItemRedo.setText(LocalStrings.menuRedo);
-		menuItemRedo.addSelectionListener(new AbstractMenuItemSelectionListener() {
+		menuItemRedo.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void onNoteMenuItemSelected() {
+			public void widgetSelected(SelectionEvent event) {
 				redo();
 			}
 		});
 		menuItemSeparator1 = new MenuItem(menu, SWT.SEPARATOR);
 		menuItemCut = new MenuItem(menu, SWT.NONE);
 		menuItemCut.setText(LocalStrings.menuCut);
-		menuItemCut.addSelectionListener(new AbstractMenuItemSelectionListener() {
+		menuItemCut.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void onNoteMenuItemSelected() {
+			public void widgetSelected(SelectionEvent event) {
 				cut();
 			}
 		});
 		menuItemCopy = new MenuItem(menu, SWT.NONE);
 		menuItemCopy.setText(LocalStrings.menuCopy);
-		menuItemCopy.addSelectionListener(new AbstractMenuItemSelectionListener() {
+		menuItemCopy.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void onNoteMenuItemSelected() {
+			public void widgetSelected(SelectionEvent event) {
 				copy();
 			}
 		});
 		menuItemPaste = new MenuItem(menu, SWT.NONE);
 		menuItemPaste.setText(LocalStrings.menuPaste);
-		menuItemPaste.addSelectionListener(new AbstractMenuItemSelectionListener() {
+		menuItemPaste.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void onNoteMenuItemSelected() {
+			public void widgetSelected(SelectionEvent event) {
 				paste();
 			}
 		});
 		menuItemSeparator2 = new MenuItem(menu, SWT.SEPARATOR);
 		menuItemSelectAll = new MenuItem(menu, SWT.NONE);
 		menuItemSelectAll.setText(LocalStrings.menuSelectAll);
-		menuItemSelectAll.addSelectionListener(new AbstractMenuItemSelectionListener() {
+		menuItemSelectAll.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void onNoteMenuItemSelected() {
+			public void widgetSelected(SelectionEvent event) {
 				selectAll();
 			}
 		});
