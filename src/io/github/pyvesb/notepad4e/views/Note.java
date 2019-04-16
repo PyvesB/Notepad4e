@@ -361,7 +361,8 @@ public class Note extends StyledText {
 			} catch (IOException e) {
 				MessageDialog.openInformation(iWorkbenchPartSite.getShell(), LocalStrings.dialogErrorTitle,
 						LocalStrings.dialogErrorMsg);
-				Notepad4e.getDefault().getLog().log(new Status(IStatus.ERROR, LocalStrings.dialogErrorMsg, e.toString()));
+				Notepad4e.getDefault().getLog()
+						.log(new Status(IStatus.ERROR, Notepad4e.PLUGIN_ID, LocalStrings.dialogErrorMsg, e));
 			}
 		}
 	}

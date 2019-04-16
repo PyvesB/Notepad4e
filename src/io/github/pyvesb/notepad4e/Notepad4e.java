@@ -85,7 +85,7 @@ public class Notepad4e extends AbstractUIPlugin {
 				try {
 					dialogSettings.load(settingsPath);
 				} catch (IOException e) {
-					getLog().log(new Status(IStatus.ERROR, LocalStrings.getDialogSettingsErrorMsg, e.toString()));
+					getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, LocalStrings.getDialogSettingsErrorMsg, e));
 					dialogSettings = super.getDialogSettings();
 				}
 			}
