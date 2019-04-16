@@ -28,17 +28,15 @@
 
 # Features at a glance
 
-* Create as many notes as you like in a separate Eclipse view.
-* Modify the style of the text (font, colour, bold, italic, underlined, strikeout, etc.).
-* Customise the appearance of the plugin.
-* Create lists of elements.
-* Automatically save the contents of your notes between workspace launches.
+* Create as many notes as you like in a dedicated Eclipse view.
+* Modify the text style (font, color, bold, italic, underlined, strikeout, etc.).
+* Customise the appearance and functionality of the plugin via its preference page.
+* Create lists of text elements.
+* Automatically save the contents of your notes to a default or custom location.
 * Use editable shortcuts to boost your productivity.
 * Export notes as text files.
-* Lightweight and user-friendly.
-* No user tracking, no ads.
+* Lightweight and user-friendly interface.
 * Source code fully available.
-* Available in English and French.
 * More to discover and to come in future updates!
 
 Check out what's new in the [latest releases](https://github.com/PyvesB/Notepad4e/releases)!
