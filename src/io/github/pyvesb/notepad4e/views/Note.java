@@ -17,8 +17,6 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -101,14 +99,11 @@ public class Note extends StyledText {
 
 		undoRedoManager = new UndoRedoManager(this);
 		// Listen to text modifications.
-		addVerifyListener(new VerifyListener() {
-			@Override
-			public void verifyText(VerifyEvent event) {
-				// Save state if new word OR no previously state OR overwriting existing text OR pasting several chars.
-				if (" ".equals(event.text) || undoRedoManager.isNoteStateEmpty() || event.end - event.start > 0
-						|| event.text.length() > 1) {
-					undoRedoManager.saveNoteState();
-				}
+		addVerifyListener(event -> {
+			// Save state if new word OR no previously state OR overwriting existing text OR pasting several chars.
+			if (" ".equals(event.text) || undoRedoManager.isNoteStateEmpty() || event.end - event.start > 0
+					|| event.text.length() > 1) {
+				undoRedoManager.saveNoteState();
 			}
 		});
 
@@ -309,14 +304,14 @@ public class Note extends StyledText {
 		StyleRange[] currentStyles = getStyleRanges();
 		// Append integers corresponding to various information of each style range object, separated by
 		// STRING_SEPARATOR.
-		for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
-			styleSerialisation.append(currentStyles[styleIndex].start).append(SERIALISATION_DELIMITER);
-			styleSerialisation.append(currentStyles[styleIndex].length).append(SERIALISATION_DELIMITER);
-			styleSerialisation.append(currentStyles[styleIndex].fontStyle).append(SERIALISATION_DELIMITER);
+		for (StyleRange currentStyle : currentStyles) {
+			styleSerialisation.append(currentStyle.start).append(SERIALISATION_DELIMITER);
+			styleSerialisation.append(currentStyle.length).append(SERIALISATION_DELIMITER);
+			styleSerialisation.append(currentStyle.fontStyle).append(SERIALISATION_DELIMITER);
 			// If underlined, 1, else 0.
-			styleSerialisation.append(currentStyles[styleIndex].underline ? 1 : 0).append(SERIALISATION_DELIMITER);
+			styleSerialisation.append(currentStyle.underline ? 1 : 0).append(SERIALISATION_DELIMITER);
 			// If strikeout, 1, else 0.
-			styleSerialisation.append(currentStyles[styleIndex].strikeout ? 1 : 0).append(SERIALISATION_DELIMITER);
+			styleSerialisation.append(currentStyle.strikeout ? 1 : 0).append(SERIALISATION_DELIMITER);
 		}
 		return styleSerialisation.toString();
 	}
@@ -504,9 +499,9 @@ public class Note extends StyledText {
 
 			// The above call overwrote the previous styles; the previous styles are re-applied with the additional
 			// new one.
-			for (int styleIndex = 0; styleIndex < currentStyles.length; ++styleIndex) {
-				addStyleToStyleRange(newStyle, currentStyles[styleIndex]);
-				setStyleRange(currentStyles[styleIndex]);
+			for (StyleRange currentStyle : currentStyles) {
+				addStyleToStyleRange(newStyle, currentStyle);
+				setStyleRange(currentStyle);
 			}
 		}
 	}

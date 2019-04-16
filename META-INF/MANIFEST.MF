@@ -6,7 +6,7 @@ Bundle-Version: 1.5.1
 Bundle-Activator: io.github.pyvesb.notepad4e.Notepad4e
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: OSGI-INF/l10n/bundle
 Export-Package: io.github.pyvesb.notepad4e,

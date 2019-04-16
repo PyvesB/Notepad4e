@@ -33,10 +33,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.DragDetectEvent;
-import org.eclipse.swt.events.DragDetectListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -46,8 +42,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tracker;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.PlatformUI;
@@ -136,12 +130,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 			new Job("ScheduledAutosave") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
-					Display.getDefault().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							savePluginState(preferences.get(Preferences.SAVE_LOCATION, Preferences.SAVE_LOCATION_DEFAULT));
-						}
-					});
+					Display.getDefault().asyncExec(() -> savePluginState(preferences.get(Preferences.SAVE_LOCATION,
+							Preferences.SAVE_LOCATION_DEFAULT)));
 					schedule(saveIntervalMillis);
 					return Status.OK_STATUS;
 				}
@@ -299,12 +289,8 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Listens to disposal of the tab folder and saves state for next Eclipse session or when reopening the view.
 	 */
 	private void addPluginDisposeListener() {
-		tabFolder.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent event) {
-				savePluginState(preferences.get(Preferences.SAVE_LOCATION, Preferences.SAVE_LOCATION_DEFAULT));
-			}
-		});
+		tabFolder.addDisposeListener(event -> savePluginState(preferences.get(Preferences.SAVE_LOCATION,
+				Preferences.SAVE_LOCATION_DEFAULT)));
 	}
 
 	/**
@@ -392,39 +378,33 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 	 * Swaps two tabs and corresponding notes when a user drags one to another.
 	 */
 	private void addSwapTabListener() {
-		tabFolder.addDragDetectListener(new DragDetectListener() {
-			@Override
-			public void dragDetected(DragDetectEvent dragDetectedEvent) {
-				final Rectangle viewRectangle = Geometry.toDisplay(tabFolder.getParent(), tabFolder.getBounds());
-				final Tracker tracker = new Tracker(tabFolder, SWT.NONE);
-				tracker.setStippled(true);
-				tracker.addListener(SWT.Move, new Listener() {
-					@Override
-					public void handleEvent(Event event) {
-						Point location = new Point(event.x - viewRectangle.x, event.y - viewRectangle.y);
-						CTabItem tabAtLocation = tabFolder.getItem(location);
-						if (tabAtLocation != null) {
-							// Move tracker to follow mouse cursor.
-							tracker.setRectangles(new Rectangle[] { tabAtLocation.getBounds() });
-						} else {
-							// Mouse cursor no longer above any tab in the action bar, hide tacker.
-							tracker.setRectangles(new Rectangle[0]);
-						}
-					}
-				});
-				if (tracker.open()) {
-					Rectangle[] rectangles = tracker.getRectangles();
-					if (rectangles.length > 0) {
-						CTabItem tabToSwap = tabFolder.getItem(new Point(rectangles[0].x, rectangles[0].y));
-						// Swap selected tab with the one situated at the mouse cursor's position.
-						if (tabToSwap != null) {
-							swapNoteTabs(tabFolder.indexOf(tabToSwap));
-						}
+		tabFolder.addDragDetectListener(dragDetectedEvent -> {
+			Rectangle viewRectangle = Geometry.toDisplay(tabFolder.getParent(), tabFolder.getBounds());
+			Tracker tracker = new Tracker(tabFolder, SWT.NONE);
+			tracker.setStippled(true);
+			tracker.addListener(SWT.Move, event -> {
+				Point location = new Point(event.x - viewRectangle.x, event.y - viewRectangle.y);
+				CTabItem tabAtLocation = tabFolder.getItem(location);
+				if (tabAtLocation != null) {
+					// Move tracker to follow mouse cursor.
+					tracker.setRectangles(new Rectangle[] { tabAtLocation.getBounds() });
+				} else {
+					// Mouse cursor no longer above any tab in the action bar, hide tacker.
+					tracker.setRectangles(new Rectangle[0]);
+				}
+			});
+			if (tracker.open()) {
+				Rectangle[] rectangles = tracker.getRectangles();
+				if (rectangles.length > 0) {
+					CTabItem tabToSwap = tabFolder.getItem(new Point(rectangles[0].x, rectangles[0].y));
+					// Swap selected tab with the one situated at the mouse cursor's position.
+					if (tabToSwap != null) {
+						swapNoteTabs(tabFolder.indexOf(tabToSwap));
 					}
 				}
-				tracker.close();
-				tracker.dispose();
 			}
+			tracker.close();
+			tracker.dispose();
 		});
 	}
 
@@ -508,12 +488,9 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		CTabItem tab = new CTabItem(tabFolder, SWT.NONE);
 		tab.setText(title);
 		// Add listener to clean up corresponding note when disposing the tab.
-		tab.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent event) {
-				CTabItem itemToDispose = (CTabItem) event.getSource();
-				((Note) itemToDispose.getControl()).dispose();
-			}
+		tab.addDisposeListener(event -> {
+			CTabItem itemToDispose = (CTabItem) event.getSource();
+			((Note) itemToDispose.getControl()).dispose();
 		});
 		Note note = new Note(tabFolder, text, style, bullets, editable);
 		tab.setControl(note);
