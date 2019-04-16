@@ -127,7 +127,7 @@ public class NotepadView extends ViewPart implements IPreferenceChangeListener {
 		saveIntervalMillis = TimeUnit.SECONDS
 				.toMillis(preferences.getInt(Preferences.SAVE_INTERVAL, Preferences.SAVE_INTERVAL_DEFAULT));
 		if (saveIntervalMillis >= 0) {
-			new Job("ScheduledAutosave") {
+			new Job("Notepad4e scheduled autosave") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					Display.getDefault().asyncExec(() -> savePluginState(preferences.get(Preferences.SAVE_LOCATION,
