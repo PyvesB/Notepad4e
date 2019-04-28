@@ -1,6 +1,6 @@
 {
   "name": "Notepad4e",
-  "tagline": "An upcoming notepad plugin for the Eclipse IDE.",
+  "tagline": "A customisable notepad plugin for the Eclipse IDE.",
   "body": "### Welcome to the Notepad4e update site!\r\nIt is recommended to download and install the plugin via the Eclipse Marketplace, but you can select *Help* -> *Install New Software* -> *Add...* and enter the address of this webpage in the *Location* field. Click *OK*, select the Notepad4e plugin that appears in the list and move on with the installation!\r\n\r\n### Help, feature requests and issues\r\nSimply head to the [issues](https://github.com/PyvesB/Notepad4e/issues) section and open a new issue. For more general information, simply go to the project [home](https://github.com/PyvesB/Notepad4e).\r\n",
   "note": "Don't delete this file! It's used internally to help with page regeneration."
 }
