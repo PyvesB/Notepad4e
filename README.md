@@ -21,7 +21,7 @@
 **Create highly customisable notes in Eclipse, and never lose track of your thoughts, ideas or code snippets!**
 
 <p align="center" style="font-size:5px">
-<img src ="http://images.jupload.fr/1492464956.png" />
+<img src ="https://github.com/PyvesB/Notepad4e/blob/master/screenshot.png?raw=true" />
 <br />
 <i><sub>A simple example of how the plugin can be used and customised. You have countless possibilities!</sub></i>
 </p>
