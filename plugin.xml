@@ -23,7 +23,7 @@
             id="Notepad4e">
       </category>
       <view
-            name="Notepad4e"
+            name="Notepad"
             icon="/icons/note.png"
             category="Notepad4e"
             class="io.github.pyvesb.notepad4e.views.NotepadView"
